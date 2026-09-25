@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جزوه جامع فارسی ششم دبستان</title>
+
+<style>
+/* ==================== تعریف فونت‌ها ==================== */
+@font-face {
+    font-family: 'B Nazanin';
+    src: url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazanin.eot');
+    src: url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazanin.eot?#iefix') format('embedded-opentype'),
+         url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazanin.woff2') format('woff2'),
+         url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazanin.woff') format('woff'),
+         url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazanin.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'B Nazanin';
+    src: url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazaninBold.eot');
+    src: url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazaninBold.eot?#iefix') format('embedded-opentype'),
+         url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazaninBold.woff2') format('woff2'),
+         url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazaninBold.woff') format('woff'),
+         url('https://cdn.fontcdn.ir/fonts/BNazanin/BNazaninBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'B Titr';
+    src: url('https://cdn.fontcdn.ir/fonts/BTitr/BTitr.eot');
+    src: url('https://cdn.fontcdn.ir/fonts/BTitr/BTitr.eot?#iefix') format('embedded-opentype'),
+         url('https://cdn.fontcdn.ir/fonts/BTitr/BTitr.woff2') format('woff2'),
+         url('https://cdn.fontcdn.ir/fonts/BTitr/BTitr.woff') format('woff'),
+         url('https://cdn.fontcdn.ir/fonts/BTitr/BTitr.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* ==================== تنظیمات کلی ==================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 12pt; }
+body {
+    font-family: 'B Nazanin', 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.65;
+    color: #2c2c2c;
+    direction: rtl;
+    text-align: right;
+    background: #fff;
+}
+
+/* ==================== تنظیمات چاپ A4 ==================== */
+@page { size: A4; margin: 1.1cm 0.8cm; }
+@media print {
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin: 0; padding: 0; background: #fff; }
+    h1.section-title { page-break-before: always; }
+    .box, .box-green, .box-yellow, .box-blue, .box-pink, .box-orange,
+    .note, .important, .verse, table, .qbox { page-break-inside: avoid; }
+    thead { display: table-header-group; }
+    .watermark-container {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 9999; pointer-events: none;
+    }
+}
+
+/* ==================== واترمارک ۳×۳ ==================== */
+.watermark-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9999; pointer-events: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+.watermark-text {
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    font-size: 18pt;
+    color: rgba(106, 27, 154, 0.08);
+    transform: rotate(-35deg);
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-user-select: none;
+}
+
+/* ==================== تیترها ==================== */
+h1.section-title {
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    font-size: 14pt; color: #ffffff;
+    background-color: #6a1b9a;
+    text-align: center; padding: 8pt 16pt;
+    border-radius: 6pt; margin: 0 0 14pt 0;
+    page-break-before: always; page-break-after: avoid;
+}
+h1.section-title:first-of-type { page-break-before: auto; }
+h2.chapter-title {
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    font-size: 12pt; color: #4a148c;
+    border-right: 4px solid #9c27b0;
+    padding-right: 10pt; margin: 14pt 0 8pt 0;
+    page-break-after: avoid;
+}
+h3.lesson-title {
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    font-size: 11pt; color: #4a148c;
+    background-color: #f3e5f5;
+    padding: 5pt 10pt; border-radius: 4pt;
+    margin: 10pt 0 6pt 0; page-break-after: avoid;
+}
+h4 {
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    font-size: 10pt; color: #4a148c;
+    margin: 8pt 0 4pt 0; page-break-after: avoid;
+}
+
+/* ==================== باکس‌ها ==================== */
+.box, .box-green, .box-yellow, .box-blue, .box-pink, .box-orange,
+.note, .important, .qbox {
+    padding: 8pt 10pt; border-radius: 6pt; margin: 8pt 0;
+    page-break-inside: avoid;
+}
+.box { border: 1.5pt solid #ce93d8; background-color: #fdf7ff; }
+.box-green { border: 1.5pt solid #a5d6a7; background-color: #f5fff5; }
+.box-yellow { border: 1.5pt solid #ffe082; background-color: #fffdf5; }
+.box-blue { border: 1.5pt solid #90caf9; background-color: #f5faff; }
+.box-pink { border: 1.5pt solid #f48fb1; background-color: #fff5f8; }
+.box-orange { border: 1.5pt solid #ffcc80; background-color: #fffaf2; }
+.note {
+    background-color: #fff9c4;
+    border-right: 4px solid #fbc02d;
+    border-radius: 0 6pt 6pt 0;
+}
+.important {
+    background-color: #ffebee;
+    border-right: 4px solid #e53935;
+    border-radius: 0 6pt 6pt 0;
+}
+.qbox {
+    border: 1.5pt dashed #9c27b0;
+    background-color: #faf5ff;
+    border-radius: 6pt;
+}
+
+/* ==================== جداول ==================== */
+table {
+    width: 100%; border-collapse: collapse;
+    margin: 10pt 0; page-break-inside: avoid;
+    font-size: 10pt;
+}
+table th {
+    background-color: #ede7f6; color: #4a148c;
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    font-weight: normal; padding: 6pt 8pt;
+    border: 0.75pt solid #b39ddb; text-align: center;
+}
+table td {
+    padding: 5pt 8pt;
+    border: 0.75pt solid #b39ddb;
+    text-align: center; color: #2c2c2c;
+}
+table tbody tr:nth-child(odd) { background-color: #ffffff; }
+table tbody tr:nth-child(even) { background-color: #faf7ff; }
+table thead { display: table-header-group; }
+
+/* ==================== اشعار ==================== */
+.verse {
+    background-color: #f3e5f5;
+    border: 1pt dashed #ce93d8;
+    border-radius: 6pt; text-align: center;
+    font-size: 10pt; line-height: 1.8;
+    padding: 10pt 14pt; margin: 10pt 0;
+    page-break-inside: avoid;
+}
+.verse p { margin: 2pt 0; text-align: center; }
+.verse .poet {
+    font-size: 9pt; color: #6a1b9a;
+    margin-top: 6pt;
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+}
+
+/* ==================== هایلایت ==================== */
+.hl { background-color: #fff9c4; padding: 1pt 3pt; border-radius: 2pt; }
+.hl-green { background-color: #c8e6c9; padding: 1pt 3pt; border-radius: 2pt; }
+.hl-pink { background-color: #f8bbd0; padding: 1pt 3pt; border-radius: 2pt; }
+
+/* ==================== چیدمان دو ستونی ==================== */
+.two-col { display: flex; gap: 12pt; page-break-inside: avoid; }
+.two-col > * { flex: 1; }
+
+/* ==================== سایر ==================== */
+p { margin: 4pt 0; text-align: justify; }
+ul, ol { margin: 4pt 0; padding-right: 18pt; }
+li { margin-bottom: 2pt; }
+.footer-note {
+    font-size: 9pt; color: #888; text-align: center;
+    margin-top: 20pt; border-top: 0.5pt solid #ddd;
+    padding-top: 6pt;
+}
+.formula {
+    font-family: 'B Titr', 'B Nazanin', sans-serif;
+    background: #ede7f6; padding: 6pt 10pt;
+    border-radius: 4pt; color: #4a148c;
+    display: inline-block; margin: 4pt 0;
+}
+.story-text { text-align: justify; line-height: 1.8; }
+.story-text p { margin: 5pt 0; }
+</style>
+</head>
+<body>
+
+<!-- ==================== واترمارک ==================== -->
+<div class="watermark-container" aria-hidden="true">
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+    <div class="watermark-text">دیانتی ۰۹۱۶۵۱۶۲۱۶۶</div>
+</div>
+
+<div class="container">
+
+<!-- ================================================================ -->
+<!-- ستایش -->
+<!-- ================================================================ -->
+<h1 class="section-title">ستایش: به نام آن که جان را فکرت آموخت</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه‌ی شعر</h4>
+    <p><strong>شاعر:</strong> شیخ محمود شبستری | <strong>کتاب:</strong> گلشن راز | <strong>قالب:</strong> مثنوی | <strong>پیام:</strong> ستایش پروردگار</p>
+</div>
+
+<h3 class="lesson-title">متن ابیات</h3>
+<div class="verse">
+    <p>به نام آن که جان را فکرت آموخت / چراغ دل به نور جان برافروخت</p>
+    <p>ز فضلش هر دو عالم گشت روشن / ز فیضش خاک آدم گشت گلشن</p>
+    <p>جهان جمله فروغ نور حق دان / حق اندر وی ز پیدایی است پنهان</p>
+    <p>خرد را نیست تاب نور آن روی / برو از بهر او چشم دگر جوی</p>
+    <p>در او هرچه بگفتند از کم و بیش / نشانی داده‌اند از دیده‌ی خویش</p>
+    <p>به نزد آنکه جانش در تجلی است / همه عالم کتاب حق تعالی است</p>
+    <p class="poet">شیخ محمود شبستری</p>
+</div>
+
+<div class="two-col">
+    <div class="box">
+        <h4>معنی بیت ۱</h4>
+        <p>به نام آن خدایی که به جان آدمی راه اندیشیدن را آموخته است و با بخشیدن جان به انسان، دل انسان را با نور روحانی روشن کرده است.</p>
+        <p><strong>آرایه‌ها:</strong> تشبیه (چراغ دل و نور جان)؛ تناسب (دل و جان، فکر و جان).</p>
+    </div>
+    <div class="box">
+        <h4>معنی بیت ۲</h4>
+        <p>از بخشش خداوند هر دو عالم نورانی شده است؛ از فیض و لطف الهی جسم خاکی آدم به گلشنی با طراوت درآمد.</p>
+        <p><strong>آرایه:</strong> کنایه (خاک آدم گلشن شدن = شاداب شدن).</p>
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="box">
+        <h4>معنی بیت ۳</h4>
+        <p>جهان را فروغ و روشنی نور خدا بدان. خداوند از شدت پیدا بودن در همه چیز، از نگاه ما پنهان است.</p>
+        <p><strong>آرایه‌ها:</strong> تضاد (پیدا و پنهان)؛ تناسب (فروغ و نور).</p>
+    </div>
+    <div class="box">
+        <h4>معنی بیت ۴</h4>
+        <p>عقل ما گنجایش دیدن خدا را ندارد. باید برای درک خداوند راه دیگری جست و به آثار او توجه کرد.</p>
+        <p><strong>آرایه‌ها:</strong> کنایه (تاب نداشتن = عجز)؛ تشخیص (برای خرد تاب نیست).</p>
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="box">
+        <h4>معنی بیت ۵</h4>
+        <p>درباره‌ی خداوند هر چیزی چه کم و چه زیاد گفته‌اند، تنها از نظر و دیدگاه خود حرف زده‌اند.</p>
+        <p><strong>آرایه:</strong> تضاد (کم و بیش).</p>
+    </div>
+    <div class="box">
+        <h4>معنی بیت ۶</h4>
+        <p>از نظر کسی که روحش جلوه‌گر (آگاه) است، همه‌ی جهان هستی مانند کتابی برای شناخت خداست.</p>
+        <p><strong>آرایه:</strong> تشبیه (عالم به کتاب).</p>
+    </div>
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات</h4>
+    <p>شیخ محمود شبستری از عارفان و شاعران سده‌ی هشتم هجری است. مثنوی <strong>گلشن راز</strong> مهم‌ترین و پرآوازه‌ترین اثر اوست که حدود هزار بیت دارد.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>فضل</td><td>بخشش، نیکویی، کمال</td><td>فاضل، فضیلت، افضل</td><td>بخل</td></tr>
+        <tr><td>فیض</td><td>برکت، لطف، عنایت</td><td>فیاض، مستفیض، فیوض</td><td>منع</td></tr>
+        <tr><td>تجلی</td><td>آشکار شدن، ظهور</td><td>متجلی، جلا، جلوه</td><td>خفا</td></tr>
+        <tr><td>تعالی</td><td>خداوند بلندمرتبه</td><td>متعال، اعلی، عالی</td><td>دنی</td></tr>
+        <tr><td>عالم</td><td>جهان، هستی</td><td>عالمیان، عالمین</td><td>—</td></tr>
+        <tr><td>حق</td><td>خداوند، راست</td><td>حقیقت، تحقیق، محقق</td><td>باطل</td></tr>
+        <tr><td>نور</td><td>روشنایی</td><td>انوار، منور، نورانی</td><td>ظلمت</td></tr>
+        <tr><td>کتاب</td><td>مجموعه نوشتار</td><td>کاتب، مکتوب، کتیبه</td><td>—</td></tr>
+        <tr><td>خرد</td><td>عقل، بینش، تدبیر</td><td>خردمند، خردورز</td><td>جهل</td></tr>
+        <tr><td>تاب</td><td>توانایی، طاقت</td><td>تاب آوردن</td><td>ناتوانی</td></tr>
+        <tr><td>گلشن</td><td>بوستان، گلزار</td><td>گل، گلستان</td><td>بیابان</td></tr>
+        <tr><td>فروغ</td><td>روشنایی، نور</td><td>فروزان، فروغی</td><td>تاریکی</td></tr>
+        <tr><td>اندر</td><td>در آن، در</td><td>—</td><td>—</td></tr>
+        <tr><td>دیده</td><td>چشم</td><td>دید، بینش</td><td>—</td></tr>
+        <tr><td>جان</td><td>روح، روان، نفس</td><td>جانان، جانانه</td><td>تن</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> پیدا ≠ پنهان | روشن ≠ تاریک | کم ≠ زیاد، بیش | برافروخت ≠ خاموش کرد
+</div>
+
+<div class="important">
+    <strong>کلمات املایی مهم:</strong> چراغ، فضل، فیض، گلشن، فروغ، تاب، خویش، تجلی، دیده، عالم، تعالی، فکرت
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> قالب شعر ستایش چیست؟</p>
+    <p>الف) غزل &nbsp;&nbsp; ب) مثنوی &nbsp;&nbsp; ج) قصیده &nbsp;&nbsp; د) قطعه</p>
+    <p><strong>پاسخ:</strong> ب) مثنوی</p>
+    <p><strong>۲. جای خالی:</strong> به نام آن که جان را .................. آموخت / چراغ دل به نور جان ..................</p>
+    <p><strong>۳. درک مطلب:</strong> منظور از «همه عالم کتاب حق تعالی است» چیست؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «ز فضلش هر دو عالم گشت روشن» کدام آرایه وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> شکل صحیح واژه‌های «فضیلت، تجلی، فکرت» را بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس اول -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس اول: معرفت آفریدگار</h1>
+
+<h3 class="lesson-title">متن و معنی نثر درس</h3>
+<div class="box">
+    <p>«این همه خلق را که شما بینید بدین چندین بسیاری، این همه را خالقی است که آفریدگار ایشان است و نعمت بر ایشان از وی است؛ آفریدگار را بباید پرستیدن و بر نعمت او سپاس‌داری باید کردن.»</p>
+    <p><strong>معنی:</strong> تمام این آفریده‌هایی که می‌بینید، همگی آفریننده‌ای دارند و نعمت‌ها از اوست. پس باید آفریدگار را اطاعت کرد و سپاسگزاری نمود.</p>
+</div>
+
+<div class="box">
+    <p>«اندیشه کردن اندر کار خالق و مخلوق روشنایی افزاید اندر دل، و غفلت از این و نااندیشیدن، تاریکی افزاید اندر دل، و نادانی و گمراهی است.»</p>
+    <p><strong>معنی:</strong> تفکر در آفریننده و آفریده‌هایش باعث بینایی و آگاهی روح می‌شود و فراموش کردن، باعث سیاه شدن دل و گمراهی می‌شود.</p>
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: ابوعلی بلعمی</h4>
+    <p>ابوعلی محمد بن عبدالله بلعمی، وزیر سرشناس امیر نصر سامانی در قرن ۴ هجری بود. او کتاب تاریخ طبری را به فارسی ترجمه کرد که به نام <strong>تاریخ بلعمی</strong> مشهور است. نثر آن ساده و روان است.</p>
+</div>
+
+<h3 class="lesson-title">شعر: باد بهاری (سعدی شیرازی)</h3>
+<div class="verse">
+    <p>باد بهاری وزید از طرف مرغزار / باز به گردون رسید ناله‌ی هر مرغ زار</p>
+    <p>خیز و غنیمت شمار، جنبش باد ربیع / ناله‌ی موزون مرغ، بوی خوش لاله‌زار</p>
+    <p>هر گل و برگی که هست یاد خدا می‌کند / بلبل و قمری چه خواند؟ یاد خداوندگار</p>
+    <p>برگ درختان سبز در نظر هوشیار / هر ورقش دفتری‌ست، معرفت کردگار</p>
+    <p class="poet">سعدی شیرازی | قالب: غزل</p>
+</div>
+
+<div class="box">
+    <h4>تحلیل و آرایه‌ها</h4>
+    <ul>
+        <li><strong>تشخیص:</strong> ناله‌ی مرغ؛ ذکر گفتن گل و برگ.</li>
+        <li><strong>تشبیه:</strong> برگ درختان سبز = دفتر معرفت.</li>
+        <li><strong>تناسب:</strong> بهاری، مرغزار، گردون، مرغ.</li>
+        <li><strong>تلمیح:</strong> اشاره به آیات قرآن.</li>
+    </ul>
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: سعدی شیرازی</h4>
+    <p>شیخ مصلح‌الدین سعدی شیرازی، شاعر و نویسنده قرن هفتم هجری. آثار: <strong>بوستان</strong> (نظم، مثنوی، ۱۰ باب)، <strong>گلستان</strong> (نثر مسجع، ۸ باب)، <strong>کلیات سعدی</strong>.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>خلق</td><td>مردم، آفریده</td><td>خالق، مخلوق، خلقت</td><td>—</td></tr>
+        <tr><td>ربیع</td><td>بهار</td><td>مربع، رابع، ربع</td><td>پاییز</td></tr>
+        <tr><td>موزون</td><td>آهنگین، باوزن</td><td>وزن، اوزان، وزین</td><td>ناموزون</td></tr>
+        <tr><td>غفلت</td><td>بی‌خبری، فراموشی</td><td>غافل، مغفول</td><td>آگاهی</td></tr>
+        <tr><td>معرفت</td><td>شناخت، دانش</td><td>عارف، معروف، تعریف</td><td>جهل</td></tr>
+        <tr><td>کردگار</td><td>آفریننده</td><td>کردار، کردگاری</td><td>مخلوق</td></tr>
+        <tr><td>مرغزار</td><td>چمنزار، سبزه‌زار</td><td>مرغ، زار</td><td>بیابان</td></tr>
+        <tr><td>قمری</td><td>پرنده‌ای خاکستری</td><td>قمر</td><td>—</td></tr>
+        <tr><td>هوشیار</td><td>باهوش، عاقل</td><td>هوش، باهوش، هوشمند</td><td>کودن</td></tr>
+        <tr><td>سپاس‌داری</td><td>شکرگزاری</td><td>سپاس، سپاسگزار</td><td>ناسپاسی</td></tr>
+        <tr><td>غنیمت</td><td>فرصت، سود</td><td>غنایم، مغتنم</td><td>زیان</td></tr>
+        <tr><td>جنبش</td><td>حرکت، تکان</td><td>جنبان، جنبیدن</td><td>سکون</td></tr>
+        <tr><td>لاله‌زار</td><td>جای رویش لاله</td><td>لاله، زار</td><td>—</td></tr>
+        <tr><td>دفتر</td><td>کتاب، مجموعه</td><td>دفاتر</td><td>—</td></tr>
+        <tr><td>ورق</td><td>برگ، صفحه</td><td>اوراق، ورقه</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> بخشش ≠ بخل | روشنایی ≠ تاریکی | سپاسگزار ≠ ناسپاس | غفلت ≠ آگاهی | شکرگزار ≠ کفران نعمت | باهوش ≠ کودن | خالق ≠ مخلوق | بهار ≠ پاییز
+</div>
+
+<div class="important">
+    <strong>کلمات املایی:</strong> نعمت، پرستیدن، سپاس‌داری، غفلت، مخلوق، خالق، مرغزار، غنیمت، ربیع، موزون، قمری، هوشیار، معرفت، نظر، مشاجره، غرق شدن
+</div>
+
+<h3 class="lesson-title">دانش زبانی: جمله و انواع آن</h3>
+<div class="box-blue">
+    <p><strong>نهاد:</strong> کلمه‌ای که درباره‌ی آن خبر می‌دهیم. <strong>گزاره:</strong> خبری که درباره‌ی نهاد می‌دهیم؛ مهم‌ترین جزء آن فعل است.</p>
+</div>
+
+<table>
+    <thead><tr><th>نوع جمله</th><th>تعریف</th><th>نشانه</th><th>مثال</th></tr></thead>
+    <tbody>
+        <tr><td>خبری</td><td>خبری مثبت یا منفی</td><td>.</td><td>هوا گرم است.</td></tr>
+        <tr><td>پرسشی</td><td>پرسش را بیان می‌کند</td><td>؟</td><td>حال شما چطور است؟</td></tr>
+        <tr><td>امری</td><td>دستور یا خواهش</td><td>.</td><td>کتاب را بیاور.</td></tr>
+        <tr><td>عاطفی</td><td>احساسات و عواطف</td><td>!</td><td>چقدر زیبا!</td></tr>
+        <tr><td>دعایی</td><td>درخواست به صورت دعا</td><td>.</td><td>خدا خیرت دهد.</td></tr>
+    </tbody>
+</table>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> کدام واژه با بقیه هم‌خانواده نیست؟</p>
+    <p>الف) خلق &nbsp;&nbsp; ب) خالق &nbsp;&nbsp; ج) مخلوق &nbsp;&nbsp; د) خود</p>
+    <p><strong>پاسخ:</strong> د) خود (واژه‌ی «خود» با هیچ‌یک از ریشه‌های خلق، خالق و مخلوق هم‌خانواده نیست؛ زیرا از نظر ریشه و معنی کاملاً متفاوت است.)</p>
+    <p><strong>۲. جای خالی:</strong> کتاب .................. سعدی به نظم سروده شده است.</p>
+    <p><strong>۳. درک مطلب:</strong> بلعمی بر چه چیزی تأکید می‌کند؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «برگ درختان سبز در نظر هوشیار / هر ورقش دفتری‌ست، معرفت کردگار» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>پاسخ:</strong> آرایه‌ی <span class="hl">تشبیه</span> (برگ درخت به دفتر معرفت تشبیه شده است) و <span class="hl-green">مراعات نظیر (تناسب)</span> میان واژگان (ورق، دفتر، برگ، درخت).</p>
+    <p><strong>۵. غلط املایی:</strong> در عبارت «قفلت از این نادانی و گمراهی است» واژه‌ی غلط را تصحیح کنید.</p>
+    <p><strong>پاسخ:</strong> «<span class="hl-pink">قفلت</span>» غلط است؛ شکل صحیح آن «<span class="hl">غفلت</span>» می‌باشد.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس دوم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس دوم: پنجره‌های شناخت</h1>
+
+<div class="box-blue">
+    <h4>پیام درس</h4>
+    <p>تفکر، ایمان، علم، عمل و اخلاق مانند پنج پنجره برای شناخت و تماشای آفرینش الهی هستند.</p>
+</div>
+
+<h3 class="lesson-title">قصه رفتار نیکان (محمود پوروهاب)</h3>
+<div class="box">
+    <p>مرد صحرانشینی از راه دوری آمده بود تا پیامبر (ص) را ببیند. وقتی پیامبر (ص) را دید، از هیبت و شکوه او زبانش بند آمد. پیامبر (ص) با مهربانی او را در آغوش گرفت و گفت: «آرام باش، از چه می‌ترسی؟ من که از ستمگران نیستم، من مثل برادر تو هستم.»</p>
+    <p>پیامبر (ص) درباره‌ی رفتار با پدر و مادر سفارش کرد و فرمود: «بر همه واجب است که احترام پدر و مادر خود را نگه دارند و با آنان با مهربانی رفتار کنند. خداوند می‌فرماید: و پروردگار تو مقرّر داشته که جز او را نپرستید و به پدر و مادر نیکی کنید... به آن‌ها اُف مگو و بر آن‌ها بانگ مزن و با آن‌ها کریمانه سخن بگوی...»</p>
+</div>
+
+<div class="verse">
+    <p>گر از عهد خُردیت یاد آمدی / نکردی در این روز بر من جفا</p>
+    <p>که بیچاره بودی در آغوش من / که تو شیرمردی و من پیرزن</p>
+    <p class="poet">سعدی</p>
+</div>
+
+<h3 class="lesson-title">شعر: ای مادر عزیز (ابوالقاسم حالت)</h3>
+<div class="verse">
+    <p>ای مادر عزیز که جانم فدای تو / قربان مهربانی و لطف و صفای تو</p>
+    <p>هرگز نشد محبت یاران و دوستان / هم‌پایه محبت و مهر و وفای تو</p>
+    <p>مهرت برون نمی‌رود از سینه‌ام که هست / این سینه خانه تو و این دل سرای تو</p>
+    <p>ای مادر عزیز که جان داده‌ای مرا / سهل است اگر که جان دهم اکنون به پای تو</p>
+    <p>خشنودی تو مایه خشنودی من است / زیرا بود رضای خدا در رضای تو</p>
+    <p>گر بود اختیار جهانی به دست من / می‌ریختم تمام جهان را به پای تو</p>
+    <p class="poet">ابوالقاسم حالت | قالب: غزل</p>
+</div>
+
+<h3 class="lesson-title">بخوان و بیندیش: حکایت هُدهُد</h3>
+<div class="box-pink">
+    <p>پرنده زیرکی که فریب دانه را خورد و در دام افتاد؛ سرزنش پیرزن دانا و پاسخ به این که غرور و حرص موجب گرفتاری در دام می‌شود.</p>
+    <p><strong>پیام:</strong> دوری از غرور، تفکر و احتیاط در کارها.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>پدیده</td><td>آنچه وجود دارد</td><td>پدید، پدیدار</td><td>—</td></tr>
+        <tr><td>عملکرد</td><td>حاصل کار</td><td>عمل، عامل، معمول</td><td>بی‌کاری</td></tr>
+        <tr><td>خودبینی</td><td>غرور، خودپسندی</td><td>خودبین</td><td>فروتنی</td></tr>
+        <tr><td>صفا</td><td>یکرنگی، صمیمیت</td><td>صفایی</td><td>کینه</td></tr>
+        <tr><td>هراسیدن</td><td>ترسیدن</td><td>هراس، هراسان</td><td>شجاعت</td></tr>
+        <tr><td>طمع</td><td>حرص، آز</td><td>طامع، مطمع</td><td>قناعت</td></tr>
+        <tr><td>سهل</td><td>آسان</td><td>سهولت، تسهیل</td><td>سخت</td></tr>
+        <tr><td>سرا</td><td>خانه</td><td>سرای</td><td>—</td></tr>
+        <tr><td>محبت</td><td>دوستی، مهر</td><td>حُب، محبوب، حبیب</td><td>کینه</td></tr>
+        <tr><td>فکر</td><td>اندیشه</td><td>افکار، متفکر، فکور</td><td>غفلت</td></tr>
+        <tr><td>نظر</td><td>دیدگاه</td><td>نظیر، منظره</td><td>—</td></tr>
+        <tr><td>عزیز</td><td>گرامی</td><td>معزز، عزت</td><td>خوار</td></tr>
+        <tr><td>آداب</td><td>رسوم پسندیده</td><td>ادب، مؤدب، ادیب</td><td>بی‌ادبی</td></tr>
+        <tr><td>لطف</td><td>مهربانی، نرمی</td><td>الطاف، لطیف</td><td>خشونت</td></tr>
+        <tr><td>رضا</td><td>خشنودی</td><td>رضایت، راضی</td><td>نارضایتی</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> زیرک ≠ کودن | محکم ≠ سست | سهل ≠ سخت | آگاهی ≠ جهل | بسیار ≠ اندک | شباهت ≠ تفاوت | ضعیف ≠ قوی | ظاهر ≠ باطن
+</div>
+
+<div class="box-green">
+    <h4>واژه‌آموزی: کلمات هم‌خانواده</h4>
+    <p><strong>در عربی:</strong> به کلماتی می‌گویند که از یک ریشه‌ی سه‌حرفی مشترک گرفته شده باشند و حروف اصلی آن کلمه در کلمات هم‌خانواده‌اش پشت سر هم بیاید. مانند: ارث: میراث، وارث، وراثت، ورثه | نظم: ناظم، منظم، تنظیم.</p>
+    <p><strong>در فارسی:</strong> ملاک هم‌خانواده بودن کلمه‌ها، داشتن <strong>بن ماضی یا بن مضارع یکسان</strong> است. یعنی دو واژه وقتی هم‌خانواده شمرده می‌شوند که بن ماضی آن‌ها یکی باشد، یا بن مضارع آن‌ها یکی باشد؛ <strong>لازم نیست که هر دو بن به‌طور هم‌زمان یکسان باشند</strong>.</p>
+    <ul>
+        <li><strong>هم‌خانواده با بن فعلی یکسان:</strong> دانش، دانا، دانشمند، نکته‌دان | گوینده، گویندگی، گویا | بیننده، بینش، بینا.</li>
+        <li><strong>واژه‌های ونددار با ریشه‌ی یکسان:</strong> گلزار، گلستان، گلدان | هنرور، هنرمند، هنردوست | تابش، تابندگی، تابنده.</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> کدام کلمه با سه کلمه‌ی دیگر هم‌خانواده نیست؟ الف) تفکر ب) افکار ج) کافر د) متفکر</p>
+    <p><strong>پاسخ:</strong> ج) کافر</p>
+    <p><strong>۲. جای خالی:</strong> پنجره‌های شناخت شامل تفکر، ایمان، ..................، عمل و اخلاق است.</p>
+    <p><strong>۳. درک مطلب:</strong> پیامبر (ص) درباره‌ی رفتار با پدر و مادر چه فرمودند؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «ای مادر عزیز که جان داده‌ای مرا / سهل است اگر که جان دهم اکنون به پای تو» کدام آرایه وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «مفید - پسندیده - ظاهر» را با متضادشان بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس سوم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس سوم: هوشیاری</h1>
+
+<div class="box-blue">
+    <h4>منبع و پیام</h4>
+    <p><strong>منبع:</strong> انوار سهیلی | <strong>نویسنده:</strong> واعظ کاشفی</p>
+    <p><strong>پیام:</strong> پرهیز از تصمیم‌گیری در هنگام خشم.</p>
+</div>
+
+<h3 class="lesson-title">متن کامل داستان هوشیاری</h3>
+<div class="box">
+    <div class="story-text">
+        <p>پادشاهی به شکار و گردش در دشت و صحرا علاقه‌ی زیادی داشت. روزی از روزها که هوا بسیار گرم و آفتاب سوزان بود، پادشاه با گروهی از همراهان و ندیمان خود به شکار رفت. پادشاه باز شکاری وفاداری داشت که همیشه همراه او بود و پادشاه او را بسیار دوست می‌داشت.</p>
+
+        <p>پس از مدتی شکار و گشت‌وگذار، پادشاه از همراهان خود دور افتاد و تنها ماند. به سبب گرمای شدید آفتاب و پیمودن راه طولانی، تشنگی بر او چیره شد؛ به گونه‌ای که دیگر توان حرکت نداشت. به این سو و آن سو نگریست تا شاید چشمه یا جوی آبی بیابد، اما هرچه جست‌وجو کرد، نشانی از آب ندید.</p>
+
+        <p>ناگهان چشمش به صخره‌ای بلند افتاد که از لابه‌لای سنگ‌هایش، قطره‌قطره آب زلال و شفافی می‌چکید. پادشاه از دیدن آن آب، بسیار شادمان شد. جام کوچکی را که همراه داشت، زیر آن قطره‌ها گرفت و صبر کرد تا از چکه‌های آب، جامش پر شود. اما همین که جام از آب لبریز شد و او خواست آن را بنوشد، باز شکاری که بر شانه‌اش نشسته بود، با حرکت بال‌های خود به جام زد و آن را از دست پادشاه رها کرد و آب بر زمین ریخت.</p>
+
+        <p>پادشاه که بسیار تشنه بود، باز خشمگین نشد و دوباره جام را زیر قطره‌ها گرفت. بار دوم نیز، همین که جام پر شد و خواست بنوشد، باز به جام زد و آب را ریخت. این کار چند بار تکرار شد. پادشاه که از این رفتار باز به شدت آزرده‌خاطر و خشمگین شده بود، برای بار آخر که باز به جام زد و آب را ریخت، جام را بر زمین کوبید و باز را چنان به زمین زد که پرنده‌ی بیچاره هلاک شد.</p>
+
+        <p>پادشاه پس از کشتن باز، بسیار تشنه بود و می‌خواست از آن آب بنوشد. تصمیم گرفت از صخره بالا برود و سرچشمه‌ی آن قطره‌ها را ببیند. چون به بالای صخره رسید، آبگیر کوچکی دید که از آن آب می‌چکید؛ اما چون دقیق‌تر نگاه کرد، لاشه‌ی اژدهای بزرگی را در آن آبگیر دید که چون مرده بود، پیکرش در آب افتاده و آب را آلوده و زهرآلود کرده بود.</p>
+
+        <p>پادشاه با دیدن این صحنه به خود لرزید و دریافت که باز شکاری با آن حرکت‌های خود، در حقیقت جان او را از مرگ حتمی نجات داده است. اما افسوس که او در هنگام خشم و بی‌خردی، باز فداکارش را هلاک کرده بود. پادشاه رو به آسمان کرد و گفت: «ای پروردگار! سپاس تو را که مرا از مرگ نجات دادی و اگر آن باز نبود، من اکنون جان خود را از دست داده بودم. اما افسوس که در هنگام خشم، تصمیم گرفتم و اکنون پشیمانی سودی ندارد.»</p>
+    </div>
+</div>
+
+<table>
+    <thead><tr><th>عنوان داستان</th><th>هوشیاری</th></tr></thead>
+    <tbody>
+        <tr><td>شخصیت‌ها</td><td>مَلِک (پادشاه)، رکاب‌دار، باز شکاری</td></tr>
+        <tr><td>مکان</td><td>دشت و صحرا</td></tr>
+        <tr><td>زمان</td><td>یک روز گرم آفتابی</td></tr>
+        <tr><td>پیام</td><td>تصمیم‌گیری هنگام خشم کار درستی نیست و باعث پشیمانی می‌شود.</td></tr>
+        <tr><td>نام کتاب</td><td>انوار سهیلی</td></tr>
+        <tr><td>نویسنده</td><td>واعظ کاشفی</td></tr>
+    </tbody>
+</table>
+
+<h3 class="lesson-title">شعر: سخن (نظامی گنجوی)</h3>
+<div class="verse">
+    <p>با این که سخن به لطف آب است / کم گفتن هر سخن صواب است</p>
+    <p>آب ارچه همه زلال خیزد / از خوردنِ پر، ملال خیزد</p>
+    <p>کم گوی و گزیده گوی چون دُر / تا ز اندکِ تو جهان شود پر</p>
+    <p>لاف از سخن چو دُر توان زد / آن خشت بود که پر توان زد</p>
+    <p>یک دسته گل دماغ‌پرور / از خرمن صد گیاه بهتر</p>
+    <p class="poet">نظامی گنجوی | قالب: مثنوی</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌های مهم</h4>
+    <ul>
+        <li><strong>تشبیه:</strong> لطافت سخن به آب؛ سخن باارزش به دُر.</li>
+        <li><strong>تضاد:</strong> کم و اندک با پر؛ خشت و دُر.</li>
+        <li><strong>تمثیل:</strong> بیت چهارم ضرب‌المثل است.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">دانش زبانی: واج، هجا و ساختار واژه</h3>
+<div class="two-col">
+    <div class="box">
+        <h4>واج و هجا</h4>
+        <p><strong>واج:</strong> کوچک‌ترین واحد صوتی؛ مانند: ب، پ، خ.</p>
+        <p><strong>هجا:</strong> از ترکیب صامت‌ها و مصوت‌ها؛ مانند: بَر، پا.</p>
+    </div>
+    <div class="box">
+        <h4>واژه</h4>
+        <p><strong>ساده:</strong> یک جزء معنادار؛ مانند: آب، گل.</p>
+        <p><strong>غیرساده:</strong> بیش از یک جزء؛ مانند: کتابخانه، گلدان.</p>
+    </div>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>ملال</td><td>آزردگی، دلتنگی</td><td>ملول</td><td>شادی</td></tr>
+        <tr><td>زلال</td><td>شفاف، صاف</td><td>زلالی</td><td>کدر</td></tr>
+        <tr><td>دُر</td><td>مروارید</td><td>درّ، دُرر</td><td>خشت</td></tr>
+        <tr><td>صواب</td><td>کار درست</td><td>صائب، صوابدید</td><td>خطا</td></tr>
+        <tr><td>لاف</td><td>ادعا، خودستایی</td><td>لاف‌زن</td><td>فروتنی</td></tr>
+        <tr><td>گزیده</td><td>برگزیده، پسندیده</td><td>گزینش</td><td>ناپسند</td></tr>
+        <tr><td>خرمن</td><td>توده، انبار</td><td>خرمنگاه</td><td>—</td></tr>
+        <tr><td>دماغ‌پرور</td><td>خوشبو، معطر</td><td>دماغ، پرور</td><td>بدبو</td></tr>
+        <tr><td>علاقه</td><td>دلبستگی</td><td>علاقه‌مند، علایق</td><td>بی‌رغبتی</td></tr>
+        <tr><td>لطف</td><td>مهربانی، نرمی</td><td>الطاف، لطیف</td><td>خشونت</td></tr>
+        <tr><td>خاطر</td><td>ذهن، اندیشه</td><td>خاطرات، خاطره</td><td>—</td></tr>
+        <tr><td>هلاک</td><td>نابودی، مرگ</td><td>هلاکت، مهلک</td><td>زنده</td></tr>
+        <tr><td>ظرف</td><td>آوند، ظرف</td><td>ظروف، مظروف</td><td>—</td></tr>
+        <tr><td>عرض</td><td>ارائه، نشان دادن</td><td>عرایض، عریضه</td><td>—</td></tr>
+        <tr><td>مجال</td><td>فرصت، وقت</td><td>—</td><td>تنگنا</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> اندک ≠ زیاد | مالامال ≠ خالی | زلال ≠ کدر | هلاک ≠ زنده | خشت ≠ مروارید
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> «کم گوی و گزیده گوی چون دُر» یک .................. است. الف) کنایه ب) شعار ج) ضرب‌المثل د) داستان</p>
+    <p><strong>پاسخ:</strong> ج) ضرب‌المثل</p>
+    <p><strong>۲. جای خالی:</strong> آب ارچه همه .................. خیزد / از خوردن پر .................. خیزد</p>
+    <p><strong>۳. درک مطلب:</strong> چرا پادشاه باز را کشت و بعد پشیمان شد؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «یک دسته گل دماغ‌پرور / از خرمن صد گیاه بهتر» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> «تشنگی - زهرآلود - مخلوط» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس چهارم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس چهارم: داستان من و شما</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>نویسنده:</strong> فریدون اکبری شلدره | <strong>نوع نثر:</strong> ساده و روان</p>
+    <p><strong>پیام:</strong> زبان فارسی شناسنامه ملی و نماد هویت و یکپارچگی ایران است.</p>
+</div>
+
+<h3 class="lesson-title">شکل‌های زبان فارسی</h3>
+<div class="two-col">
+    <div class="box">
+        <h4>۱) آوا و صدا</h4>
+        <p>در گفتار ظاهر می‌شود و با گوش درک می‌شود.</p>
+    </div>
+    <div class="box">
+        <h4>۲) خط</h4>
+        <p>در نوشتار آشکار می‌شود. یادگیری آن دشوارتر است.</p>
+    </div>
+</div>
+<div class="box">
+    <h4>۳) اشاره</h4>
+    <p>گاهی زبان به جای گفتن و نوشتن، به شکل اشاره به کار می‌رود.</p>
+</div>
+
+<h3 class="lesson-title">قواعد جمع فارسی</h3>
+<div class="box-green">
+    <ul>
+        <li>در نام مکان‌ها «ان» نشانه‌ی جمع نیست: اصفهان، کردستان.</li>
+        <li>کلماتی که به «ه» بیان حرکت ختم می‌شوند: ستاره → ستارگان.</li>
+        <li>کلماتی که به «ا» ختم می‌شوند: دانا → دانایان.</li>
+        <li>کلماتی که به «او» ختم می‌شوند: بازو → بازوان.</li>
+        <li>کلمات عربی با «ات» جمع بسته می‌شوند: خطر → خطرات.</li>
+        <li>جمع بستن کلمات فارسی با «ات» نادرست است: گزارشات (غلط) → گزارش‌ها (درست).</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">حکایت علم و عمل (کلیله و دمنه)</h3>
+<div class="verse">
+    <p>چو علم آموختی در عمل کوش / که علمِ بی‌عمل، زهری است بی‌نوش</p>
+    <p class="poet">جامی</p>
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: جامی</h4>
+    <p>نورالدین عبدالرحمن جامی (۸۱۷ - ۸۹۸ هـ.ق) در خراسان متولد شد. مشهورترین اثر او مجموعه‌ی هفت مثنوی به نام <strong>هفت اورنگ</strong> است.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>گواه</td><td>شاهد</td><td>گواهی</td><td>—</td></tr>
+        <tr><td>فراز و فرود</td><td>بلندی و پستی</td><td>فرازیدن</td><td>یکنواختی</td></tr>
+        <tr><td>شور</td><td>فریاد، هیجان</td><td>شوریده</td><td>آرامش</td></tr>
+        <tr><td>ذوق</td><td>سلیقه، شوق</td><td>ذوقی</td><td>بی‌رغبتی</td></tr>
+        <tr><td>دلنشین</td><td>پسندیده، خوشایند</td><td>دل، نشین</td><td>ناخوشایند</td></tr>
+        <tr><td>نغمه</td><td>آواز، آهنگ</td><td>نغمه‌سرا</td><td>سکوت</td></tr>
+        <tr><td>آوا</td><td>صدا</td><td>آواز</td><td>سکوت</td></tr>
+        <tr><td>اعتبار</td><td>آبرو، ارزش</td><td>معتبر</td><td>بی‌اعتباری</td></tr>
+        <tr><td>رویداد</td><td>اتفاق، حادثه</td><td>رویدادن</td><td>—</td></tr>
+        <tr><td>میهن</td><td>کشور، وطن</td><td>میهن‌دوست</td><td>بیگانه</td></tr>
+        <tr><td>اتحاد</td><td>همبستگی</td><td>وحدت، متحد</td><td>تفرقه</td></tr>
+        <tr><td>افتخار</td><td>سربلندی</td><td>مفتخر، فخر</td><td>شرمساری</td></tr>
+        <tr><td>قدرت</td><td>توانایی</td><td>قادر، مقتدر</td><td>ضعف</td></tr>
+        <tr><td>طلب</td><td>خواستن</td><td>طالب، مطلوب</td><td>بی‌تفاوتی</td></tr>
+        <tr><td>شوق</td><td>اشتیاق</td><td>تشویق، مشوق</td><td>بی‌رغبتی</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> آغاز ≠ پایان | پیروزی ≠ شکست | فراز ≠ فرود | جاری ≠ ساکن | پیوسته ≠ گسسته | طولانی ≠ کوتاه | جهل ≠ آگاهی
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> کدام کلمه هنگام جمع بستن با «ان» پای میانجی می‌گیرد؟ الف) آهو ب) بانو ج) جنگجو د) گیسو</p>
+    <p><strong>پاسخ:</strong> ج) جنگجو</p>
+    <p><strong>۲. جای خالی:</strong> هر کلمه شامل ..................، معنی و شکل نوشتن است.</p>
+    <p><strong>۳. درک مطلب:</strong> چرا زبان فارسی به شناسنامه تشبیه شده است؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در عبارت «مهربان همچو جسم با جانیم» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> «نقمه‌های مهربانی - چندگانه‌گی» را تصحیح کنید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس پنجم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس پنجم: هفت خان رستم</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>شاعر:</strong> حکیم ابوالقاسم فردوسی | <strong>منبع:</strong> شاهنامه | <strong>قالب:</strong> مثنوی</p>
+</div>
+
+<h3 class="lesson-title">مراحل هفت خان</h3>
+<table>
+    <thead><tr><th>خان</th><th>مرحله</th></tr></thead>
+    <tbody>
+        <tr><td>خان اول</td><td>نبرد با شیر (توسط رخش)</td></tr>
+        <tr><td>خان دوم</td><td>گذشتن از بیابان خشک</td></tr>
+        <tr><td>خان سوم</td><td>کشتن اژدها</td></tr>
+        <tr><td>خان چهارم</td><td>کشتن زن جادوگر</td></tr>
+        <tr><td>خان پنجم</td><td>اسیر کردن اولاد دیو</td></tr>
+        <tr><td>خان ششم</td><td>نبرد با ارژنگ دیو</td></tr>
+        <tr><td>خان هفتم</td><td>کشتن دیو سپید و نجات کیکاووس</td></tr>
+    </tbody>
+</table>
+
+<h3 class="lesson-title">متن ابیات</h3>
+<div class="verse">
+    <p>خروشید و جوشید و برکند خاک / ز سمّش زمین شد همه، چاک‌چاک</p>
+    <p>بزد تیغ و بینداخت از بر، سرش / فرو ریخت چون رود، خون از برش</p>
+    <p>بینداخت چون باد، خمّ کمند / سر جادو آورد ناگه به بند</p>
+    <p>میانش به خنجر به دو نیم کرد / دل جادوان زو پر از بیم کرد</p>
+    <p>چو رستم بدیدش برانگیخت اسب / بدو تاخت مانند آذرگشسب</p>
+    <p>سر و گوش بگرفت و یالش دلیر / سر از تن بکندش به کردارِ شیر</p>
+    <p>یکی پاک جای پرستش بجست / ز بهر نیایش، سر و تن بشست</p>
+    <p>از آن پس نهاد از برِ خاک، سر / چنین گفت: کای داورِ دادگر!</p>
+    <p>ز هر بد، تویی بندگان را پناه / تو دادی مرا گُردی و دستگاه</p>
+    <p class="poet">حکیم ابوالقاسم فردوسی</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌ها</h4>
+    <ul>
+        <li><strong>مبالغه:</strong> «ز سمّش زمین شد همه چاک‌چاک»</li>
+        <li><strong>تشبیه:</strong> «فرو ریخت چون رود، خون از برش»</li>
+        <li><strong>تشبیه:</strong> «بدو تاخت مانند آذرگشسب»</li>
+        <li><strong>تشبیه:</strong> «به کردارِ شیر»</li>
+        <li><strong>کنایه:</strong> «سر بر خاک نهادن» = سجده کردن</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>هفت خان</td><td>هفت مرحله از جنگ‌های دشوار</td><td>خان، خوان</td><td>—</td></tr>
+        <tr><td>اهریمن</td><td>شیطان، دیو، بدکار</td><td>اهریمنی</td><td>فرشته</td></tr>
+        <tr><td>تیغ</td><td>شمشیر</td><td>تیز، تیغه</td><td>—</td></tr>
+        <tr><td>خروشید</td><td>بانگ زد، فریاد کشید</td><td>خروش، خروشیدن</td><td>سکوت</td></tr>
+        <tr><td>دستگاه</td><td>قدرت، عظمت</td><td>دست، دستگاه</td><td>ضعف</td></tr>
+        <tr><td>یال</td><td>موهای بلند گردن اسب</td><td>یالدار</td><td>—</td></tr>
+        <tr><td>سهمگین</td><td>ترسناک، هراس‌آور</td><td>سهم، سهمناک</td><td>آرام</td></tr>
+        <tr><td>مرحله</td><td>قسمت، بخش</td><td>مراحل</td><td>—</td></tr>
+        <tr><td>بَر</td><td>سینه، تن</td><td>بر، آغوش</td><td>—</td></tr>
+        <tr><td>چیره</td><td>غالب، پیروز</td><td>چیرگی</td><td>مغلوب</td></tr>
+        <tr><td>دیوان</td><td>جمع دیو</td><td>دیو، دیوانه</td><td>—</td></tr>
+        <tr><td>رهایی</td><td>آزادی، نجات</td><td>رها، رهیدن</td><td>اسارت</td></tr>
+        <tr><td>کمند</td><td>طناب، ریسمان محکم</td><td>کمندانداز</td><td>—</td></tr>
+        <tr><td>اژدها</td><td>جانور بزرگ افسانه‌ای</td><td>اژدهاکش</td><td>—</td></tr>
+        <tr><td>پیکار</td><td>جنگ، نبرد</td><td>پیکارگر</td><td>صلح</td></tr>
+        <tr><td>آذرگشسب</td><td>آتش تند و جهنده</td><td>آذر، گشسب</td><td>—</td></tr>
+        <tr><td>رخش</td><td>اسب رستم</td><td>—</td><td>—</td></tr>
+        <tr><td>داور</td><td>قاضی، خداوند منصف</td><td>داوری، دادرس</td><td>ستمگر</td></tr>
+        <tr><td>زابلستان</td><td>سرزمینی در سیستان</td><td>زابل، زابلی</td><td>—</td></tr>
+        <tr><td>دادگر</td><td>عادل، عدالت‌گستر</td><td>داد، دادگری</td><td>ستمگر</td></tr>
+        <tr><td>ستایش</td><td>دعا، راز و نیاز</td><td>ستودن، ستوده</td><td>نکوهش</td></tr>
+        <tr><td>گردی</td><td>پهلوانی، شجاعت</td><td>گرد، گردان</td><td>ترس</td></tr>
+        <tr><td>قوی‌پنجه</td><td>توانا، نیرومند</td><td>پنجه، قوی</td><td>ضعیف</td></tr>
+        <tr><td>تیمار</td><td>مراقبت، غمخواری</td><td>تیمارگر</td><td>بی‌توجهی</td></tr>
+        <tr><td>فرجام</td><td>پایان کار، عاقبت</td><td>فرجامین</td><td>آغاز</td></tr>
+        <tr><td>غریب</td><td>ناآشنا، بیگانه</td><td>غربت، غریبانه</td><td>آشنا</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> دشواری ≠ آسانی | پایان ≠ شروع | اهریمن ≠ فرشته | پیروز ≠ شکست‌خورده | دشمن ≠ دوست | پاک ≠ ناپاک | دراز ≠ کوتاه | خسته ≠ سرحال
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: فردوسی</h4>
+    <p>حکیم ابوالقاسم فردوسی طوسی (۳۲۹ - ۴۱۶ هـ.ق)، بزرگ‌ترین حماسه‌سرای ایران. شاهنامه با حدود ۶۰ هزار بیت، نتیجه‌ی بیش از سی سال تلاش اوست. روز ۲۵ اردیبهشت روز بزرگداشت فردوسی است.</p>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> رستم در خان چهارم با چه کسی مبارزه کرد؟ الف) شیر ب) اژدها ج) جادوگر د) دیو سپید</p>
+    <p><strong>پاسخ:</strong> ج) جادوگر</p>
+    <p><strong>۲. جای خالی:</strong> رستم در خان .................. به مبارزه با دیو سپید پرداخت.</p>
+    <p><strong>۳. درک مطلب:</strong> چه نیرویی باعث شد رستم بتواند هفت خان را پشت سر بگذارد؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «فرو ریخت چون رود، خون از برش» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «هفت خان - اژدها - قوی‌پنجه» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس ششم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس ششم: ای وطن</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>شاعر:</strong> نادر ابراهیمی | <strong>قالب:</strong> ترجیع‌بند</p>
+</div>
+
+<h3 class="lesson-title">گزیده‌ای از شعر</h3>
+<div class="verse">
+    <p>ای سلامم، ای سرودم / ای نگهبان وجودم</p>
+    <p>ای غمم تو، شادی‌ام تو / مایه‌ی آزادی‌ام تو</p>
+    <p>ای وطن!</p>
+    <p>ای دلیل زنده بودن / ای سرودی صادقانه</p>
+    <p>ای دلیل زنده ماندن / جان‌پناهی جاودانه</p>
+    <p>ای وطن!</p>
+    <p>همچو رویش در بهاران / همچو جان در هر بدن</p>
+    <p>مثل بوی عطر گل‌ها / مثل سبزی چمن</p>
+    <p>ای وطن!</p>
+    <p>مثل راز شعر حافظ / مثل آواز قناری</p>
+    <p>همچو یاد خوش‌ترین‌ها / همچو باران بهاری</p>
+    <p>ای وطن!</p>
+    <p>مثل غم در مرگ مادر / مثل کوه غصه‌هایی</p>
+    <p>مثل سربازان عاشق / قهرمان قصه‌هایی</p>
+    <p>ای وطن!</p>
+    <p>همچو آواز بلندی / از بلندی‌های پاک</p>
+    <p>با غروری، با گذشتی / با وفایی همچو خاک</p>
+    <p>ای وطن!</p>
+    <p class="poet">نادر ابراهیمی</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌ها</h4>
+    <ul>
+        <li><strong>تشبیه:</strong> وطن به نگهبان، سرود، رویش بهار، جان در بدن، بوی عطر، سبزی چمن، راز شعر حافظ، آواز قناری، باران بهاری، غم مرگ مادر، کوه غصه، سرباز عاشق، آواز بلند، خاک باوفا.</li>
+        <li><strong>تشخیص:</strong> نسبت دادن غرور، گذشت و وفا به وطن.</li>
+        <li><strong>جناس:</strong> غصه و قصه.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">گوش کن و بگو: حماسه هرمز</h3>
+<div class="box-pink">
+    <p>در تهاجم سپاه مغول، خانواده‌ی «هرمز» دهقان دلیر ماند. هرمز به سه پسرش گفت: «مقاومت ما شاید حرکت لشکر مغول را به تأخیر بیندازد. فدا شدن در راه عقیده، عین پیروزی است.» هنگام غروب، سپاه مغول به سرکردگی «قاجان» رسید. هرمز بانگ برآورد: «ما مرگ را بر ذلت ترجیح می‌دهیم». دشمن کلبه را به آتش کشید. هرمز فریاد زد: <strong>«پیروز باد ایران!»</strong></p>
+</div>
+
+<div class="verse">
+    <p>چو ایران نباشد تن من مباد / بدین بوم و بر، زنده یک تن مباد</p>
+    <p class="poet">محمود حکیمی، به سوی ساحل</p>
+</div>
+
+<h3 class="lesson-title">حکایت: انواع مردم (کیمیای سعادت)</h3>
+<div class="box-orange">
+    <p>مردم سه دسته‌اند:</p>
+    <ul>
+        <li>بعضی چون <strong>غذا</strong> هستند که وجودشان برای ما لازم است.</li>
+        <li>بعضی چون <strong>دارو</strong> هستند که فقط گاهی به آن‌ها نیاز داریم.</li>
+        <li>برخی مانند <strong>بیماری</strong> هستند که هرگز به آن‌ها نیاز نداریم ولی گاهی گرفتارشان می‌شویم.</li>
+    </ul>
+    <p><strong>تاریخ ادبیات:</strong> امام محمد غزالی (۴۵۰ - ۵۰۵ هـ.ق). آثار: کیمیای سعادت، احیاء علوم الدین، نصیحة الملوک.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>جنس</td><td>نوع، گونه</td><td>اجناس، جنسیت</td><td>—</td></tr>
+        <tr><td>رها</td><td>آزاد</td><td>رهایی، رهیدن</td><td>اسیر</td></tr>
+        <tr><td>جاودانه</td><td>پایدار، همیشگی</td><td>جاودان، جاوید</td><td>موقت</td></tr>
+        <tr><td>غرور</td><td>سرکشی، خودپسندی</td><td>مغرور، غرورآمیز</td><td>فروتنی</td></tr>
+        <tr><td>جان‌پناه</td><td>پناهگاه، سنگر</td><td>جان، پناه</td><td>بی‌پناه</td></tr>
+        <tr><td>غصه</td><td>اندوه، غم</td><td>غصه‌دار</td><td>شادی</td></tr>
+        <tr><td>صادقانه</td><td>مخلصانه، بدون فریب</td><td>صداقت، صدیق</td><td>دروغین</td></tr>
+        <tr><td>رویش</td><td>جوانه‌زدن، رشد</td><td>روییدن، رویش</td><td>پژمردگی</td></tr>
+        <tr><td>مایه</td><td>اساس، موجب</td><td>مایه‌دار</td><td>—</td></tr>
+        <tr><td>حماسه</td><td>کار دلاورانه</td><td>حماسی، حماسه‌سرا</td><td>—</td></tr>
+        <tr><td>غبار</td><td>گرد و خاک</td><td>غبارآلود</td><td>—</td></tr>
+        <tr><td>آیین</td><td>کیش، دین، سنت</td><td>آیین‌دار</td><td>بی‌آیین</td></tr>
+        <tr><td>سلام</td><td>درود</td><td>سلامت، تسلیم</td><td>خداحافظی</td></tr>
+        <tr><td>لازم</td><td>ضروری</td><td>لزوم، ملزم</td><td>غیرضروری</td></tr>
+        <tr><td>حافظ</td><td>نگه‌دارنده</td><td>حفظ، محفوظ، حافظه</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> آزادی ≠ اسارت | غم ≠ شادی | زنده ≠ مرده | پستی ≠ بلندی | صادق ≠ دروغگو | بیمار ≠ سالم | رها ≠ اسیر | نیاز ≠ بی‌نیازی
+</div>
+
+<div class="box-green">
+    <h4>شبه‌جمله‌ها و انواع آن</h4>
+    <ul>
+        <li><strong>امید و آرزو:</strong> کاش، ای‌کاش، آمین، الهی</li>
+        <li><strong>تحسین:</strong> آفرین، مرحبا، به‌به</li>
+        <li><strong>درد و تأسف:</strong> آه، دریغا، افسوس</li>
+        <li><strong>تعجب:</strong> به، اوه، عجب</li>
+        <li><strong>تنبیه:</strong> مبادا، زنهار</li>
+        <li><strong>امر:</strong> خاموش، بسم‌الله</li>
+        <li><strong>احترام:</strong> چشم، به چشم</li>
+        <li><strong>تصدیق:</strong> بله، آری، البته</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> در کدام گزینه منادا وجود ندارد؟ الف) ای وطن ب) یا رب ج) بلبلا د) بهار آمد</p>
+    <p><strong>پاسخ:</strong> د) بهار آمد</p>
+    <p><strong>۲. جای خالی:</strong> مثل غم در مرگ .................. / مثل کوه ..................</p>
+    <p><strong>۳. درک مطلب:</strong> چرا شاعر باوفا بودن را به خاک نسبت می‌دهد؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «با غروری، با گذشتی / با وفایی همچو خاک» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> «برخی مانند بیماری هستند که ما حرگز به آنها نیاز نداریم» را تصحیح کنید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس هفتم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس هفتم: درس آزاد و شعر وطن</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>شاعر شعر وطن:</strong> ایرج میرزا | <strong>قالب:</strong> غزل | <strong>پیام:</strong> توصیه به پاسداری و مهرورزی به میهن</p>
+</div>
+
+<h3 class="lesson-title">بخش زبان محلی و گویش</h3>
+<div class="box-green">
+    <h4>واژه‌های محلی</h4>
+    <p>واژه‌های زیر را به گویش بومی خود تطبیق دهید:</p>
+    <table>
+        <thead><tr><th>واژه فارسی</th><th>معادل محلی</th></tr></thead>
+        <tbody>
+            <tr><td>پدر</td><td>................</td></tr>
+            <tr><td>مادر</td><td>................</td></tr>
+            <tr><td>برادر</td><td>................</td></tr>
+            <tr><td>خواهر</td><td>................</td></tr>
+            <tr><td>پسر</td><td>................</td></tr>
+            <tr><td>دختر</td><td>................</td></tr>
+        </tbody>
+    </table>
+    <p><strong>تمرین:</strong> دو نسبت خانوادگی دیگر را به زبان محلی بنویسید.</p>
+    <p><strong>اصطلاحات محلی:</strong> با کمک اعضای خانواده، پنج ضرب‌المثل یا اصطلاح بومی را جمع‌آوری کرده و معنای آن‌ها را بنویسید.</p>
+</div>
+
+<h3 class="lesson-title">شعر وطن (ایرج میرزا)</h3>
+<div class="verse">
+    <p>ما که اطفال این دبستانیم / همه از خاک پاک ایرانیم</p>
+    <p>مهربان همچو جسم با جانیم / همه با هم برادر وطنیم</p>
+    <p>اشرف و انجب تمامِ مِلَل / یادگارِ قدیمِ دورانیم</p>
+    <p>وطن ما به جای مادر ماست / مادر خویش را نگهبانیم</p>
+    <p>شکر داریم کز طفولیت / درس حبّ‌الوطن همی‌خوانیم</p>
+    <p>چون که حبّ وطن ز ایمان است / ما یقیناً ز اهل ایمانیم</p>
+    <p>گر رسد دشمنی برای وطن / جان و دل، رایگان بیفشانیم</p>
+    <p class="poet">ایرج میرزا | قالب: غزل</p>
+</div>
+
+<div class="box">
+    <h4>تحلیل و آرایه‌ها</h4>
+    <ul>
+        <li><strong>جناس:</strong> خاک و پاک.</li>
+        <li><strong>تشبیه:</strong> وطن به مادر.</li>
+        <li><strong>تلمیح:</strong> حدیث «حُبُّ الوَطَنِ مِنَ الإِیمانِ».</li>
+        <li><strong>کنایه:</strong> جان و دل افشاندن = ایثار و جانبازی.</li>
+        <li><strong>تضاد:</strong> جسم و جان.</li>
+    </ul>
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: ایرج میرزا</h4>
+    <p>ایرج میرزا ملقب به «فخرالشعرا» (۱۲۵۱ - ۱۳۰۴ هـ.ش) از سرایندگان دوره‌ی مشروطه. مزار وی در آرامستان ظهیرالدوله‌ی شمیران قرار دارد.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>اطفال</td><td>کودکان</td><td>طفل، طفولیت</td><td>بزرگسالان</td></tr>
+        <tr><td>دبستان</td><td>مکتب، مدرسه</td><td>دبیر، دبیرستان</td><td>—</td></tr>
+        <tr><td>اشرف</td><td>گرامی‌تر، شریف‌تر</td><td>شریف، شرف</td><td>فرومایه</td></tr>
+        <tr><td>انجب</td><td>نجیب‌تر</td><td>نجیب، نجابت</td><td>پست</td></tr>
+        <tr><td>ملل</td><td>ملت‌ها</td><td>ملت، ملی</td><td>—</td></tr>
+        <tr><td>یادگار</td><td>به‌جا مانده</td><td>یاد، یادگاری</td><td>فراموشی</td></tr>
+        <tr><td>حب‌الوطن</td><td>میهن‌دوستی</td><td>حب، وطن، وطنی</td><td>وطن‌فروشی</td></tr>
+        <tr><td>طفولیت</td><td>کودکی</td><td>طفل، اطفال</td><td>پیری</td></tr>
+        <tr><td>یقیناً</td><td>بی‌گمان</td><td>یقین، متیقن</td><td>تردید</td></tr>
+        <tr><td>رایگان</td><td>بی‌چشمداشت</td><td>رایگان</td><td>پولی</td></tr>
+        <tr><td>بیفشانیم</td><td>بپاشیم، نثار کنیم</td><td>افشاندن، افشان</td><td>دریغ کردن</td></tr>
+        <tr><td>جان</td><td>روح</td><td>جانان، جانانه</td><td>تن</td></tr>
+        <tr><td>دل</td><td>قلب، قلب</td><td>دلیر، دلداری</td><td>—</td></tr>
+        <tr><td>سرزمین</td><td>کشور</td><td>سر، زمین</td><td>بیگانه</td></tr>
+        <tr><td>غیرت</td><td>حمیت، تعصب</td><td>غیور، غیرتمند</td><td>بی‌غیرتی</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> اشرف ≠ فرومایه | انجب ≠ پست | یقیناً ≠ تردید | رایگان ≠ پولی | حب‌الوطن ≠ وطن‌فروشی
+</div>
+
+<div class="important">
+    <strong>کلمات املایی:</strong> اطفال، دبستان، اشرف، انجب، ملل، یادگار، حب‌الوطن، طفولیت، یقیناً، بیفشانیم، وطن، ایران، نگهبان
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> شعر «همه از خاک پاک ایرانیم» اثر کیست؟ الف) ابوالقاسم حالت ب) ایرج میرزا ج) نادر ابراهیمی د) جعفر ابراهیمی</p>
+    <p><strong>پاسخ:</strong> ب) ایرج میرزا</p>
+    <p><strong>۲. جای خالی:</strong> اشرف و .................. تمام ملل / یادگار قدیم ..................</p>
+    <p><strong>۳. درک مطلب:</strong> چرا شاعر می‌گوید «یادگار قدیم دورانیم»؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «گر رسد دشمنی برای وطن / جان و دل، رایگان بیفشانیم» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «حب‌الوطن - یقیناً - طفولیت» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس هشتم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس هشتم: دریاقلی</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>موضوع:</strong> فداکاری شهید دریاقلی سورانی در شکست حصر آبادان</p>
+</div>
+
+<h3 class="lesson-title">شعر دریاقلی (دکتر سید حسن حسینی)</h3>
+<div class="verse">
+    <p>دریاقلی! رکاب بزن، یا علی بگو / چشم‌انتظار همت تو دین و میهن است</p>
+    <p>فردا، اگر درنگ کنی، کوچه‌های شهر / میدان جنگ تن‌به‌تن و تانک با تن است</p>
+    <p>از راه اگر بمانی و روشن شود هوا / تکلیف شهرِ خاطره‌های تو روشن است</p>
+    <p>دریاقلی! به وسعت دریاست نام تو / تاریخ در تلفظ نام تو الکن است</p>
+    <p class="poet">دکتر سید حسن حسینی | قالب: قطعه</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌ها و تحلیل</h4>
+    <ul>
+        <li><strong>تشخیص:</strong> چشم‌انتظار بودن دین و وطن؛ الکن بودن تاریخ.</li>
+        <li><strong>تشبیه:</strong> نام به وسعت دریا.</li>
+        <li><strong>جناس تام:</strong> روشن (هوا) و روشن (تکلیف).</li>
+        <li><strong>کنایه:</strong> رکاب زدن = شتاب کردن.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">بخوان و بیندیش: کارنامه‌ی ناتمام — شهید محمدجواد تندگویان</h3>
+<div class="box-pink">
+    <div class="story-text">
+        <p>شهید محمدجواد تندگویان در سال ۱۳۲۸ هجری شمسی در خانواده‌ای پایبند به کتاب و بینش دینی در تهران دیده به جهان گشود. از همان دوران کودکی، شور و اشتیاق فراوانی برای فراگیری دانش و خدمت به مردم در وجود او موج می‌زد. پس از پایان تحصیلات دوره‌ی متوسطه، در آزمون ورودی دانشکده‌ی نفت آبادان شرکت کرد و با موفقیت پذیرفته شد. دوران دانشجویی او با فعالیت‌های روشنگرانه و مبارزاتی علیه رژیم ستمشاهی همراه بود.</p>
+
+        <p>تندگویان در سال‌های پایانی حکومت پهلوی، به سبب توزیع بیانیه‌های انقلابی و شرکت در جریان‌های مردمی، بارها مورد بازجویی و آزار قرار گرفت و سرانجام به حبس محکوم گردید. اما این فشارها هرگز نتوانست اراده‌ی پولادین او را در هم بشکند و او همچنان به آرمان‌های خود وفادار ماند.</p>
+
+        <p>با پیروزی انقلاب شکوهمند اسلامی، محمدجواد تندگویان به سبب تخصص و تعهد فراوان خود، به سمت وزارت نفت جمهوری اسلامی ایران منصوب شد. او در این سمت کوتاه، تلاش فراوانی برای ساماندهی صنعت نفت و صیانت از منابع ملی کشور از خود نشان داد. با آغاز تهاجم رژیم بعث عراق علیه میهن اسلامی، او شخصاً در خطوط نبرد و مناطق نفتی جنوب حضور یافت تا پشتیبان رزمندگان و کارکنان صنعت نفت باشد.</p>
+
+        <p>در آبان‌ماه سال ۱۳۵۹، در جریان یک مأموریت در منطقه‌ی جنوب، وزیر نفت جوان کشورمان به دست نیروهای متجاوز بعثی به اسارت درآمد. دشمنان پس از وقوف بر جایگاه بلند وی، او را به بغداد منتقل کردند و سالیان درازی در سخت‌ترین شرایط و در انفرادی‌ترین سلول‌های زندان نگاه داشتند. شکنجه‌های روحی و جسمی فراوانی بر او روا داشتند، اما این مرد آهنین سرانجام تحت فشار شکنجه به فیض شهادت نائل آمد. پیکر پاک او برای مدتی طولانی نزد دشمن باقی ماند تا این که در سال ۱۳۷۷ هجری شمسی، پس از گذشت نزدیک به هجده سال، به آغوش میهن اسلامی بازگشت و در گلزار شهدای بهشت زهرا (س) به خاک سپرده شد.</p>
+    </div>
+</div>
+
+<div class="box-green">
+    <h4>فداکاری امیرکبیر در عشق به میهن</h4>
+    <div class="story-text">
+        <p>میرزا تقی‌خان امیرکبیر، صدراعظم روشن‌ضمیر عهد ناصری، یکی از برجسته‌ترین چهره‌های تاریخ معاصر ایران است. او در مدت سه سال و دو ماه و بیست و هشت روز صدارت خویش، اصلاحات فراگیر و بنیادینی در ساختار سیاسی، اقتصادی و فرهنگی ایران پدید آورد که همگی ریشه در عشق راستین وی به سعادت و پیشرفت این سرزمین داشت.</p>
+
+        <p>امیرکبیر با تأسیس مدرسه‌ی دارالفنون، پایه‌گذار آموزش نوین در ایران شد. او با ساماندهی امور مالی کشور، از مداخلات بی‌رویه‌ی استعمارگران جلوگیری کرد و با قاطعیت در برابر استعمار انگلیس ایستاد. تلاش او برای صیانت از تمامیت سرزمینی ایران، قطع امتیازات استعماری، ترویج دانش جدید و تربیت نسل آگاه، او را به یکی از محبوب‌ترین و ماندگارترین چهره‌های میهن‌پرستی در تاریخ ایران تبدیل کرد. سرانجام این بزرگ‌مرد تاریخ ایران، در دی‌ماه ۱۲۳۰ هجری شمسی در باغ فین کاشان به دست عوامل استعمار و دسیسه‌ی درباریان به شهادت رسید؛ اما نام نیک و خدمت ماندگار او برای همیشه در یاد ملت ایران زنده خواهد ماند.</p>
+    </div>
+</div>
+
+<h3 class="lesson-title">نکات نگارشی: علائم سجاوندی</h3>
+<table>
+    <thead><tr><th>نشانه</th><th>کارکرد</th><th>مثال</th></tr></thead>
+    <tbody>
+        <tr><td>نقطه (.)</td><td>پایان جمله خبری یا امری</td><td>باد بهاری وزید.</td></tr>
+        <tr><td>ویرگول (،)</td><td>درنگ کوتاه بین اجزا</td><td>کتاب، دفتر، قلم</td></tr>
+        <tr><td>نقطه‌ویرگول (؛)</td><td>درنگ متوسط</td><td>کار نیکو کن؛ که سودی نیست.</td></tr>
+        <tr><td>دونقطه (:)</td><td>نقل قول، شمارش، تفسیر</td><td>گفت: «آمد.»</td></tr>
+        <tr><td>علامت تعجب (!)</td><td>عواطف، تعجب، تحسین</td><td>چه زیبا!</td></tr>
+        <tr><td>علامت پرسش (؟)</td><td>پایان جمله پرسشی</td><td>حال شما چطور است؟</td></tr>
+        <tr><td>گیومه (« »)</td><td>نقل عین عبارت</td><td>گفت: «سلام»</td></tr>
+        <tr><td>سه‌نقطه (...)</td><td>تعلیق، حذف</td><td>و ادامه داد...</td></tr>
+    </tbody>
+</table>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>عشایر</td><td>طوایف کوچ‌نشین</td><td>عشیره، عشایری</td><td>یکجانشین</td></tr>
+        <tr><td>جان‌فشانی</td><td>ایثار، فداکاری</td><td>جان، فشاندن</td><td>بخل</td></tr>
+        <tr><td>ارج می‌نهد</td><td>گرامی می‌دارد</td><td>ارج، ارجمند</td><td>تحقیر</td></tr>
+        <tr><td>دیرباز</td><td>از گذشته‌های دور</td><td>دیر، باز</td><td>تازه</td></tr>
+        <tr><td>دلاور</td><td>شجاع، دلیر</td><td>دل، دلاوری</td><td>ترسو</td></tr>
+        <tr><td>چلّه</td><td>زه و تسمه‌ی کمان</td><td>—</td><td>—</td></tr>
+        <tr><td>استقرار</td><td>مستقر شدن</td><td>قرار، مستقر</td><td>کوچ</td></tr>
+        <tr><td>پاسداری</td><td>حفاظت، مرزبانی</td><td>پاس، پاسدار</td><td>بی‌توجهی</td></tr>
+        <tr><td>کهسار</td><td>ناحیه‌ی کوهستانی</td><td>کوه، کوهسار</td><td>دشت</td></tr>
+        <tr><td>نام‌آوران</td><td>مشاهیر</td><td>نام، نام‌آور</td><td>گمنامان</td></tr>
+        <tr><td>تحمیلی</td><td>به زور بر دوش نهاده</td><td>تحمیل، تحمل</td><td>اختیاری</td></tr>
+        <tr><td>تب‌وتاب</td><td>اضطراب و بی‌قراری</td><td>تب، تاب</td><td>آرامش</td></tr>
+        <tr><td>همت</td><td>اراده، عزم</td><td>همت‌مند</td><td>بی‌ارادگی</td></tr>
+        <tr><td>شعف</td><td>سرور، شادمانی</td><td>شعف‌آور</td><td>غم</td></tr>
+        <tr><td>سقوط</td><td>واژگونی، فروپاشی</td><td>ساقط، مسقط</td><td>صعود</td></tr>
+        <tr><td>اشغال</td><td>تصرف عدوانی</td><td>شاغل، اشتغال</td><td>آزادی</td></tr>
+        <tr><td>الکن</td><td>دارای لکنت در گفتار</td><td>لکنت، الکنی</td><td>گویا</td></tr>
+        <tr><td>دژخیم</td><td>ستمکار، جلاد</td><td>دژ، دژخیمی</td><td>عدالت‌گستر</td></tr>
+        <tr><td>طفولیت</td><td>کودکی</td><td>طفل، اطفال</td><td>پیری</td></tr>
+        <tr><td>نفوذ</td><td>سرایت کردن، رخنه</td><td>نافذ، منفذ</td><td>انسداد</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> ناگوار ≠ گوارا | سربلند ≠ شرمسار | صعود ≠ سقوط | مدافع ≠ مهاجم | بیگانه ≠ آشنا | غفلت ≠ هوشیاری | جنگ ≠ صلح
+</div>
+
+<div class="important">
+    <strong>کلمات املایی:</strong> دریاقلی سورانی، فداکاری، جان‌فشانی، کهن، دلاورمرد، قله، چله‌ی کمان، پاسداری، دفاع مقدس، جنگ تحمیلی، کوی ذوالفقاری، بهمن‌شیر، محاصره، اشغال، چشم‌انتظار، الکن، خمپاره، مقابله، تلفات، شهادت
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> کتاب «به سوی ساحل» اثر کیست؟ الف) نادر ابراهیمی ب) محمدرضا ترکی ج) ابوالقاسم حالت د) محمود حکیمی</p>
+    <p><strong>پاسخ:</strong> د) محمود حکیمی</p>
+    <p><strong>۲. جای خالی:</strong> دریاقلی! رکاب بزن، .................. بگو / چشم‌انتظار همت تو .................. است.</p>
+    <p><strong>۳. درک مطلب:</strong> چرا دریاقلی با وجود خطر، به سمت رزمندگان رفت؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «دریاقلی! به وسعت دریاست نام تو» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «الکن - محاصره - اشغال» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس نهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس نهم: رنج‌هایی کشیده‌ام که مپرس</h1>
+
+<div class="box-blue">
+    <h4>موضوع</h4>
+    <p>شرح زندگی و زحمات ۴۰ ساله علی‌اکبر دهخدا برای تألیف «لغت‌نامه»</p>
+</div>
+
+<h3 class="lesson-title">تحلیل ابیات (از غزل حافظ)</h3>
+<div class="verse">
+    <p>درد عشقی کشیده‌ام که مپرس / زهر هجری چشیده‌ام که مپرس</p>
+    <p>گشته‌ام در جهان و آخر کار / دلبری برگزیده‌ام که مپرس</p>
+    <p>بی تو در کلبه‌ی گدایی خویش / رنج‌هایی کشیده‌ام که مپرس</p>
+    <p>همچو حافظ، غریب در ره عشق / به مقامی رسیده‌ام که مپرس</p>
+    <p class="poet">حافظ شیرازی | قالب: غزل</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌ها و نکات غزل حافظ</h4>
+    <ul>
+        <li><strong>قافیه:</strong> کشیده‌ام، چشیده‌ام، برگزیده‌ام، رسیده‌ام | <strong>ردیف:</strong> که مپرس</li>
+        <li><strong>تشبیه:</strong> زهر هجر (اضافه تشبیهی)؛ کلبه گدایی (اضافه تشبیهی).</li>
+        <li><strong>تناسب:</strong> درد، زهر، چشیدن.</li>
+        <li><strong>کنایه:</strong> کلبه گدایی = سرای مسکین.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">بخوان و حفظ کن: باران</h3>
+
+<div class="verse">
+    <p>خوشا آنان که الله یارشان بی / به حمد و قل هو الله کارشان بی</p>
+    <p>خوشا آنان که دایم در نمازند / بهشت جاودان بازارشان بی</p>
+    <p class="poet">باباطاهر عریان | قالب: دوبیتی</p>
+</div>
+
+<div class="verse">
+    <p>خداوندا به فریاد دلم رس / کسِ بی‌کس تویی، من مانده بی‌کس</p>
+    <p>همه گویند طاهر کس نداره / خدا یار منه، چه حاجتِ کس؟</p>
+    <p class="poet">باباطاهر عریان | قالب: دوبیتی</p>
+</div>
+
+<div class="verse">
+    <p>در مرحمتِ تو غوطه‌ور، روز و شبم / ای نامِ تو روییده به گلدانِ لبم</p>
+    <p>در خاکِ طلب، بذرِ دعا کاشته‌ام / بارانِ اجابتِ تو را می‌طلبم</p>
+    <p class="poet">دکتر سید حسن حسینی | قالب: رباعی</p>
+</div>
+
+<div class="verse">
+    <p>اگر آن سبزقامت رو نماید / درِ باغِ خدا را می‌گشاید</p>
+    <p>تنم را فرش کردم تا بتازد / دلم را نذر کردم تا بیاید</p>
+    <p class="poet">مصطفی علیپور | قالب: دوبیتی</p>
+</div>
+
+<div class="box-green">
+    <h4>تحلیل دوبیتی مصطفی علیپور</h4>
+    <ul>
+        <li><strong>مضمون:</strong> انتظار و شوق ظهور حضرت مهدی (عج).</li>
+        <li><strong>کنایه:</strong> «تنم را فرش کردم» = غایت فروتنی و جان‌نثاری.</li>
+        <li><strong>کنایه:</strong> «دلم را نذر کردم» = آماده‌سازی دل برای ظهور.</li>
+        <li><strong>تلمیح:</strong> اشاره به ظهور امام عصر (عج).</li>
+        <li><strong>ترکیب وصفی:</strong> سبزقامت.</li>
+        <li><strong>ترکیب اضافی:</strong> درِ باغ، باغ خدا.</li>
+    </ul>
+</div>
+
+<div class="box-green">
+    <h4>روش‌های پیدا کردن کتاب در کتابخانه</h4>
+    <ol>
+        <li>فهرست بر اساس عناوین</li>
+        <li>فهرست بر اساس پدیدآورندگان</li>
+        <li>فهرست موضوعی</li>
+    </ol>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>خوشا</td><td>خوشا به حال</td><td>خوش، خوشی</td><td>افسوس</td></tr>
+        <tr><td>مرحمت</td><td>لطف، بخشایش</td><td>رحم، رحمت</td><td>قساوت</td></tr>
+        <tr><td>سبزقامت</td><td>استعاره از امام زمان (عج)</td><td>سبز، قامت</td><td>—</td></tr>
+        <tr><td>طلب</td><td>خواستن، تمنا</td><td>طالب، مطلوب</td><td>بی‌تفاوتی</td></tr>
+        <tr><td>غوطه‌ور</td><td>مستغرق، شناور</td><td>غوطه، غوطیدن</td><td>—</td></tr>
+        <tr><td>اجابت</td><td>پذیرش، برآوردن دعا</td><td>جواب، مجیب</td><td>رد</td></tr>
+        <tr><td>معتبر</td><td>دارای اعتبار</td><td>اعتبار، معتبره</td><td>بی‌اعتبار</td></tr>
+        <tr><td>دار و ندار</td><td>سرمایه و مایملک</td><td>دار، دارایی</td><td>بی‌چیز</td></tr>
+        <tr><td>اساسی</td><td>بنیادین</td><td>اساس، تأسیس</td><td>فرعی</td></tr>
+        <tr><td>تأخیر</td><td>درنگ، واپس انداختن</td><td>تأخر، متأخر</td><td>تعجیل</td></tr>
+        <tr><td>عظیم</td><td>بسیار بزرگ</td><td>عظمت، اعظم</td><td>حقیر</td></tr>
+        <tr><td>رحلت</td><td>وفات، فوت</td><td>ارتحال، راحل</td><td>تولد</td></tr>
+        <tr><td>علامه</td><td>دانشمند سرآمد</td><td>علم، عالم</td><td>جاهل</td></tr>
+        <tr><td>هجر</td><td>جدایی، دوری</td><td>هجران، هجرت</td><td>وصال</td></tr>
+        <tr><td>بی</td><td>باشد، بُوَد</td><td>—</td><td>—</td></tr>
+        <tr><td>دیوان</td><td>دفتر مدون اشعار</td><td>دیوانی</td><td>—</td></tr>
+        <tr><td>تلفظ</td><td>ادای صوتی واژه</td><td>لفظ، ملفوظ</td><td>کتابت</td></tr>
+        <tr><td>مفصل</td><td>با جزئیات کامل</td><td>فصل، فصول</td><td>مختصر</td></tr>
+        <tr><td>تألیف</td><td>نگاشتن، گردآوری</td><td>مؤلف، تألیفات</td><td>—</td></tr>
+        <tr><td>طرز</td><td>اسلوب، روش</td><td>طراز، طرز</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> مبدأ ≠ مقصد | دارا ≠ ندار | شروع ≠ پایان | شرق ≠ غرب | ظاهر ≠ باطن | غریب ≠ آشنا | پنهان ≠ آشکار | بی‌کس ≠ باکس
+</div>
+
+<div class="important">
+    <strong>کلمات املایی:</strong> هجری شمسی، آیات قرآنی، تربیت، بزرگ‌مرد، لغت‌نامه، مفصل‌ترین، همکاری، شهرت، فردوسی، مراجعه‌کنندگان، دایرةالمعارف، یادداشت‌برداری، درگذشت، حافظه، رحلت، رحمت‌الله، علامه، محمد معین، سید جعفر شهیدی، ابن‌بابویه، غوطه‌ور، مرحمت، اجابت
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات درس نهم</h4>
+    <ul>
+        <li><strong>حافظ شیرازی:</strong> از نوابغ سده‌ی هشتم هجری و برترین غزلسرای زبان فارسی؛ ملقب به لسان‌الغیب.</li>
+        <li><strong>علی‌اکبر دهخدا:</strong> (۱۲۵۷ - ۱۳۳۴ هـ.ش)، ادیب و لغت‌پژوه. آثار: لغت‌نامه، امثال و حِکَم.</li>
+        <li><strong>باباطاهر عریان:</strong> عارف و دوبیتی‌سرای سده‌ی پنجم هجری اهل همدان.</li>
+        <li><strong>مصطفی علیپور:</strong> متولد ۱۳۴۰ در تنکابن، دارای جایزه‌ی شعر برای «از گلوی کوچک رود».</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> گردآوری لغت‌نامه چند سال طول کشید؟ الف) ۱۰ سال ب) ۲۰ سال ج) ۳۰ سال د) ۴۰ سال</p>
+    <p><strong>پاسخ:</strong> د) ۴۰ سال</p>
+    <p><strong>۲. جای خالی:</strong> درد عشقی .................. که مپرس / زهر هجری .................. که مپرس</p>
+    <p><strong>۳. درک مطلب:</strong> ارزش ادبی لغت‌نامه‌ی دهخدا هم‌سنگ کدام اثر بزرگ دانسته شده است؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در دوبیتی «تنم را فرش کردم تا بتازد» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «غوطه‌ور - اجابت - علامه» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس دهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس دهم: عطار و جلال‌الدین محمد</h1>
+
+<div class="box-blue">
+    <h4>خلاصه‌ی درس</h4>
+    <p>جلال‌الدین محمد بلخی (مولوی) در سفر دوران کودکی از بلخ، همراه پدرش بهاءالدین در نیشابور با شیخ فریدالدین عطار نیشابوری دیدار کرد. شیخ عطار مجلدی از مثنوی خود به نام «اسرارنامه» را به محمد اهدا کرد.</p>
+</div>
+
+<h3 class="lesson-title">حکایت درخت علم (از مثنوی معنوی)</h3>
+<div class="verse">
+    <p>شیخ خندید و بگفتش ای سلیم! / این درختِ علم باشد ای علیم!</p>
+    <p>تو به صورت رفته‌ای ای بی‌خبر / زان ز شاخِ معنی‌ای، بی بار و بر</p>
+    <p>گه درختش نام شد، گاه آفتاب / گاه بحرش نام شد، گاهی سحاب</p>
+    <p>آن یکی کَش صد هزار آثار خاست / کمترین آثار او، عمرِ بقاست</p>
+    <p class="poet">مولوی | قالب: مثنوی</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌ها</h4>
+    <ul>
+        <li><strong>تشبیه:</strong> علم به درخت، آفتاب، بحر، سحاب.</li>
+        <li><strong>تضاد:</strong> صورت و معنی.</li>
+        <li><strong>تناسب:</strong> شاخ، بار، بر؛ درخت، آفتاب، بحر، سحاب.</li>
+        <li><strong>طنز و طعنه:</strong> در کاربرد واژه‌ی «علیم».</li>
+    </ul>
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات درس دهم</h4>
+    <ul>
+        <li><strong>مولانا جلال‌الدین محمد بلخی:</strong> عارف و شاعر سده‌ی هفتم هجری (۶۰۴ بلخ - ۶۷۲ قونیه). آثار: مثنوی معنوی، دیوان شمس، فیه ما فیه، مجالس سبعه.</li>
+        <li><strong>شیخ فریدالدین عطار نیشابوری:</strong> عارف و شاعر پایان سده‌ی ششم و آغاز سده‌ی هفتم (۵۴۰ - ۶۱۸ هـ.ق). آثار: منطق‌الطیر، تذکرةالاولیاء، الهی‌نامه، مصیبت‌نامه، اسرارنامه.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>بحر</td><td>دریا، اقیانوس</td><td>بحری، ابحر</td><td>بر</td></tr>
+        <tr><td>سحاب</td><td>ابر، باران‌زا</td><td>سحابی، مسحوب</td><td>—</td></tr>
+        <tr><td>بقا</td><td>جاودانگی، پایداری</td><td>باقی، ابقا</td><td>فنا</td></tr>
+        <tr><td>کم‌نظیر</td><td>بی‌همتا، نادر</td><td>نظیر، نظایر</td><td>معمولی</td></tr>
+        <tr><td>خلاق</td><td>آفریننده، مبتکر</td><td>خلق، خلقت</td><td>—</td></tr>
+        <tr><td>جرأت</td><td>شهامت، دلیری</td><td>جرئت‌مند</td><td>ترس</td></tr>
+        <tr><td>اصرار</td><td>پافشاری</td><td>مصرّ، استمرار</td><td>تسلیم</td></tr>
+        <tr><td>بالاخره</td><td>سرانجام</td><td>آخر، اخیر</td><td>ابتدائاً</td></tr>
+        <tr><td>نفوذ</td><td>اثرگذاری عمیق</td><td>نافذ، منفذ</td><td>انسداد</td></tr>
+        <tr><td>دلتنگ</td><td>محزون، غمگین</td><td>دل، تنگ</td><td>خوشحال</td></tr>
+        <tr><td>سرشناس</td><td>نامدار، مشهور</td><td>سر، شناختن</td><td>گمنام</td></tr>
+        <tr><td>صورت</td><td>ظاهر، پوسته</td><td>تصویر، مصور</td><td>معنی</td></tr>
+        <tr><td>سلیم</td><td>ساده‌دل، پاک‌طینت</td><td>سلامت، تسلیم</td><td>—</td></tr>
+        <tr><td>علیم</td><td>بسیار دانا (در اینجا: نادان)</td><td>علم، عالم</td><td>جاهل</td></tr>
+        <tr><td>شاخ</td><td>شاخه، شعبه</td><td>شاخه، شاخسار</td><td>ریشه</td></tr>
+        <tr><td>ماشاءالله</td><td>آنچه خداوند اراده فرماید</td><td>—</td><td>—</td></tr>
+        <tr><td>طب</td><td>دانش پزشکی</td><td>طبیب، طبیعت</td><td>—</td></tr>
+        <tr><td>اسرارنامه</td><td>از آثار منظوم عرفانی عطار</td><td>اسرار، نامه</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> قبلاً ≠ بعداً | نخستین ≠ آخرین | برخیز ≠ بنشین | وارد ≠ خارج | نزدیک ≠ دور | بلند ≠ کوتاه | درخشان ≠ تاریک | خواب ≠ بیدار | آشنا ≠ بیگانه
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> کتاب «اسرارنامه» اثر کیست؟ الف) مولوی ب) عطار نیشابوری ج) سعدی د) حافظ</p>
+    <p><strong>پاسخ:</strong> ب) عطار نیشابوری</p>
+    <p><strong>۲. جای خالی:</strong> شیخ خندید و بگفتش ای .................. / این درختِ علم باشد ای ..................</p>
+    <p><strong>۳. درک مطلب:</strong> مقصود عطار از «همه‌ی ما جز اندکی نمی‌دانیم» چه بود؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «آن یکی کَش صد هزار آثار خاست / کمترین آثار او، عمرِ بقاست» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «سلیم - علیم - بقا» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس یازدهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس یازدهم: شهدا خورشیدند</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>شاعر:</strong> سلمان هراتی | <strong>قالب:</strong> شعر نیمایی</p>
+</div>
+
+<h3 class="lesson-title">متن شعر</h3>
+<div class="verse">
+    <p>و چنین گفت معلّم با ما: / «بچه‌ها گوش کنید! / نظر ما این است: / شهدا خورشیدند.»</p>
+    <p>مرتضی گفت: «شهید / چون شقایق، سرخ است.»</p>
+    <p>دانش‌آموزی گفت: / «چون چراغی است که در خانه‌ی ما می‌سوزد.»</p>
+    <p>و کسی دیگر گفت: «شهید / داستانی است پر از حادثه و زیبایی»</p>
+    <p>مصطفی گفت: «شهید / مثل یک نمره‌ی بیست / داخلِ دفترِ قلب من و تو می‌ماند.»</p>
+    <p class="poet">سلمان هراتی</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌ها و تحلیل</h4>
+    <ul>
+        <li><strong>تشبیه:</strong> شهدا به خورشید، شقایق سرخ، چراغ، داستان، نمره‌ی بیست.</li>
+        <li><strong>اضافه تشبیهی:</strong> دفتر قلب.</li>
+        <li><strong>کنایه:</strong> سرخ بودن = خونین‌پیکر بودن.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">داستان بوعلی و بهمنیار</h3>
+<div class="box-pink">
+    <p>بهمنیار از شاگردان بنام بوعلی سینا بود. روزی به وی پیشنهاد کرد که خود را پیامبر بنامد. بوعلی خاموش ماند. در شبی سرد، بوعلی بهمنیار را بیدار کرد و گفت: «سخت تشنه‌ام؛ قدری آب برایم بیاور». بهمنیار به بهانه‌ی سرما از اجرای فرمان استاد سر باز زد. در همان لحظات، صدای اذان مؤذن از فراز مناره بلند شد. بوعلی گفت: «آیا پی بردی چرا ادعای نبوت نکرده‌ام؟ تو سال‌ها در محضر من دانش آموخته‌ای، اما به فرمان من برای آوردن جرعه‌ای آب در این سرما پاسخ ندادی؛ در حالی که آن مؤذن به احترام پیامی که پیامبر خدا بیش از چهارصد سال پیش ابلاغ فرموده، در این سرمای گزنده بر فراز مأذنه حاضر می‌شود».</p>
+</div>
+
+<h3 class="lesson-title">عناصر داستان</h3>
+<div class="box-green">
+    <ul>
+        <li><strong>موضوع:</strong> بن‌مایه و فکر بنیادین داستان.</li>
+        <li><strong>پیرنگ (طرح):</strong> شبکه‌ی پیوند منطقی رویدادها.</li>
+        <li><strong>شخصیت‌پردازی:</strong> آفرینش و تصویرگری اشخاص داستان.</li>
+        <li><strong>صحنه:</strong> بستر عینی، زمانی و جغرافیایی.</li>
+        <li><strong>گفت‌وگو:</strong> تبادل کلامی میان شخصیت‌ها.</li>
+        <li><strong>راوی و زاویه دید:</strong> اول‌شخص یا سوم‌شخص.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>خلاق</td><td>مبتکر، نوآور</td><td>خلق، خلقت</td><td>—</td></tr>
+        <tr><td>شگفتی</td><td>اعجاب، تحیر</td><td>شگفت، شگفتا</td><td>بی‌تفاوتی</td></tr>
+        <tr><td>جرأت</td><td>دلاوری، جسارت</td><td>جرئت‌مند</td><td>ترس</td></tr>
+        <tr><td>پیغمبر</td><td>پیام‌آور وحی</td><td>پیغام، پیامبر</td><td>—</td></tr>
+        <tr><td>سرآمد</td><td>ممتاز، برگزیده</td><td>سر، آمدن</td><td>عقب‌مانده</td></tr>
+        <tr><td>بالاخره</td><td>سرانجام</td><td>آخر، اخیر</td><td>ابتدائاً</td></tr>
+        <tr><td>اصرار</td><td>پافشاری</td><td>مصرّ، استمرار</td><td>تسلیم</td></tr>
+        <tr><td>مناجات</td><td>راز و نیاز</td><td>نجات، منجی</td><td>—</td></tr>
+        <tr><td>فرمان</td><td>دستور، امر</td><td>فرمانده، فرمانبر</td><td>—</td></tr>
+        <tr><td>طاقت</td><td>توان، شکیبایی</td><td>طاقت‌فرسا</td><td>ضعف</td></tr>
+        <tr><td>حادثه</td><td>رویداد، ماجرا</td><td>حادث، حوادث</td><td>—</td></tr>
+        <tr><td>نفوذ</td><td>رخنه، اثرگذاری</td><td>نافذ، منفذ</td><td>انسداد</td></tr>
+        <tr><td>مرتضی</td><td>برگزیده، پسندیده</td><td>رضا، راضی</td><td>—</td></tr>
+        <tr><td>دفتر</td><td>کتاب، مجموعه</td><td>دفاتر</td><td>—</td></tr>
+        <tr><td>قلب</td><td>دل، درون</td><td>قلبی، قلبیات</td><td>—</td></tr>
+        <tr><td>طب</td><td>دانش پزشکی</td><td>طبیب</td><td>—</td></tr>
+        <tr><td>استعداد</td><td>توانایی ذاتی</td><td>مستعد</td><td>بی‌استعدادی</td></tr>
+        <tr><td>دلنشین</td><td>مطبوع، نافذ</td><td>دل، نشین</td><td>ناخوشایند</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> سختی ≠ آسایش | جرأت ≠ هراس | شدید ≠ خفیف | گشود ≠ بست | بیدار ≠ خفته
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات درس یازدهم</h4>
+    <ul>
+        <li><strong>سلمان هراتی:</strong> ملقب به «آذرپاد» (۱۳۳۸ - ۱۳۶۵ هـ.ش). مجموعه شعرها: از این ستاره تا آن ستاره، از آسمان سبز، دری به خانه‌ی خورشید.</li>
+        <li><strong>ابوعلی سینا:</strong> فیلسوف، طبیب و دانشمند بزرگ سده‌های چهارم و پنجم هجری. آثار: شفا، قانون، دانشنامه‌ی علایی.</li>
+        <li><strong>بهمنیار بن مرزبان:</strong> حکیم و دانشور ایرانی و از برجسته‌ترین شاگردان بوعلی سینا.</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> کدام مجموعه اثر سلمان هراتی نیست؟ الف) از این ستاره ب) از آسمان سبز ج) دری به خانه‌ی خورشید د) تا صبح‌دمان</p>
+    <p><strong>پاسخ:</strong> د) تا صبح‌دمان</p>
+    <p><strong>۲. جای خالی:</strong> شهدا .................. / چون شقایق .................. است.</p>
+    <p><strong>۳. درک مطلب:</strong> چرا بوعلی سینا ادعای نبوت نکرد؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در مصراع «مثل یک نمره‌ی بیست» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «استعداد - مناجات - طاقت» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس دوازدهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس دوازدهم: دوستی و مشاورت</h1>
+
+<div class="box-blue">
+    <h4>منابع درس</h4>
+    <p><strong>دوستی:</strong> قابوس‌نامه (عنصرالمعالی کیکاووس) | <strong>مشاورت:</strong> سیاست‌نامه (خواجه نظام‌الملک توسی)</p>
+</div>
+
+<h3 class="lesson-title">بخش دوستی (قابوس‌نامه)</h3>
+<div class="box">
+    <p>«بدان ای پسر! مردمان تا زنده‌اند از دوستان ناگزیرند که مرد اگر بی‌برادر باشد، به که بی‌دوست...»</p>
+    <p>«پس به کار دوستان اندیشه کن و دوستی ایشان به مردمی و احسان، تازه دار و چون دوست نو گیری، پشت بر دوستان کهن مکن. دوست، همی‌طلب و دوستان کهن را بر جای همی‌دار تا همیشه بسیار دوست داشته باشی.»</p>
+</div>
+
+<h3 class="lesson-title">بخش مشاورت (سیاست‌نامه)</h3>
+<div class="box">
+    <p>«مشاورت کردن در کارها از قوی‌رأیی مردم باشد و از تمامی عقل و پیش‌بینی... و از این رو گفته‌اند: تدبیر با دانایان و پیران و جهاندیدگان باید کرد... و تدبیر ده تنه چون زور ده مرده باشد.»</p>
+    <p>«همه‌ی جهانیان متفق‌اند که هیچ آفریده، داناتر از پیغامبر (ص) نبوده است... خدای (تعالی) او را می‌فرماید: «وَ شاوِرهُم فِی الأَمرِ»... مشورت ناکردن در کارها، ضعف رأیی باشد و هیچ شغلی بی مشورت، نیکو نیاید.»</p>
+</div>
+
+<h3 class="lesson-title">گوش کن و بگو: یک قطره عسل (مهدی آذریزدی)</h3>
+<div class="box-pink">
+    <div class="story-text">
+        <p>صیادی آزموده به همراه سگ شکاری کشیده‌اندام و چالاک خود که به سرعت طعمه را دنبال می‌کرد، راهی ارتفاعات و کوهستان شد. در میان صخره‌های بلند و سر به فلک کشیده، گذرگاهی یافت که از شکاف سنگ‌هایش، قطرات عسل طبیعی و گوارا می‌چکید. با پی بردن به انبوهی موم‌ها و غیبت پای انسان در آن نقطه‌ی بکر و دورافتاده، پوششی بر چهره کشید تا مورد حمله‌ی زنبوران قرار نگیرد و با احتیاط فراوان کوزه‌های همراه خویش را از آن عسل زلال و خالص لبریز ساخت. آن‌گاه با شادمانی و رضایت خاطر، راه شهر را در پیش گرفت تا محصول گران‌بهای خویش را به بازار عرضه کند.</p>
+
+        <p>به دکان خواربارفروشی (بقالی) رفت تا محصول خود را بفروشد. بقال پس از چشیدن و بررسی عسل، آن را ناب‌ترین و خالص‌ترین عسل کوهستان یافت که از شهد گیاهان معطر و کم‌نظیر کوهسار به دست آمده بود. پس از چانه‌زنی و توافق، قرار شد که بقال آن محصول را خریداری نماید. بقال کوزه‌ی پر را با قپان (ترازوی دستی کهن) وزن کرد تا پس از کسر وزن خود ظرف، وزن خالص عسل معین شود.</p>
+
+        <p>بقال در دکان خود راسویی دست‌آموز برای شکار موش‌های موذی داشت. هنگام خالی کردن ظرف، به‌طور اتفاقی قطره‌ای عسل بر زمین چکید. راسو به سرعت به سوی عسل شتافت تا آن را بلیسد. سگ شکاری که در کنار صیاد ایستاده بود، برآشفت و بر راسو جهید و گردنش را درید و او را به هلاکت رساند.</p>
+
+        <p>بقال از دیدن هلاکت حیوان دست‌آموزش خشمگین شد و بی‌درنگ با چوب سنگین قپان ضربه‌ای هولناک بر فرق سگ کوبید و سگ بی‌جان بر زمین افتاد. شکارچی از پای درآمدن سگ وفادار و همیشگی‌اش را تاب نیاورد؛ کوزه‌ی سنگین عسل را بر سر بقال فرود آورد و سر او را شکست.</p>
+
+        <p>با فریادهای بقال، کسبه‌ی راسته و همسایگان دکان، به حمایت از همسایه‌ی خود به صیاد هجوم بردند. شکارچی که خود را در محاصره دید، کارد آخته برکشید و چند تن از مهاجمان را مجروح ساخت. طولی نکشید که داروغه و گزمه‌های شهر رسیدند و نزاع‌کنندگان را دستگیر کردند و به دارالحکومه نزد قاضی شهر بردند.</p>
+
+        <p>قاضی پس از استماع ماجرا و بررسی دقیق گفته‌های طرفین، چنین حکم کرد: «حیوانات فاقد تمیز و شعورند و مجازاتی بر آن‌ها نیست؛ اما شما انسان‌های عاقل، اگر صبوری و حلم می‌ورزیدید و منافع شخصی را به منافع جمع ترجیح نمی‌دادید، چنین نزاعی درنمی‌گرفت. خطای اصلی بر گردن صیاد است که سگی درنده و شکاری را بدون مهار و افسار به مرکز معامله و بازار آورد؛ تقصیر بقال است که به جای رجوع به داروغه و مراجع قانونی، خودسرانه دست به قتل سگ گشود؛ خطای بازاریان است که بدون آگاهی و پرسش از اصل ماجرا، به پشتیبانی کورکورانه از همسایه برخاستند و گناه صیاد است که به جای شکایت به قانون، تیغ کشید و به جان مردم دست درازی کرد.»</p>
+
+        <p>قاضی در ادامه افزود: «ریشه‌ی همه‌ی فتنه‌های بزرگ، در نادانی، بی‌قانونی و نادیده گرفتن سهم داروغه و محتسب است. اگر هر کس به وظیفه‌ی خویش عمل کند و در برخورد با اختلاف‌ها به جای اعمال خشونت به قانون و مراجع ذی‌صلاح رجوع کند، هیچ‌گاه چنین حوادثی رخ نخواهد داد.» چون شکایتی باقی نمانده بود، قاضی همگان را پس از تنبیه و تذکر لازم، مرخص ساخت.</p>
+    </div>
+</div>
+
+<div class="box-orange">
+    <h4>پیام داستان یک قطره عسل</h4>
+    <ul>
+        <li>پرهیز از تصمیم‌گیری‌های شتاب‌زده و خشم‌آلود.</li>
+        <li>رعایت حقوق دیگران و پرهیز از تجاوز به منافع همدیگر.</li>
+        <li>مراجعه به قانون و مقامات ذی‌صلاح در حل اختلافات.</li>
+        <li>اهمیت وظیفه‌شناسی و آگاهی اجتماعی در پیشگیری از فتنه‌ها.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">دانش زبانی: افعال امر کهن</h3>
+<div class="box-green">
+    <ul>
+        <li><strong>دوم‌شخص مفرد:</strong> بخور، برو</li>
+        <li><strong>دوم‌شخص جمع:</strong> بخورید، بروید</li>
+        <li><strong>حذف پیشوند «بـ»:</strong> دان (بدان)، خواه (بخواه)</li>
+        <li><strong>پیشوند کهن «همی»:</strong> همی‌طلب = بطلب | همی‌دار = بدار</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">شعر شیر خدا (شهریار)</h3>
+<div class="verse">
+    <p>علی آن شیر خدا شاهِ عرب / الفتی داشته با این دلِ شب</p>
+    <p>شب ز اسرارِ علی آگاه است / دلِ شب مَحرمِ سِرّ الله است</p>
+    <p>جوشش چشمه‌ی عشقِ ازلی / شب شنُفته است مناجات علی</p>
+    <p>کلماتی چو دُر، آویزه‌ی گوش / مسجدِ کوفه هنوزش مدهوش</p>
+    <p>فجر تا سینه‌ی آفاق شکافت / چشمِ بیدار علی، خفته نیافت</p>
+    <p>ناشناسی که به تاریکیِ شب / می‌بُرد شامِ یتیمانِ عرب</p>
+    <p>عشق‌بازی که هم‌آغوشِ خطر / خفت در خوابگَهِ پیغمبر</p>
+    <p>آن دمِ صبحِ قیامت‌تأثیر / حلقه‌ی در، شد از او دامن‌گیر</p>
+    <p>دست در دامنِ مولا زد در / که: «علی! بگذر و از ما مگذر»</p>
+    <p>شبروان، مستِ ولای تو علی / جانِ عالم به فدای تو علی</p>
+    <p class="poet">شهریار | قالب: مثنوی</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>ناگزیر</td><td>ناچار، ضروری</td><td>گزیر، گریز</td><td>اختیاری</td></tr>
+        <tr><td>حکیم</td><td>فرزانه، دانشمند</td><td>حکم، حاکم، حکمت</td><td>جاهل</td></tr>
+        <tr><td>مردمی</td><td>مروت، بزرگواری</td><td>مردم، مردم‌داری</td><td>بی‌مروتی</td></tr>
+        <tr><td>احسان</td><td>نیکوکاری، لطف</td><td>حسن، محسن</td><td>بدی</td></tr>
+        <tr><td>خاطر</td><td>ذهن، اندیشه</td><td>خاطرات، خطور</td><td>—</td></tr>
+        <tr><td>تیزتر</td><td>نافذتر، هشیارتر</td><td>تیز، تیزی</td><td>کندتر</td></tr>
+        <tr><td>طلب</td><td>جست‌وجو، خواستن</td><td>طالب، مطلوب</td><td>بی‌تفاوتی</td></tr>
+        <tr><td>متفق</td><td>هم‌عقیده، هماهنگ</td><td>اتفاق، توافق</td><td>مختلف</td></tr>
+        <tr><td>مشفق</td><td>مهربان، دلسوز</td><td>شفقت، شفیق</td><td>بی‌رحم</td></tr>
+        <tr><td>نیم‌دوست</td><td>آشنایی که هنوز دوست کامل نشده</td><td>نیم، دوست</td><td>دشمن</td></tr>
+        <tr><td>یکدل</td><td>صمیمی، یکرنگ</td><td>دل، یکدلی</td><td>منافق</td></tr>
+        <tr><td>فضیلت</td><td>برتری، کرامت</td><td>فاضل، افضل</td><td>رذیلت</td></tr>
+        <tr><td>مشاورت</td><td>رایزنی، هم‌فکری</td><td>مشورت، مشاور</td><td>خودرأیی</td></tr>
+        <tr><td>ضعیف‌رأیی</td><td>سستی اندیشه</td><td>رأی، ضعیف</td><td>قوی‌رأیی</td></tr>
+        <tr><td>شبروان</td><td>شب‌زنده‌داران، عارفان</td><td>شب، رَوَنده</td><td>خفتگان</td></tr>
+        <tr><td>الفت</td><td>انس، دوستی</td><td>الفت‌گرفتن</td><td>بیگانگی</td></tr>
+        <tr><td>مدهوش</td><td>حیران، سرگشته</td><td>دهشت، مدهوشی</td><td>هشیار</td></tr>
+        <tr><td>آویزه</td><td>گوشواره، آویخته</td><td>آویختن، آویزان</td><td>—</td></tr>
+        <tr><td>سرّ</td><td>راز، نهان</td><td>اسرار، سری</td><td>آشکار</td></tr>
+        <tr><td>آفاق</td><td>کرانه‌ها، جهان‌ها</td><td>افق، آفقی</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> زنده ≠ مرده | احسان ≠ خساست | دوست ≠ دشمن | بِه ≠ بد | حکیم ≠ نادان | مشفق ≠ بی‌رحم | یکدل ≠ منافق | اندیشه ≠ جهل
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات درس دوازدهم</h4>
+    <ul>
+        <li><strong>خواجه نظام‌الملک توسی:</strong> (۴۰۸ - ۴۸۵ هـ.ق)، وزیر مقتدر سلاجقه. پایه‌گذار مدارس نظامیه. اثر: سیاست‌نامه.</li>
+        <li><strong>امیر عنصرالمعالی کیکاووس:</strong> از فرمانروایان آل زیار در سده‌ی پنجم هجری. اثر: قابوس‌نامه (۴۷۵ ق).</li>
+        <li><strong>شهریار:</strong> سید محمدحسین بهجت تبریزی (۱۲۸۵ - ۱۳۶۷ هـ.ش). آثار: حیدربابایه سلام، علی ای همای رحمت.</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> «تدبیر ده تنه چون زور ده مرده باشد» اشاره به چیست؟ الف) قدرت بدنی ب) اهمیت مشورت ج) ثروت د) شهرت</p>
+    <p><strong>پاسخ:</strong> ب) اهمیت مشورت</p>
+    <p><strong>۲. جای خالی:</strong> مشورت ناکردن در کارها، .................. باشد.</p>
+    <p><strong>۳. درک مطلب:</strong> چگونه می‌توان از یک «نیم‌دوست»، رفیقی یکدل ساخت؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «علی آن شیر خدا شاهِ عرب» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «مشاورت - فضیلت - احسان» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس سیزدهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس سیزدهم: قیام سربداران و حکایت عمر گرانمایه</h1>
+
+<div class="box-blue">
+    <h4>قیام سربداران</h4>
+    <p>نهضت شیعی سربداران از خیزش‌های مردمی شاخص تاریخ ایران در خراسان و منطقه‌ی سبزوار علیه ستم ایلخانان مغول بود. این جنبش از روستای باشتین آغاز شد و تعالیم شیخ خلیفه و شاگردش شیخ حسن جوری زمینه‌ساز بیداری مردم شد.</p>
+</div>
+
+<h3 class="lesson-title">حکایت عمر گرانمایه (گلستان سعدی)</h3>
+<div class="verse">
+    <p>به دست آهن تفته کردن خمیر / به از دست بر سینه پیش امیر</p>
+    <p>عمر گرانمایه در این صرف شد / تا چه خورم صیف و چه پوشم شتا</p>
+    <p>ای شکم خیره به نانی بساز / تا نکنی پشت به خدمت دوتا</p>
+    <p class="poet">سعدی | از گلستان</p>
+</div>
+
+<div class="box">
+    <h4>تحلیل ابیات</h4>
+    <ul>
+        <li><strong>بیت ۱:</strong> تحمل سخت‌ترین کارها بهتر از ایستادن متملقانه در برابر اربابان قدرت است. (کنایه: دست بر سینه ایستادن = چاپلوسی)</li>
+        <li><strong>بیت ۲:</strong> دریغا که عمر گرانبها در دغدغه‌های مادی سپری شد. (تضاد: صیف و شتا)</li>
+        <li><strong>بیت ۳:</strong> ای شکم آزمند! به نان ساده قناعت کن. (تشخیص: شکم خیره)</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>سلطان</td><td>پادشاه، فرمانروا</td><td>سلطنت، تسلط</td><td>درویش</td></tr>
+        <tr><td>توانگر</td><td>ثروتمند</td><td>توان، توانمند</td><td>درویش</td></tr>
+        <tr><td>مشقت</td><td>رنج، سختی</td><td>مشاق</td><td>آسانی</td></tr>
+        <tr><td>مذلت</td><td>خواری، پستی</td><td>ذلت، ذلیل</td><td>عزت</td></tr>
+        <tr><td>زرین</td><td>طلایی</td><td>زر، زرینه</td><td>آهنین</td></tr>
+        <tr><td>خیره</td><td>لجوج، گستاخ</td><td>خیره‌سری</td><td>قانع</td></tr>
+        <tr><td>تفته</td><td>داغ و گداخته</td><td>تف، تفتیدن</td><td>سرد</td></tr>
+        <tr><td>ثواب</td><td>پاداش نیک</td><td>مثوبت</td><td>گناه</td></tr>
+        <tr><td>شتا</td><td>زمستان</td><td>—</td><td>صیف</td></tr>
+        <tr><td>صیف</td><td>تابستان</td><td>—</td><td>شتا</td></tr>
+        <tr><td>گرانمایه</td><td>باارزش</td><td>مایه، گران</td><td>بی‌ارزش</td></tr>
+        <tr><td>بَرهی</td><td>نجات یابی</td><td>رهایی، رهیدن</td><td>گرفتار شوی</td></tr>
+        <tr><td>عدالت</td><td>دادگری، انصاف</td><td>عادل، تعدیل</td><td>ستم</td></tr>
+        <tr><td>ظلم</td><td>بیداد، ستم</td><td>ظالم، مظلوم</td><td>عدل</td></tr>
+        <tr><td>قیام</td><td>برخاستن، شورش</td><td>قائم، قیامت</td><td>نشستن</td></tr>
+        <tr><td>نزاع</td><td>دعوا، کشمکش</td><td>نزاعی</td><td>صلح</td></tr>
+        <tr><td>مدعی</td><td>ادعاکننده</td><td>دعوی، ادعا</td><td>—</td></tr>
+        <tr><td>زور بازو</td><td>توان جسمی</td><td>زور، بازو</td><td>ضعف</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> مذلت ≠ عزت | مشقت ≠ آسانی | توانگر ≠ درویش | تفته ≠ سرد | ظلم ≠ عدل
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: سعدی و سربداران</h4>
+    <p><strong>سعدی شیرازی:</strong> (قرن هفتم هجری) نویسنده‌ی گلستان و بوستان.</p>
+    <p><strong>سربداران:</strong> نهضت شیعی در سبزوار علیه ایلخانان مغول (سده‌ی هشتم هجری).</p>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> پیام محوری سعدی در حکایت عمر گرانمایه چیست؟ الف) همت بلند و عزت‌نفس ب) پرهیز از بندگی امیران ج) تلاش برای ثروت د) حفظ سلامت</p>
+    <p><strong>پاسخ:</strong> الف) همت بلند و عزت‌نفس</p>
+    <p><strong>۲. جای خالی:</strong> به دست آهن .................. کردن خمیر / به از دست بر .................. پیش امیر</p>
+    <p><strong>۳. درک مطلب:</strong> انگیزه‌ی قیام سربداران چه بود؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «عمر گرانمایه در این صرف شد» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «مذلت - مشقت - تفته» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس چهاردهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس چهاردهم: راز زندگی</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>شاعر:</strong> قیصر امین‌پور | <strong>قالب:</strong> شعر نیمایی | <strong>آرایه‌ها:</strong> مناظره، تشخیص</p>
+</div>
+
+<h3 class="lesson-title">متن و تحلیل شعر</h3>
+<div class="verse">
+    <p>غنچه با دل‌گرفته گفت:</p>
+    <p>زندگی لب فروبستن و در گوشه‌ای تنها نشستن است.</p>
+    <p>گل به شادابی خندید و گفت:</p>
+    <p>زندگی شکفتن با زبان سبز و آشکار ساختن راز هستی است.</p>
+    <p class="poet">قیصر امین‌پور</p>
+</div>
+
+<div class="two-col">
+    <div class="box">
+        <h4>دیدگاه غنچه</h4>
+        <p>زندگی را کناره‌گیری، افسردگی، خموشی و پنهان نگاه داشتن زیبایی‌ها می‌داند.</p>
+        <p><strong>آرایه:</strong> تشخیص (سخن گفتن غنچه).</p>
+    </div>
+    <div class="box">
+        <h4>دیدگاه گل</h4>
+        <p>زندگی را بالندگی، پویایی، طراوت، درخشش و ابراز شادمانه‌ی حقیقت هستی می‌داند.</p>
+        <p><strong>آرایه:</strong> کنایه (زبان سبز = سرزندگی).</p>
+    </div>
+</div>
+
+<div class="box-green">
+    <h4>داوری راوی</h4>
+    <p>راوی نظر گل را ترجیح می‌دهد؛ زیرا گل پیراهنی بیشتر از غنچه دریده و تجربه‌ی بیشتری اندوخته است.</p>
+    <p><strong>کنایه:</strong> «پیراهن بیشتر پاره کردن» = باتجربه‌تر بودن.</p>
+</div>
+
+<h3 class="lesson-title">بخوان و بیندیش: پیاده و سوار (مرزبان‌نامه)</h3>
+<div class="box-pink">
+    <p>تاجر پیاده‌ی پارچه (بزاز) در مسیر کویری با سوارکاری ناشناس همراه شد. اسب‌سوار با بهانه‌تراشی سعی کرد تمام بار بزاز را تصاحب کند. بزاز به نیت فریبکارانه‌ی او پی برد و با خودداری از واگذاری بقچه‌ی پارچه‌ها، با تحمل رنج حمل بار بر دوش خویش، اموال را نجات داد.</p>
+    <p><strong>پیام:</strong> لزوم احتیاط، پرهیز از تکیه‌ی ناآگاهانه بر بیگانگان و اهمیت استقلال عمل و تدبیر.</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>بزاز</td><td>پارچه‌فروش</td><td>بزازی</td><td>—</td></tr>
+        <tr><td>بی‌انصافی</td><td>ستم، بی‌عدالتی</td><td>انصاف، منصف</td><td>انصاف</td></tr>
+        <tr><td>جوانمردی</td><td>سخاوت، فتوت</td><td>جوانمرد</td><td>پستی</td></tr>
+        <tr><td>همنوع</td><td>هم‌جنس، از یک تبار</td><td>انواع، تنوع</td><td>بیگانه</td></tr>
+        <tr><td>ثواب</td><td>اجر معنوی کار نیک</td><td>مثوبت</td><td>عقوبت</td></tr>
+        <tr><td>متأسفم</td><td>اندوهگینم</td><td>تأسف، متأسفانه</td><td>خشنودم</td></tr>
+        <tr><td>معذرت</td><td>پوزش، عذرخواهی</td><td>عذر، معذور</td><td>—</td></tr>
+        <tr><td>دوره‌گرد</td><td>فروشنده‌ی سیار</td><td>دوره، گرد</td><td>یکجانشین</td></tr>
+        <tr><td>تاختن</td><td>شتابان رفتن</td><td>تاخت، تازیدن</td><td>ایستادن</td></tr>
+        <tr><td>مرموز</td><td>رازآلود، پنهان</td><td>رمز، رموز</td><td>آشکار</td></tr>
+        <tr><td>ظالم</td><td>ستمگر</td><td>ظلم، مظلوم</td><td>عادل</td></tr>
+        <tr><td>ظهور</td><td>آشکار شدن</td><td>ظاهر، مظهر</td><td>خفا</td></tr>
+        <tr><td>عابر</td><td>گذرنده</td><td>عبور، معابر</td><td>ساکن</td></tr>
+        <tr><td>سکوت</td><td>خاموشی</td><td>ساکت</td><td>فریاد</td></tr>
+        <tr><td>لفظ</td><td>واژه، سخن</td><td>تلفظ، الفاظ</td><td>معنی</td></tr>
+        <tr><td>صحنه</td><td>منظره، بستر رویداد</td><td>صحنه‌آرا</td><td>—</td></tr>
+        <tr><td>پیرنگ</td><td>طرح داستان</td><td>—</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> افزایش ≠ کاهش | خنده ≠ گریه | کمترین ≠ بیشترین | درون ≠ بیرون | خسته ≠ پرانرژی
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات درس چهاردهم</h4>
+    <ul>
+        <li><strong>قیصر امین‌پور:</strong> (۱۳۳۸ - ۱۳۸۶)، از پیشگامان شعر نو پس از انقلاب. آثار: تنفس صبح، در کوچه‌ی آفتاب، آینه‌های ناگهانی، به قول پرستو، گل‌ها همه آفتابگردانند.</li>
+        <li><strong>مرزبان‌نامه:</strong> از متون پندآموز کهن (سده‌ی چهارم) که در قرن هفتم به نثر فنی فارسی برگردانده شد.</li>
+        <li><strong>مهدی آذریزدی:</strong> (۱۳۰۰ - ۱۳۸۸)، پایه‌گذار ادبیات نوین کودک. آثار: قصه‌های خوب برای بچه‌های خوب، قند و عسل.</li>
+    </ul>
+</div>
+
+<div class="box-green">
+    <h4>واژه‌آموزی: وندها و متضادسازی</h4>
+    <ul>
+        <li><strong>پیشوند نفی «بی-»:</strong> بی‌شمار، بی‌نهایت، بی‌هنر.</li>
+        <li><strong>پیشوند نفی «نا-»:</strong> ناشناس، ناسازگار، ناشنوا.</li>
+        <li><strong>پیشوند ایجابی «با-»:</strong> باهنر، بادقت، باهوش.</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> در کدام شیوه، تنها نکات اصلی گزارش شده و از فروع چشم‌پوشی می‌شود؟ الف) یادداشت‌برداری ب) گزارش‌نویسی ج) خلاصه‌نویسی د) مقایسه‌نویسی</p>
+    <p><strong>پاسخ:</strong> ج) خلاصه‌نویسی</p>
+    <p><strong>۲. جای خالی:</strong> نام دیگر شخصیت‌بخشی به اشیا، آرایه‌ی .................. است.</p>
+    <p><strong>۳. درک مطلب:</strong> تفاوت غنچه و گل از لحاظ تمثیلی چیست؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در مصراع «زندگی لب فروبستن است» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «ثواب - متأسف - معذرت» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس پانزدهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس پانزدهم: میوه هنر</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>شاعر:</strong> پروین اعتصامی | <strong>قالب:</strong> قطعه | <strong>پیام:</strong> تلاش برای کسب علم توأم با عمل</p>
+</div>
+
+<h3 class="lesson-title">متن ابیات</h3>
+<div class="verse">
+    <p>آن قصه شنیدید که در باغ یکی روز / از جور تبر، زار بنالید سپیدار</p>
+    <p>کز من نه دگر بیخ و بنی ماند و نه شاخی / از تیشه‌ی هیزم‌شکن و ارّه‌ی نجّار</p>
+    <p>گفتش تبر آهسته که: جرم تو همین بس / کاین موسم حاصل بود و نیست تو را بار</p>
+    <p>تا شام، نیفتاد صدای تبر از گوش / شد توده در آن باغ، سحر هیمه‌ی بسیار</p>
+    <p>دهقان چو تنور خود از این هیمه برافروخت / بگریست سپیدار و چنین گفت دگربار:</p>
+    <p>آوخ که شدم هیزم و، آتشگرِ گیتی / اندام مرا سوخت چنین زآتشِ ادبار</p>
+    <p>خندید بر او شعله، کز دست که نالی؟ / ناچیزی تو کرد بدین گونه تو را خوار</p>
+    <p>آن شاخ که سر بر کشد و میوه نیارد / فرجام به جز سوختنش نیست سزاوار</p>
+    <p>جز دانش و حکمت نبود میوه‌ی انسان / ای میوه‌فروشِ هنر این دکه و بازار!</p>
+    <p>از گفته‌ی ناکرده و بیهوده چه حاصل؟ / کردار نکو کن که نه سودی‌ست ز گفتار</p>
+    <p>آسان گذرد گر شب و روز و مه و سالت / روز عمل و مزد، بود کار تو دشوار</p>
+    <p class="poet">پروین اعتصامی | قالب: قطعه</p>
+</div>
+
+<div class="box">
+    <h4>آرایه‌های مهم</h4>
+    <ul>
+        <li><strong>تشخیص:</strong> نالیدن سپیدار، گفت‌وگوی تبر، خندیدن شعله.</li>
+        <li><strong>تناسب:</strong> باغ، تبر، سپیدار، تیشه، ارّه، هیزم، تنور، آتش.</li>
+        <li><strong>تضاد:</strong> شام و سحر، آسان و دشوار، بیهوده و سود.</li>
+        <li><strong>کنایه:</strong> سر برکشیدن = رشد کردن.</li>
+        <li><strong>تمثیل:</strong> داستان درخت بی‌بار برای بیان ضرورت علم و عمل.</li>
+    </ul>
+</div>
+
+<h3 class="lesson-title">حکایت: افلاطون و مرد جاهل</h3>
+<div class="box-orange">
+    <div class="story-text">
+        <p>گویند روزی افلاطون، فیلسوف بزرگ یونان، در محفل خود نشسته بود و به تنهایی می‌اندیشید. مردی جاهل و نادان نزد او آمد و بی‌مقدمه شروع کرد به حرف زدن. در میانه‌ی سخن گفت: «ای حکیم! امروز فلان مرد را دیدم که سخن تو می‌گفت و تو را دعا می‌کرد و می‌گفت: افلاطون، بزرگ‌مردی است که هرگز کس چون او نبوده است و نباشد؛ خواستم که شکر و سپاس او را به تو رسانم.»</p>
+
+        <p>افلاطون چون این سخن بشنید، سر فرو برد و بگریست و سخت دلتنگ شد. مرد جاهل با دیدن این حالت، حیرت‌زده پرسید: «ای حکیم! از من چه رنج آمد تو را که چنین تنگ‌دل گشتی؟»</p>
+
+        <p>افلاطون آهسته سر بلند کرد و با چشمانی اشک‌آلود گفت: «از تو رنجی به من نرسید، ولیکن برای من از این بدتر چیست که جاهلی مرا بستاید؟! اگر ستایشگر من انسانی دانا و اندیشمند بود، این سخن برای من مایه‌ی سرافرازی و افتخار می‌شد؛ اما آن‌گاه که زبان نادان و جاهل به مدح من گشوده شود، این خود نشانه‌ی آن است که رفتار و کردار من به دل نادانان خوش آمده و چه بسا آگاهانه یا ناآگاهانه از مسیر حق و فضیلت دور شده‌ام.»</p>
+
+        <p>مرد جاهل با شنیدن این سخن، سر به زیر افکند و از محضر افلاطون با شرمساری بیرون رفت. حاضران در آن محفل از این پاسخ حکیمانه‌ی افلاطون، درس بزرگی آموختند که چگونه شناخت معیار و ارزش ستایش‌کنندگان، می‌تواند راهنمای سنجش ارزش حقیقی کارهای انسان باشد.</p>
+    </div>
+</div>
+
+<div class="box-green">
+    <h4>پیام حکایت</h4>
+    <p>انسان‌های نادان به سبب فقدان بصیرت، معیارهای اشتباهی در قضاوت دارند؛ هرگاه فردی نادان به تمجید از ما بپردازد، جای خشنودی نیست، بلکه باید نگران شد که مبادا رفتاری سخیف و مطابق میل اهل جهل مرتکب شده باشیم.</p>
+</div>
+
+<h3 class="lesson-title">واژه‌های کوتاه‌شده (مخفّف)</h3>
+<table>
+    <thead><tr><th>کلمه اصلی</th><th>مخفّف</th><th>کلمه اصلی</th><th>مخفّف</th></tr></thead>
+    <tbody>
+        <tr><td>آواز</td><td>آوا</td><td>بیرون</td><td>برون</td></tr>
+        <tr><td>آگاه</td><td>آگه</td><td>پادشاه</td><td>پادشه</td></tr>
+        <tr><td>چون</td><td>چو</td><td>خاموش</td><td>خموش</td></tr>
+        <tr><td>راه</td><td>رَه</td><td>سپاه</td><td>سپه</td></tr>
+        <tr><td>شاه</td><td>شَه</td><td>کوه</td><td>کَه</td></tr>
+        <tr><td>که از</td><td>کَز</td><td>که این</td><td>کاین</td></tr>
+        <tr><td>ماه</td><td>مَه</td><td>گناه</td><td>گنه</td></tr>
+        <tr><td>ناگاه</td><td>ناگه</td><td>همواره</td><td>هماره</td></tr>
+    </tbody>
+</table>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>جور</td><td>ستم، بیداد</td><td>جور، جابر</td><td>عدل</td></tr>
+        <tr><td>زار</td><td>ضعیف، ناتوان</td><td>زاری</td><td>توانا</td></tr>
+        <tr><td>بیخ و بن</td><td>ریشه، اساس</td><td>بیخ، بن</td><td>شاخه</td></tr>
+        <tr><td>موسم</td><td>فصل، هنگام</td><td>موسمی</td><td>—</td></tr>
+        <tr><td>حاصل</td><td>میوه، دستاورد</td><td>محصول، تحصیل</td><td>بی‌حاصل</td></tr>
+        <tr><td>توده</td><td>پشته، انباشته</td><td>توده‌ای</td><td>پراکنده</td></tr>
+        <tr><td>هیمه</td><td>هیزم، چوب سوختنی</td><td>هیمه‌فروش</td><td>—</td></tr>
+        <tr><td>آتشگر</td><td>آتش‌افروز، سوزاننده</td><td>آتش، گر</td><td>خاموش‌کننده</td></tr>
+        <tr><td>ادبار</td><td>تیره‌بختی، بدبختی</td><td>دبیر، تدبیر</td><td>اقبال</td></tr>
+        <tr><td>آوخ</td><td>افسوس، دریغ</td><td>—</td><td>—</td></tr>
+        <tr><td>خوار</td><td>پست، بی‌مقدار</td><td>خواری</td><td>عزیز</td></tr>
+        <tr><td>دکه</td><td>مغازه، دکان</td><td>دکاکین</td><td>—</td></tr>
+        <tr><td>کردار</td><td>عمل، رفتار</td><td>کردارنیک</td><td>گفتار</td></tr>
+        <tr><td>مزد</td><td>پاداش، اجرت</td><td>مزدور</td><td>—</td></tr>
+        <tr><td>فرجام</td><td>سرانجام، عاقبت</td><td>فرجامین</td><td>آغاز</td></tr>
+        <tr><td>جاهل</td><td>نادان، بی‌خرد</td><td>جهل، جهالت</td><td>دانا</td></tr>
+        <tr><td>سزاوار</td><td>شایسته، لایق</td><td>سزا</td><td>ناشایست</td></tr>
+        <tr><td>بستاید</td><td>تعریف و مدح کند</td><td>ستایش، ستوده</td><td>نکوهش</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> فرجام ≠ آغاز | سود ≠ ضرر | آهسته ≠ سریع | آسان ≠ دشوار | بسیار ≠ اندک | حاصل ≠ بی‌حاصل | دعا ≠ نفرین | جاهل ≠ دانا
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: پروین اعتصامی</h4>
+    <p>رخشنده اعتصامی معروف به پروین اعتصامی (۱۲۸۵ - ۱۳۲۰). پدرش یوسف اعتصامی ادیب و مترجم سرشناس بود. پروین بزرگ‌ترین قطعه‌سرای زن در ادب فارسی است. مزار وی در حرم حضرت فاطمه معصومه (س) در قم است.</p>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> شعر «میوه‌ی هنر» در چه قالبی سروده شده است؟ الف) غزل ب) مثنوی ج) قصیده د) قطعه</p>
+    <p><strong>پاسخ:</strong> د) قطعه</p>
+    <p><strong>۲. جای خالی:</strong> جز دانش و .................. نبود میوه‌ی انسان / ای میوه‌فروشِ هنر این .................. و بازار!</p>
+    <p><strong>۳. درک مطلب:</strong> چرا تبر درخت سپیدار را شایسته قطع شدن می‌داند؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «خندید بر او شعله، کز دست که نالی؟» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «آتشگر - ادبار - سزاوار» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس شانزدهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس شانزدهم: آداب مطالعه</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>منبع:</strong> فتوّت‌نامه‌ی سلطانی | <strong>نویسنده:</strong> کمال‌الدین حسین واعظ کاشفی</p>
+</div>
+
+<h3 class="lesson-title">متن کامل و بازنویسی بخش آداب مطالعه</h3>
+
+<div class="box">
+    <div class="story-text">
+        <p><strong>متن کهن:</strong> «بدان که قصّه خواندن و شنیدن فایده بسیار دارد: اول آن که از احوال گذشتگان خبردار شود. دویم آن که چون عجایب بشنود، نظر او به قدرت الهی گشاده گردد. سیّم چون محنت و شدّت گذشتگان شنود، داند که هیچ کس از بند محنت آزاد نبوده است، او را تسلّی باشد. چهارم، چون زوالِ مُلک و مالِ سلاطین گذشته شنود، دل از مال دنیا بردارد و داند که با کس وفا نکرده و نخواهد کرد. پنجم عبرت بسیار و تجربه‌ی بی‌شمار او را حاصل شود.»</p>
+
+        <p><strong>بازنویسی امروزی:</strong> آگاه باش که مطالعه و گوش فرا دادن به داستان‌ها منفعت‌های بی‌شماری دارد:</p>
+
+        <ol>
+            <li><strong>نخست آنکه</strong> انسان از سرگذشت پیشینیان و احوال گذشتگان آگاهی می‌یابد.</li>
+            <li><strong>دوم آنکه</strong> با شنیدن شگفتی‌های جهان و پدیده‌های حیرت‌انگیز، چشم بصیرت او به عظمت و توانایی پروردگار باز می‌گردد.</li>
+            <li><strong>سوم آنکه</strong> وقتی رنج‌ها و سختی‌های پیشینیان را می‌شنود، درمی‌یابد که هیچ انسانی در طول تاریخ بدون غم و مصیبت نبوده و این امر موجب آرامش خاطر و تسلی دل او می‌شود.</li>
+            <li><strong>چهارم آنکه</strong> با آگاهی از نابودی پادشاهی و ثروت حاکمان پیشین، دل به مادیات دنیا نمی‌بندد؛ زیرا متوجه می‌شود که جهان به هیچ بنده‌ای وفا نکرده و نخواهد کرد.</li>
+            <li><strong>پنجم آنکه</strong> عبرت‌های فراوان و تجربه‌های ارزشمند و بی‌شماری به دست می‌آورد.</li>
+        </ol>
+
+        <p><strong>متن کهن (بخش دوم):</strong> «و خدای بزرگ با حضرت رسول (ص) می‌گوید: «ای محمد، ما از قصّه‌های رسولان و خبرهای پیامبران، بر تو می‌خوانیم، آن چه بدان دل را ثابت گردانیم و فایده‌های کلّی تو را حاصل گردد.» (قرآن کریم، سوره‌ی هود، آیه‌ی ۱۲۰)»</p>
+
+        <p><strong>بازنویسی:</strong> خداوند متعال به پیامبر گرامی (ص) می‌فرماید: ای محمد! ما سرگذشت پیامبران پیشین را برای تو بازگو می‌کنیم تا قلب تو را بر راه حق استوار سازیم و منافع و درس‌های فراوانی نصیب تو شود.</p>
+    </div>
+</div>
+
+<h3 class="lesson-title">متن کامل آداب قصه‌خوانی و شعرخوانی</h3>
+<div class="box">
+    <div class="story-text">
+        <p><strong>متن کهن:</strong> «پس معلوم شد که در قصّه‌های گذشتگان فایده‌ای هست و خواننده و گوینده و شنونده را از آن فایده رسد. اگر پرسند که قصّه‌خوانی چند نوع است؟ بگوی دو نوع: اول حکایت‌گویی و دویم نظم‌خوانی. اگر پرسند که آداب حکایت‌گویان چند است؟ بگوی: اوّل آن که قصّه‌ای که ادا خواهد کرد، بر استاد خوانده باشد و با خود تکرار کرده باشد تا فرو نماند؛ دویم آن که چست و چالاک به سخن درآید و خام نباشد؛ سیّم باید که داند جماعت، لایق چه نوع سخن است، بیش‌تر از آن گوید که مردم راغب آن باشند؛ چهارم، نثر را وقت به وقت به نظم آراسته گرداند که بزرگان گفته‌اند: نظم در قصه‌خوانی چون نمک است در دیگ؛ اگر کم باشد طعام بی‌مزه بود و اگر بسیار گردد شور شود، پس باید اعتدال نگاه دارد؛ پنجم سخنان محال و گزاف نگوید که در چشم مردم، سبک شود.»</p>
+
+        <p><strong>بازنویسی:</strong> پس روشن شد که در داستان‌های گذشتگان فایده‌ای نهفته است و گوینده، خواننده و شنونده از آن بهره‌مند می‌شوند. اگر بپرسند که قصه‌خوانی چند گونه است؟ بگو دو گونه: نخست حکایت‌گویی (به نثر) و دوم نظم‌خوانی (به شعر).</p>
+
+        <p><strong>آداب حکایت‌گویی:</strong></p>
+
+        <ol>
+            <li>ابتدا باید قصه‌ای که می‌خواهد اجرا کند، نزد استاد خوانده و با خود تکرار کرده باشد تا در هنگام اجرا از یادش نرود.</li>
+            <li>باید با چابکی، مهارت و روانی وارد سخن گفتن شود و در بیان، خام و بی‌تجربه نباشد.</li>
+            <li>باید بداند که شنوندگان شایسته و علاقه‌مند به چه نوع سخنی هستند و بیش از آنچه مردم مشتاق آن‌اند، سخن نگوید.</li>
+            <li>باید نثر را هر از چند گاه با شعر بیاراید؛ چرا که بزرگان گفته‌اند: <span class="hl">«نظم در قصه‌خوانی چون نمک است در دیگ»</span>؛ اگر نمک کم باشد، غذا بی‌مزه می‌شود و اگر بسیار گردد، شور می‌گردد. پس باید حد میانه‌روی را نگاه دارد.</li>
+            <li>نباید سخنان غیرممکن، باورناپذیر و بیهوده بگوید؛ زیرا در نظر مردم خوار و بی‌اعتبار می‌شود.</li>
+        </ol>
+
+        <p><strong>متن کهن (ادامه):</strong> «اگر پرسند آداب نظم‌خوانی چند است؟ بگوی: اوّل آن که به آهنگ خواند؛ دویم سخن را در دل مردم بنشاند؛ سیّم، اگر بیتی مشکل پیش آید شرح آن با حاضران بگوید؛ چهارم، چنان نکند که مستمع ملول گردد؛ پنجم صاحب آن نظم را در اوّل و یا در آخر یاد کند و فاتحه و تکبیر بگوید.»</p>
+
+        <p><strong>بازنویسی آداب نظم‌خوانی:</strong></p>
+
+        <ol>
+            <li>شعر را با آهنگ و لحن مناسب بخواند.</li>
+            <li>سخن را چنان بیان کند که در دل شنوندگان جای گیرد.</li>
+            <li>اگر بیتی دشوار و پیچیده پیش آمد، معنای آن را برای حاضران توضیح دهد.</li>
+            <li>چنان نکند که شنونده خسته و آزرده شود.</li>
+            <li>از شاعر اثر، در آغاز یا در پایان برنامه یاد کند و برای او فاتحه و تکبیر بفرستد.</li>
+        </ol>
+    </div>
+</div>
+
+<h3 class="lesson-title">فواید قصه‌خوانی</h3>
+<div class="box-green">
+    <ol>
+        <li>آگاهی از احوال گذشتگان</li>
+        <li>شناخت قدرت الهی از طریق شنیدن شگفتی‌ها</li>
+        <li>تسلی خاطر و آرامش یافتن در برابر سختی‌ها</li>
+        <li>دل نبستن به مال دنیا</li>
+        <li>عبرت‌آموزی و تجربه‌اندوزی</li>
+    </ol>
+</div>
+
+<h3 class="lesson-title">شعر: به گیتی به از راستی پیشه نیست (فردوسی)</h3>
+<div class="verse">
+    <p>به گیتی به از راستی پیشه نیست / ز کژی بَتَر هیچ اندیشه نیست</p>
+    <p>سخن گفتنِ کژ ز بیچارگی است / به بیچارگان بر بباید گریست</p>
+    <p>هر آن کو که گردد به گِردِ دروغ / ستمکاره خوانیمش و بی‌فروغ</p>
+    <p>همه راستی کن که از راستی / نیاید به کار اندرون کاستی</p>
+    <p>گشاده است بر ما درِ راستی / چه کوبیم خیره، درِ کاستی؟</p>
+    <p>هر آن کس که با تو نگوید درست / چنان دان که او دشمنِ جانِ توست</p>
+    <p>مکن دوستی با دروغ‌آزمای / همان نیز با مردِ ناپاک‌رای</p>
+    <p class="poet">حکیم ابوالقاسم فردوسی | قالب: مثنوی</p>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>احوال</td><td>سرگذشت‌ها</td><td>حال، حالت</td><td>—</td></tr>
+        <tr><td>دویم</td><td>دوم</td><td>دو، دوتایی</td><td>یکم</td></tr>
+        <tr><td>عجایب</td><td>شگفتی‌ها</td><td>عجیب، تعجب</td><td>عادی</td></tr>
+        <tr><td>سیّم</td><td>سوم</td><td>سه، سه‌گانه</td><td>دوم</td></tr>
+        <tr><td>محنت</td><td>رنج، غم</td><td>محنت‌زده</td><td>آسایش</td></tr>
+        <tr><td>شدّت</td><td>سختی بسیار</td><td>شدید، تشدید</td><td>ملایمت</td></tr>
+        <tr><td>بند</td><td>اسارت، زندان</td><td>بندی، بندانداز</td><td>آزادی</td></tr>
+        <tr><td>تسلّی</td><td>آرامش دادن به دل</td><td>تسلیت</td><td>—</td></tr>
+        <tr><td>زوال</td><td>نابودی، از بین رفتن</td><td>زائل، زوال‌پذیر</td><td>بقا</td></tr>
+        <tr><td>مُلک</td><td>فرمانروایی، قلمرو</td><td>مالک، مملکت</td><td>—</td></tr>
+        <tr><td>نظم</td><td>کلام منظوم، شعر</td><td>ناظم، منظم</td><td>نثر</td></tr>
+        <tr><td>پیشه</td><td>کار، حرفه</td><td>پیشه‌ور</td><td>—</td></tr>
+        <tr><td>کاستی</td><td>نقص، بدی</td><td>کاستن</td><td>راستی</td></tr>
+        <tr><td>کژی</td><td>ناراستی، نادرستی</td><td>کژ، کژرفتار</td><td>راستی</td></tr>
+        <tr><td>خیره</td><td>بی‌پروایی، گستاخ</td><td>خیره‌سری</td><td>آرام</td></tr>
+        <tr><td>بی‌فروغ</td><td>تاریک، بدون نور</td><td>فروغ، فروزان</td><td>درخشان، روشن</td></tr>
+        <tr><td>چست و چالاک</td><td>زرنگ، سریع</td><td>چالاکی</td><td>کند</td></tr>
+        <tr><td>راغب</td><td>علاقه‌مند، مایل</td><td>رغبت، ترغیب</td><td>بی‌رغبت</td></tr>
+        <tr><td>اعتدال</td><td>میانه‌روی</td><td>معتدل، تعادل</td><td>افراط</td></tr>
+        <tr><td>محال</td><td>نشدنی، غیرممکن</td><td>محال‌انگار</td><td>ممکن</td></tr>
+        <tr><td>گزاف</td><td>سخن بیهوده، اغراق</td><td>گزافه‌گو</td><td>سنجیده</td></tr>
+        <tr><td>مستمع</td><td>شنونده</td><td>سمع، استماع</td><td>گوینده</td></tr>
+        <tr><td>ملول</td><td>خسته، آزرده</td><td>ملالت</td><td>شاد</td></tr>
+        <tr><td>تکبیر</td><td>الله‌اکبر گفتن</td><td>کبیر، اکبر</td><td>—</td></tr>
+        <tr><td>فروغ</td><td>روشنایی، نور</td><td>فروزان، فروغی</td><td>تاریکی</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> مجهول ≠ معلوم | عالم ≠ جاهل | ثابت ≠ متحرک | خام ≠ پخته | <strong>فروغ ≠ تاریکی</strong> | <strong>بی‌فروغ ≠ درخشان / روشن</strong> | کاستی ≠ راستی | محنت ≠ آسایش | حاضر ≠ غایب | ملول ≠ شاد
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات: کمال‌الدین حسین واعظ کاشفی</h4>
+    <p>(۸۴۰ - ۹۱۰ هـ.ق) عالم، نویسنده و واعظ قرن نهم و دهم. آثار: فتوّت‌نامه‌ی سلطانی، روضة الشهدا، انوار سهیلی، اخلاق محسنی، جواهر التفسیر.</p>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> متن درس «آداب مطالعه» از چه کتابی نقل شده است؟ الف) تذکرةالاولیاء ب) فتوّت‌نامه‌ی سلطانی ج) کیمیای سعادت د) تاریخ بیهقی</p>
+    <p><strong>پاسخ:</strong> ب) فتوّت‌نامه‌ی سلطانی</p>
+    <p><strong>۲. جای خالی:</strong> چون زوالِ مُلک و مالِ سلاطین گذشته شنود، دل از مال .................. بردارد.</p>
+    <p><strong>۳. درک مطلب:</strong> منظور نویسنده از عبارت «سخنان محال و گزاف نگوید» چیست؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «گشاده است بر ما درِ راستی / چه کوبیم خیره، درِ کاستی؟» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «محنت - تسلّی - اعتدال» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- درس هفدهم -->
+<!-- ================================================================ -->
+<h1 class="section-title">درس هفدهم: ستاره روشن و نیایش</h1>
+
+<div class="box-blue">
+    <h4>شناسنامه</h4>
+    <p><strong>منبع:</strong> تاریخ بیهقی | <strong>نویسنده:</strong> ابوالفضل بیهقی</p>
+</div>
+
+<h3 class="lesson-title">اندرزهای بزرگمهر (متن کامل)</h3>
+
+<div class="box">
+    <h4>۱) وصیت درباره‌ی آمدن پیامبر آخرالزمان</h4>
+    <p>«چنان خوانده‌ام که چون بزرگ‌مهرِ حکیم، برادران را وصیت کرد که: «در کُتُب خوانده‌ام که آخرالزّمان، پیغمبری خواهد آمد، نام او محمّد مصطفی (ص). اگر روزگار یابم، نخست کس من باشم که بدو گِرَوَم، شما هم فرزندان خویشتن را چنین نصیحت کنید تا بهشت یابید.»</p>
+    <p><strong>بازنویسی:</strong> در کتاب‌های تاریخی خوانده‌ام هنگامی که بزرگمهر دانشمند به برادران خود اندرز داد و گفت: در کتاب‌های آسمانی پیشین خوانده‌ام که در پایان روزگار، پیامبری به نام حضرت محمد مصطفی (ص) مبعوث خواهد شد. اگر دوران حیات من تا زمان ظهور او ادامه یابد، نخستین کسی خواهم بود که به او ایمان می‌آورم؛ شما نیز فرزندان خود را به این موضوع سفارش کنید تا به بهشت و رستگاری دست یابید.</p>
+</div>
+
+<div class="box">
+    <h4>۲) یادگارخواهی حکما و علما</h4>
+    <p>«حکما و علما نزدیک وی می‌آمدند و می‌گفتند که: ما را از علم خویش بهره دادی و هیچ چیز دریغ نداشتی تا دانا شدیم، ستاره‌ی روشنِ ما بودی که ما را راه راست نمودی، ما را یادگاری ده از علم خویش.»</p>
+    <p><strong>بازنویسی:</strong> فیلسوفان و دانشمندان روزگار به حضور او می‌آمدند و می‌گفتند: تو ما را از دانش گسترده‌ی خویش برخوردار ساختی و در آموزش ما از هیچ کوششی کوتاهی نکردی تا به مقام دانایی رسیدیم؛ تو برای ما مانند ستاره‌ای تابان و هدایتگر بودی که راه درست را به ما نشان دادی؛ اکنون یادگاری جاودان از گنجینه‌ی دانش خود به ما ببخش.</p>
+</div>
+
+<div class="box">
+    <h4>۳) وصیت بزرگمهر به برادران (متن کامل اندرزها)</h4>
+    <p>«گفت: وصیت کنم شما را که خدای عزّوجلّ را به یگانگی شناسید و وی را اطاعت دارید و بدانید که کردار زشت و نیکوی شما می‌بیند و آن چه در دل دارید، می‌داند و زندگانی ما به فرمان اوست. سخن خوب گویید و کار نیکو دارید، که خدای عزّوجلّ که شما را آفریده برای نیکی آفریده و زینهار تا بدی نکنید و از بدان دور باشید که بدکننده را زندگانی، کوتاه باشد و پارسا باشید و چشم و گوش و دست از حرام و مال مردمان دور دارید.»</p>
+    <p><strong>بازنویسی:</strong> بزرگمهر پاسخ داد: به شما وصیت می‌کنم که خداوند بلندمرتبه و عزیز را به یکتایی بشناسید و از فرامینش پیروی کنید و آگاه باشید که رفتارهای زشت و پسندیده‌ی شما را نظاره می‌کند و هر فکری را که در دل پنهان کرده‌اید می‌داند و تمام حیات ما در ید قدرت اوست. کلام شایسته بر زبان آورید و کردار نیک پیشه کنید؛ چرا که پروردگار بزرگ شما را برای انجام نیکی آفریده است. مبادا پیرامون بدی بگردید و از همنشینی با بدکاران دوری جویید؛ زیرا انسان ستمکار عمری کوتاه و تباه خواهد داشت. پرهیزگار باشید و دیدگان، گوش‌ها و دستان خود را از نگاه، شنیدن و دست‌درازی به اموال حرام و دارایی مردم پاک نگاه دارید.</p>
+</div>
+
+<div class="box">
+    <h4>۴) اندرز درباره‌ی راستگویی، دروغ، عیب‌جویی و اخلاق</h4>
+    <p>«راست گفتن پیشه گیرید که روی را روشن دارد و مردمان، راست‌گویان را دوست دارند و راست‌گوی هلاک نشود و از دروغ‌زن دور باشید که دروغ‌زن ارچه گواهی راست دهد، نپذیرند. و مردمان را عیب نکنید که هیچ کس بی‌عیب نیست؛ هر که از عیب خود نابینا شد، نادان‌ترِ مردم باشد. و خویِ نیک بزرگ‌تر عطاهای خدا است عزّوجلّ، و از خویِ بد دور باشید که بندِ گران است بر دل و بر پای، همیشه بدخو در رنج باشد و مردمان از وی به رنج. نیکوخوی در هر دو جهان ستوده است. و هر که از شما به زاد بزرگ‌تر باشد، وی را بزرگ‌تر دارید و حرمت او نگاه دارید.»</p>
+    <p><strong>بازنویسی:</strong> همواره صداقت و راستگویی را شیوه‌ی زندگی خویش سازید؛ چرا که راستی چهره‌ی آدمی را نورانی و سرافراز می‌کند، توده‌ی مردم انسان‌های راستگو را دوست دارند و فرد صادق هرگز تباه نمی‌شود. از انسان دروغگو و فریبکار دوری کنید؛ چرا که دروغگو حتی اگر به راستی هم شهادت دهد، کسی سخنش را قبول نمی‌کند. از دیگران عیب‌جویی مکنید؛ زیرا هیچ بنده‌ای خالی از نقص و کاستی نیست و هر کس از دیدن خطاهای خویش غافل و نابینا شود، نادان‌ترین مردمان به شمار می‌آید. اخلاق نیکو و پسندیده والاترین بخشش خداوند عزیز و گرامی است؛ از بدخلقی و تندخویی بپرهیزید که مانند زنجیری سنگین بر دست و پای روان انسان است. انسان بدخو پیوسته خود در رنج و عذاب درونی است و دیگران نیز از دست او در آزارند. انسان خوش‌اخلاق در دنیا و آخرت مورد ستایش همگان است؛ و هر کس از حیث سن و سال از شما کهنسال‌تر بود، او را گرامی‌تر شمارید و احترامش را کاملاً پاس بدارید.</p>
+</div>
+
+<h3 class="lesson-title">داستان آوای گنجشکان (هوشنگ مرادی کرمانی)</h3>
+<div class="box-pink">
+    <p>«ممنون» جوانی پرادعا و مغرور بود که گمان می‌کرد همه‌چیزدان است. شیخ مکتب‌خانه کوزه‌ای لبریز از آب را پیش روی او گرفت و گفت: «کوزه را محکم نگاه‌دار تا در آن آب بریزم». ممنون گفت: «این کوزه تا لبه پر از آب است!» شیخ لبخند زد: «حالِ اندیشه و جان تو نیز مانند این کوزه است؛ وقتی ذهنت را پر از ادعا کرده‌ای، جایی برای پذیرش دانش نو باقی نمانده است. نخست باید از این غرور تهی شوی تا آماده‌ی یادگیری گردی».</p>
+</div>
+
+<h3 class="lesson-title">شعر نیایش (نظامی گنجوی)</h3>
+<div class="verse">
+    <p>خدایا! جهان‌پادشاهی تو راست / ز ما خدمت آید، خدایی تو راست</p>
+    <p>پناهِ بلندی و پستی تویی / همه نیستند، آنچه هستی تویی</p>
+    <p>همه آفریدست، بالا و پست / تویی آفریننده‌ی هر چه هست</p>
+    <p>خرد را تو روشن‌بصر کرده‌ای / چراغِ هدایت تو بر کرده‌ای</p>
+    <p>جهانی بدین خوبی آراستی / برون زان که یاریگری خواستی</p>
+    <p>خداوندِ مایی و ما بنده‌ایم / به نیروی تو، یک به یک زنده‌ایم</p>
+    <p>رهی پیشم آور که فرجامِ کار / تو خشنود باشی و ما رستگار</p>
+    <p class="poet">نظامی گنجوی | قالب: مثنوی</p>
+</div>
+
+<div class="box-green">
+    <h4>کاربردهای واژه «تا»</h4>
+    <ol>
+        <li>بیان فاصله زمانی و مکانی: از صبح تا شام.</li>
+        <li>حرف ربط به معنای وقتی‌که: تا او را دیدم ماجرا را گفتم.</li>
+        <li>واحد شمارش: دو تا کتاب.</li>
+    </ol>
+</div>
+
+<h3 class="lesson-title">جدول واژگان، هم‌خانواده و متضاد</h3>
+<table>
+    <thead>
+        <tr><th>واژه</th><th>معنی</th><th>هم‌خانواده</th><th>متضاد</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>وصیت</td><td>سفارش، پند</td><td>وصی، وصایا</td><td>—</td></tr>
+        <tr><td>کُتُب</td><td>کتاب‌های آسمانی</td><td>کتاب، کاتب، مکتب</td><td>—</td></tr>
+        <tr><td>گِرَوَم</td><td>ایمان بیاورم</td><td>گرویدن</td><td>انکار</td></tr>
+        <tr><td>دریغ نداشت</td><td>مضایقه نکرد</td><td>دریغ، دریغا</td><td>بخل ورزید</td></tr>
+        <tr><td>عزّوجلّ</td><td>عزیز و گرامی و بلندمرتبه</td><td>عزیز، جلیل</td><td>—</td></tr>
+        <tr><td>اطاعت</td><td>فرمانبرداری</td><td>مطیع، طاعت</td><td>سرکشی</td></tr>
+        <tr><td>کردار</td><td>رفتار، اعمال</td><td>کردارنیک</td><td>گفتار</td></tr>
+        <tr><td>زینهار</td><td>آگاه باش، مبادا</td><td>زنهار</td><td>—</td></tr>
+        <tr><td>پارسا</td><td>پرهیزگار، پاک‌دامن</td><td>پارسایی</td><td>بی‌پروا</td></tr>
+        <tr><td>هلاک</td><td>نابودی، مرگ</td><td>هلاکت، مهلک</td><td>زنده</td></tr>
+        <tr><td>دروغ‌زن</td><td>دروغگو، فریبکار</td><td>دروغ، دروغگویی</td><td>راستگو</td></tr>
+        <tr><td>ارچه</td><td>اگرچه</td><td>—</td><td>—</td></tr>
+        <tr><td>خوی</td><td>طبع، اخلاق</td><td>خو، خویش</td><td>—</td></tr>
+        <tr><td>عطا</td><td>بخشش، دهش</td><td>عطیه، معطی</td><td>منع</td></tr>
+        <tr><td>ستوده</td><td>مورد ستایش</td><td>ستایش، ستودن</td><td>نکوهیده</td></tr>
+        <tr><td>زاد</td><td>سن و سال، عمر</td><td>زادن، زادروز</td><td>—</td></tr>
+        <tr><td>حرمت</td><td>احترام، کرامت</td><td>حریم، محترم</td><td>بی‌حرمتی</td></tr>
+        <tr><td>بصر</td><td>چشم، بینایی</td><td>بصیر، بصیرت</td><td>کوری</td></tr>
+        <tr><td>آراستی</td><td>زیباسازی کردی</td><td>آرایش، آراسته</td><td>پریشان کردی</td></tr>
+        <tr><td>یاریگر</td><td>معین، مددکار</td><td>یار، یاری</td><td>دشمن</td></tr>
+        <tr><td>فرجام</td><td>عاقبت، پایان کار</td><td>فرجامین</td><td>آغاز</td></tr>
+        <tr><td>خشنود</td><td>راضی، خرسند</td><td>خشنودی</td><td>ناخشنود</td></tr>
+        <tr><td>رستگار</td><td>نجات‌یافته، کامیاب</td><td>رستگاری</td><td>گمراه</td></tr>
+        <tr><td>شیخ</td><td>پیر دانا، آموزگار</td><td>شیوخ، مشایخ</td><td>—</td></tr>
+        <tr><td>لطف طبع</td><td>شیرینی سخن</td><td>لطف، طبع</td><td>بدخویی</td></tr>
+        <tr><td>کوبه</td><td>حلقه‌ی فلزی روی در</td><td>کوبیدن</td><td>—</td></tr>
+        <tr><td>مدعی</td><td>ادعاکننده، مغرور</td><td>ادعا، دعوی</td><td>فروتن</td></tr>
+        <tr><td>رهی</td><td>مخفف راهی</td><td>ره، راه</td><td>—</td></tr>
+        <tr><td>خدمت</td><td>بندگی، طاعت</td><td>خادم، خدمتکار</td><td>—</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>متضادها:</strong> بهشت ≠ جهنم | بلندی ≠ پستی | حرام ≠ حلال | نیستی ≠ هستی | دانا ≠ نادان | رنج ≠ آسایش | عیب ≠ هنر | حرمت ≠ بی‌حرمتی
+</div>
+
+<div class="important">
+    <strong>کلمات املایی:</strong> بزرگمهر، وصیت، آخرالزمان، پیغمبر، محمد مصطفی (ص)، روزگار، نخست، بهشت، حکما و علما، بهره، دریغ، یادگاری، اطاعت، یگانگی، خدای عزّوجلّ، زینهار، پارسا، حرام، راستگوی، هلاک، دروغ‌زن، ارچه، گواهی، نپذیرند، بی‌عیب، عطا، ستوده، زاد، حرمت، لطف طبع، مدعی، حافظ، حصیر، هدایت، روشن‌بصر، مناجات، طاقت، حادثه، نفوذ
+</div>
+
+<div class="box-yellow">
+    <h4>تاریخ ادبیات درس هفدهم</h4>
+    <ul>
+        <li><strong>ابوالفضل بیهقی:</strong> (۳۸۵ - ۴۷۰ هـ.ق)، دبیر دربار غزنویان و مورخ بزرگ سده پنجم. اثر: تاریخ بیهقی.</li>
+        <li><strong>هوشنگ مرادی کرمانی:</strong> زاده ۱۳۲۳ در سیرچ کرمان. آثار: قصه‌های مجید، آب‌انبار، داستان خمره، نخل، مهمان مامان، چکمه.</li>
+        <li><strong>بزرگمهر بختگان:</strong> وزیر دانشمند انوشیروان ساسانی. اندرزنامه‌های اخلاقی از او به یادگار مانده است.</li>
+    </ul>
+</div>
+
+<div class="qbox">
+    <h4>نمونه‌سؤالات و تمرین‌های استاندارد</h4>
+    <p><strong>۱. چهارگزینه‌ای:</strong> مقصود از «نخست کس من باشم که بدو گروم» چیست؟ الف) به او ایمان بیاورم ب) با او بروم ج) با او سخن بگویم د) نزد او بروم</p>
+    <p><strong>پاسخ:</strong> الف) به او ایمان بیاورم</p>
+    <p><strong>۲. جای خالی:</strong> پناهِ .................. و پستی تویی / همه نیستند، آنچه .................. تویی</p>
+    <p><strong>۳. درک مطلب:</strong> از دیدگاه بزرگمهر، نادان‌ترین افراد چه کسانی هستند؟</p>
+    <p><strong>۴. تشخیص آرایه:</strong> در بیت «خرد را تو روشن‌بصر کرده‌ای / چراغِ هدایت تو بر کرده‌ای» چه آرایه‌ای وجود دارد؟</p>
+    <p><strong>۵. غلط املایی:</strong> واژه‌های «وصیت - عزّوجلّ - پارسا» را درست بنویسید.</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- بخش تکمیلی: قواعد جامع دستور -->
+<!-- ================================================================ -->
+<h1 class="section-title">بخش تکمیلی: قواعد جامع دستور زبان</h1>
+
+<h2 class="chapter-title">۱. فرمول شمارش تعداد جملات در نظم و نثر</h2>
+
+<div class="box-blue">
+    <h4>فرمول کلی</h4>
+    <p class="formula">تعداد جملات = تعداد افعال حاضر + تعداد افعال حذف‌شده + تعداد شبه‌جمله‌ها</p>
+    <p><strong>توضیح:</strong> برای شمارش دقیق جملات در یک بیت یا عبارت، ابتدا تمام افعال موجود را می‌شماریم، سپس افعالی که به قرینه‌ی لفظی یا معنوی حذف شده‌اند را می‌افزاییم و در نهایت هر منادا یا صوت (شبه‌جمله) را نیز یک جمله مستقل به حساب می‌آوریم.</p>
+</div>
+
+<div class="two-col">
+    <div class="box">
+        <h4>حذف لفظی</h4>
+        <p>فعلی که پیش‌تر ذکر شده و برای جلوگیری از تکرار مجدداً آورده نمی‌شود.</p>
+        <p><strong>مثال:</strong> «گل زیباست و لاله نیز [زیباست]».</p>
+    </div>
+    <div class="box">
+        <h4>حذف معنوی</h4>
+        <p>فعلی که در کلام نیامده اما ذهن از مفهوم عبارت به وجود آن پی می‌برد.</p>
+        <p><strong>مثال:</strong> «هر که بامش بیش [است]، برفش بیشتر [است]».</p>
+    </div>
+</div>
+
+<div class="box-green">
+    <h4>مثال کاربردی</h4>
+    <p><strong>بیت:</strong> «خدایا! جهان‌پادشاهی تو راست / ز ما خدمت آید، خدایی تو راست»</p>
+    <ul>
+        <li>شبه‌جمله منادا: «خدایا» → ۱ جمله</li>
+        <li>فعل «تو راست» (مصراع اول) → ۱ جمله</li>
+        <li>فعل «آید» → ۱ جمله</li>
+        <li>فعل «تو راست» (مصراع دوم) → ۱ جمله</li>
+    </ul>
+    <p><strong>مجموع:</strong> ۴ جمله</p>
+</div>
+
+<h2 class="chapter-title">۲. اقسام قیدها</h2>
+
+<div class="box-blue">
+    <h4>تعریف قید</h4>
+    <p>کلمه‌ای که فعل، صفت، قید دیگر یا کل جمله را به زمان، مکان، حالت، کیفیت و... مقید می‌کند.</p>
+</div>
+
+<h3 class="lesson-title">اقسام قید از جهت ساختار</h3>
+
+<div class="two-col">
+    <div class="box">
+        <h4>قید مختص</h4>
+        <p>واژه‌هایی که فقط در نقش قیدی به کار می‌روند و در جای دیگر نقش دستوری دیگری نمی‌پذیرند.</p>
+        <p><strong>نمونه‌ها:</strong> هرگز، هنوز، البته، اتفاقاً، معمولاً، سراسر، حتی‌المقدور.</p>
+        <p><strong>مثال در جمله:</strong> «احمد هرگز به سینما نرفت.»</p>
+    </div>
+    <div class="box">
+        <h4>قید مشترک</h4>
+        <p>اسم‌ها یا صفت‌هایی که گاهی نقش قید می‌گیرند و در جای دیگر نقش‌های اسمی یا وصفی دارند.</p>
+        <p><strong>مثال ۱:</strong> «احمد شب آمد.» (شب: اسم در نقش قید زمان)</p>
+        <p><strong>مثال ۲:</strong> «خوب نوشت.» (خوب: صفت در نقش قید کیفیت)</p>
+    </div>
+</div>
+
+<h3 class="lesson-title">اقسام قید از جهت معنی</h3>
+
+<table>
+    <thead><tr><th>نوع قید</th><th>نمونه‌ها</th></tr></thead>
+    <tbody>
+        <tr><td>زمان</td><td>دیروز، امروز، فردا، شب، صبح، اکنون، هنوز</td></tr>
+        <tr><td>مکان</td><td>اینجا، آنجا، کجا، بالا، پایین، بیرون، درون</td></tr>
+        <tr><td>مقدار</td><td>بسیار، اندک، کمی، زیاد، کمتر، بیشتر</td></tr>
+        <tr><td>کیفیت</td><td>خوب، بد، نیکو، زیبا، آهسته، تند</td></tr>
+        <tr><td>حالت</td><td>خندان، لرزان، گریان، شادان</td></tr>
+        <tr><td>تأسف</td><td>متأسفانه، افسوس، دریغا</td></tr>
+        <tr><td>تعجب</td><td>عجبا، شگفتا</td></tr>
+        <tr><td>تصدیق و تأکید</td><td>حتماً، یقیناً، البته، قطعاً</td></tr>
+        <tr><td>پرسش</td><td>چرا، چگونه، چه‌سان</td></tr>
+        <tr><td>شک و تردید</td><td>شاید، گویی، احتمالاً</td></tr>
+        <tr><td>تدریج</td><td>اندک‌اندک، قطره‌قطره، کم‌کم</td></tr>
+        <tr><td>سوگند</td><td>به خدا، به جان، سوگند</td></tr>
+        <tr><td>نفی</td><td>هرگز، اصلاً، ابداً</td></tr>
+        <tr><td>استثنا</td><td>جز، مگر، به‌جز</td></tr>
+    </tbody>
+</table>
+
+<h2 class="chapter-title">۳. مسند و افعال ربطی (اسنادی)</h2>
+
+<div class="box-blue">
+    <h4>تعریف مسند و مسندالیه</h4>
+    <ul>
+        <li><strong>مسندالیه:</strong> نهادی که حالتی را می‌پذیرد (نهاد غیرفاعلی).</li>
+        <li><strong>مسند:</strong> کلمه‌ای که حالت یا صفت نهاد را بیان می‌کند و همراه فعل ربطی می‌آید.</li>
+    </ul>
+</div>
+
+<div class="box-green">
+    <h4>افعال ربطی (اسنادی)</h4>
+    <p>فعل‌های «است، بود، شد، گشت، گردید، می‌شود، باشد» و منفی آن‌ها («نیست، نشد، نگردید و...») فعل‌های ربطی هستند.</p>
+</div>
+
+<div class="box-yellow">
+    <h4>نکات مهم تشخیص مسند</h4>
+    <ol>
+        <li>به نهاد غیرفاعلی «مسندالیه» می‌گویند.</li>
+        <li>اگر فعل «گشت» و «گردید» به معنی چرخیدن و جست‌وجو کردن باشند، فعل ربطی نیستند.</li>
+        <li>اگر فعل «بود» به معنی «وجود داشتن» باشد، ربطی نیست.</li>
+        <li><strong>روش تشخیص:</strong> با پرسش «چطور / چگونه + فعل ربطی» به مسند می‌رسیم.</li>
+    </ol>
+</div>
+
+<div class="two-col">
+    <div class="box">
+        <h4>مثال ۱ (با مسند)</h4>
+        <p>«هوا سرد است.»</p>
+        <p>هوا چگونه است؟ سرد (مسند).</p>
+        <p>هوا: مسندالیه | سرد: مسند | است: فعل ربطی</p>
+    </div>
+    <div class="box">
+        <h4>مثال ۲ (بدون مسند)</h4>
+        <p>«مادر در خانه بود.»</p>
+        <p>بود = وجود داشت (فعل ناگذر، ربطی نیست).</p>
+        <p>مادر: نهاد | در خانه: متمم | بود: فعل ناگذر</p>
+    </div>
+</div>
+
+<h2 class="chapter-title">۴. ترکیب وصفی و اضافی و روش‌های تشخیص</h2>
+
+<table>
+    <thead><tr><th>نوع ترکیب</th><th>ساختار</th><th>مثال</th></tr></thead>
+    <tbody>
+        <tr><td>وصفی</td><td>اسم + کسره + صفت</td><td>گل زیبا، آب زلال</td></tr>
+        <tr><td>اضافی</td><td>اسم + کسره + اسم/ضمیر</td><td>کتاب سارا، دفتر من</td></tr>
+    </tbody>
+</table>
+
+<div class="box-green">
+    <h4>چهار آزمون تشخیص</h4>
+    <ol>
+        <li><strong>افزودن «-تر / -ترین»:</strong> گل زیباتر (وصفی) / کتاب ساراتر (اضافی).</li>
+        <li><strong>افزودن «این...است»:</strong> این گل، زیبا است (وصفی) / این کتاب، سارا است (اضافی).</li>
+        <li><strong>افزودن «ی» نکره:</strong> گلی زیبا (وصفی) / کتابی سارا (اضافی).</li>
+        <li><strong>افزودن «بسیار»:</strong> گل بسیار زیبا (وصفی) / کتاب بسیار سارا (اضافی).</li>
+    </ol>
+</div>
+
+<h2 class="chapter-title">۵. انواع صفت (پسین و پیشین)</h2>
+
+<h3 class="lesson-title">۵-۱. صفت‌های پسین (بیانی)</h3>
+
+<table>
+    <thead><tr><th>نوع صفت</th><th>فرمول ساخت</th><th>نمونه‌ها</th></tr></thead>
+    <tbody>
+        <tr><td>ساده</td><td>بیان رنگ، حجم، کیفیت</td><td>دختر زرنگ، پارچه سفید، سنگ سخت</td></tr>
+        <tr><td>لیاقت</td><td>مصدر + «-ی»</td><td>دیدنی، شنیدنی، پوشیدنی، خواندنی</td></tr>
+        <tr><td>فاعلی</td><td>بن مضارع + «-نده / -ان / -ا / -گار / -گر»</td><td>گوینده، خندان، دانا، پروردگار، کارگر</td></tr>
+        <tr><td>مفعولی</td><td>بن ماضی + «-ه / -ار»</td><td>گفته، نوشته، خریدار، گرفتار</td></tr>
+        <tr><td>نسبی</td><td>اسم + «-ی / -ین / -انه / -گانه / -گان»</td><td>شیرازی، زرین، مردانه، بچه‌گانه، مهرگان</td></tr>
+        <tr><td>تفضیلی (برتر)</td><td>صفت بیانی ساده + «-تر»</td><td>خوب‌تر، شایسته‌تر، زیباتر</td></tr>
+        <tr><td>عالی (برترین)</td><td>صفت بیانی ساده + «-ترین»</td><td>بهترین، داناترین، گرامی‌ترین</td></tr>
+    </tbody>
+</table>
+
+<h3 class="lesson-title">۵-۲. صفت‌های پیشین</h3>
+
+<div class="box-blue">
+    <p>صفت‌هایی که پیش از اسم (موصوف) می‌آیند و آن را مقید می‌سازند.</p>
+</div>
+
+<table>
+    <thead>
+        <tr><th>نوع صفت</th><th>فرمول ساخت</th><th>نمونه‌های متعدد</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>صفت اشاره</td>
+            <td>این، آن، همین، همان + اسم</td>
+            <td>این قلم، آن کتاب، همین خانه، همان درخت، این میز، آن پسر</td>
+        </tr>
+        <tr>
+            <td>صفت پرسشی</td>
+            <td>کدام، چند، چه، چگونه + اسم</td>
+            <td>کدام کتاب؟ چند دانش‌آموز؟ چه گلی؟ چگونه روزی؟ کدام راه؟ چند نفر؟</td>
+        </tr>
+        <tr>
+            <td>صفت تعجبی</td>
+            <td>چه، عجب + اسم</td>
+            <td>چه گلی! عجب داستانی! چه هوای خوشی! عجب منظر زیبایی! چه صدای دلنشینی!</td>
+        </tr>
+        <tr>
+            <td>صفت مبهم</td>
+            <td>هر، هیچ، فلان، بهمان، برخی، چند + اسم</td>
+            <td>هر انسان، هیچ کتابی، فلان شخص، بهمان روز، برخی دانش‌آموزان، چند نفر</td>
+        </tr>
+        <tr>
+            <td>صفت شمارشی اصلی</td>
+            <td>اعداد اصلی (یک، دو، سه، ...) + اسم</td>
+            <td>یک قلم، دو دانش‌آموز، سه کتاب، ده صفحه، صد ستاره</td>
+        </tr>
+        <tr>
+            <td>صفت شمارشی ترتیبی</td>
+            <td>عدد اصلی + «-ُم / -ُمین» + اسم</td>
+            <td>درس سوم، سومین روز، کتاب چهارم، چهارمین هفته، پنجمین جلسه، دومین نفر</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="box-green">
+    <h4>نکته‌ی مهم</h4>
+    <p>صفت‌های اشاره، پرسشی و تعجبی وقتی <strong>بدون اسم</strong> به کار می‌روند، نقش <strong>ضمیر</strong> پیدا می‌کنند:</p>
+    <ul>
+        <li>این کتاب خوب است → «این» صفت اشاره.</li>
+        <li>این خوب است → «این» ضمیر اشاره.</li>
+        <li>کدام کتاب را خواندی؟ → «کدام» صفت پرسشی.</li>
+        <li>کدام را خواندی؟ → «کدام» ضمیر پرسشی.</li>
+    </ul>
+</div>
+
+<h2 class="chapter-title">۶. ضمیر و انواع آن</h2>
+
+<table>
+    <thead><tr><th>نوع ضمیر</th><th>نمونه‌ها</th></tr></thead>
+    <tbody>
+        <tr><td>شخصی منفصل</td><td>من، تو، او (وی)، ما، شما، ایشان</td></tr>
+        <tr><td>شخصی متصل</td><td>ـَم، ـَت، ـَش، ـِمان، ـِتان، ـِشان</td></tr>
+        <tr><td>مشترک</td><td>خود، خویش، خویشتن</td></tr>
+        <tr><td>اشاره</td><td>این، آن (بدون اسم پس از خود)</td></tr>
+        <tr><td>پرسشی</td><td>که، چه، کدام، کی، کجا</td></tr>
+        <tr><td>تعجبی</td><td>چه! (بدون اسم)</td></tr>
+        <tr><td>مبهم</td><td>همه، فلان، دیگری</td></tr>
+        <tr><td>ملکی</td><td>از آنِ...</td></tr>
+    </tbody>
+</table>
+
+<h2 class="chapter-title">۷. زمان‌های فعل</h2>
+
+<table>
+    <thead><tr><th>زمان</th><th>فرمول</th><th>نمونه (خوردن)</th></tr></thead>
+    <tbody>
+        <tr><td>ماضی ساده</td><td>بن ماضی + شناسه</td><td>خوردم، خوردی، خورد</td></tr>
+        <tr><td>ماضی استمراری</td><td>می + ماضی ساده</td><td>می‌خوردم</td></tr>
+        <tr><td>ماضی نقلی</td><td>بن ماضی + ه + ام/ای/است</td><td>خورده‌ام</td></tr>
+        <tr><td>ماضی بعید</td><td>صفت مفعولی + بود + شناسه</td><td>خورده بودم</td></tr>
+        <tr><td>ماضی التزامی</td><td>صفت مفعولی + باش + شناسه</td><td>خورده باشم</td></tr>
+        <tr><td>ماضی مستمر</td><td>داشت + شناسه + ماضی استمراری</td><td>داشتم می‌خوردم</td></tr>
+        <tr><td>مضارع اخباری</td><td>می + بن مضارع + شناسه</td><td>می‌خورم</td></tr>
+        <tr><td>مضارع التزامی</td><td>بـ + بن مضارع + شناسه</td><td>بخورم</td></tr>
+        <tr><td>مضارع مستمر</td><td>دار + شناسه + مضارع اخباری</td><td>دارم می‌خورم</td></tr>
+        <tr><td>آینده</td><td>خواه + شناسه + بن ماضی</td><td>خواهم خورد</td></tr>
+    </tbody>
+</table>
+
+<h2 class="chapter-title">۸. لحن و انواع آن در خوانش متن</h2>
+
+<table>
+    <thead><tr><th>نوع لحن</th><th>ویژگی</th></tr></thead>
+    <tbody>
+        <tr><td>روایی</td><td>آرام و پیوسته برای داستان‌ها</td></tr>
+        <tr><td>ستایشی</td><td>همراه با تواضع و خضوع در برابر پروردگار</td></tr>
+        <tr><td>خاطره</td><td>خودمانی و صمیمانه</td></tr>
+        <tr><td>مناجات</td><td>التماس‌آمیز، خاشعانه و پر از احساس</td></tr>
+        <tr><td>طنز</td><td>با نیشخند و طعنه برای نقد عیوب</td></tr>
+        <tr><td>توصیفی</td><td>ملایم و شمرده تا صحنه مجسم گردد</td></tr>
+        <tr><td>وطنی</td><td>سرشار از غیرت، مباهات و غرور ملی</td></tr>
+        <tr><td>حماسی</td><td>کوبنده، رسا، استوار و محکم</td></tr>
+        <tr><td>موقوف‌المعانی</td><td>ادامه‌دار و پیوسته بین ابیات</td></tr>
+    </tbody>
+</table>
+
+<h2 class="chapter-title">۹. وندها (پیشوند، پسوند، میانوند)</h2>
+
+<div class="two-col">
+    <div class="box">
+        <h4>پسوندها</h4>
+        <ul>
+            <li>-ناک: نمناک، ترسناک</li>
+            <li>-نده: دونده، گوینده</li>
+            <li>-ا: دانا، بینا</li>
+            <li>-بان: باغبان، دربان</li>
+            <li>-تر/-ترین: بهتر، بهترین</li>
+            <li>-ی: تهرانی، فلزی</li>
+            <li>-سار: چشمه‌سار، کوهسار</li>
+            <li>-گر: آهنگر، مسگر</li>
+            <li>-انه: عاقلانه، صبحانه</li>
+            <li>-زار: لاله‌زار، چمنزار</li>
+            <li>-چه: باغچه، دریاچه</li>
+            <li>-گین: غمگین، خشمگین</li>
+            <li>-ور: هنرور، پیشه‌ور</li>
+            <li>-کده: دانشکده، دهکده</li>
+        </ul>
+    </div>
+    <div class="box">
+        <h4>پیشوندها</h4>
+        <ul>
+            <li>بـ: بخرد، بهوش</li>
+            <li>نا: ناسپاس، نادان</li>
+            <li>هم: همکار، همراه</li>
+            <li>با: بادقت، باهوش</li>
+            <li>باز: بازآمد، بازگشت</li>
+            <li>فرو/فرود: فرورفت، فرو ریخت</li>
+        </ul>
+        <h4>میانوندها</h4>
+        <ul>
+            <li>-ا-: سراسر، دمادم</li>
+            <li>-وا-: رنگ‌وارنگ</li>
+            <li>-اندر-: پیچ‌اندرپیچ</li>
+        </ul>
+    </div>
+</div>
+
+<h2 class="chapter-title">۱۰. جدول کلمات هم‌آوا (متشابه)</h2>
+
+<table>
+    <thead><tr><th>واژه</th><th>معنی</th><th>واژه هم‌آوا</th><th>معنی</th></tr></thead>
+    <tbody>
+        <tr><td>اساس</td><td>پایه، بنیاد</td><td>اثاث</td><td>لوازم خانه</td></tr>
+        <tr><td>آجل</td><td>آینده</td><td>عاجل</td><td>فوری، زود</td></tr>
+        <tr><td>الم</td><td>درد، رنج</td><td>علم</td><td>پرچم، درفش</td></tr>
+        <tr><td>امارت</td><td>فرمانروایی</td><td>عمارت</td><td>بنا، ساختمان</td></tr>
+        <tr><td>بحر</td><td>دریا</td><td>بهر</td><td>برای، به خاطر</td></tr>
+        <tr><td>ثواب</td><td>پاداش اخروی</td><td>صواب</td><td>درست، صحیح</td></tr>
+        <tr><td>ثمر</td><td>میوه، فایده</td><td>سمر</td><td>افسانه، داستان</td></tr>
+        <tr><td>جذر</td><td>ریشه دوم ریاضی</td><td>جزر</td><td>پایین رفتن آب دریا</td></tr>
+        <tr><td>حیات</td><td>زندگی</td><td>حیاط</td><td>محوطه باز خانه</td></tr>
+        <tr><td>خار</td><td>تیغ گیاه</td><td>خوار</td><td>پست، فرومایه</td></tr>
+        <tr><td>خاست</td><td>برخاست</td><td>خواست</td><td>طلبید</td></tr>
+        <tr><td>خرد</td><td>ریز، کوچک</td><td>خورد</td><td>غذا خورد</td></tr>
+        <tr><td>خویش</td><td>خود، فامیل</td><td>خیش</td><td>گاوآهن</td></tr>
+        <tr><td>خان</td><td>رئیس، مرحله</td><td>خوان</td><td>سفره</td></tr>
+        <tr><td>حوزه</td><td>ناحیه، منطقه</td><td>حوضه</td><td>آبگیر</td></tr>
+        <tr><td>سبا</td><td>شهری در یمن</td><td>صبا</td><td>باد ملایم</td></tr>
+        <tr><td>سیف</td><td>شمشیر</td><td>صیف</td><td>تابستان</td></tr>
+        <tr><td>سد</td><td>مانع، دیواره</td><td>صد</td><td>عدد ۱۰۰</td></tr>
+        <tr><td>امل</td><td>آرزو، امید</td><td>عمل</td><td>کار، کردار</td></tr>
+        <tr><td>قالب</td><td>شکل، ظرف</td><td>غالب</td><td>پیروز، چیره</td></tr>
+        <tr><td>قاضی</td><td>داور</td><td>غازی</td><td>جنگجو</td></tr>
+        <tr><td>قریب</td><td>نزدیک</td><td>غریب</td><td>بیگانه</td></tr>
+        <tr><td>قدر</td><td>ارزش، اندازه</td><td>غدر</td><td>خیانت</td></tr>
+        <tr><td>قدیر</td><td>توانمند</td><td>غدیر</td><td>آبگیر، عید شیعیان</td></tr>
+        <tr><td>مستور</td><td>پوشیده</td><td>مسطور</td><td>نوشته‌شده</td></tr>
+        <tr><td>متبوع</td><td>پیروی‌شده</td><td>مطبوع</td><td>دلپذیر</td></tr>
+        <tr><td>علیم</td><td>دانا</td><td>الیم</td><td>دردناک</td></tr>
+        <tr><td>نغز</td><td>خوب، نیکو</td><td>نقض</td><td>شکستن عهد</td></tr>
+        <tr><td>نثر</td><td>سخن غیرمنظوم</td><td>نصر</td><td>یاری، پیروزی</td></tr>
+        <tr><td>هول</td><td>ترس، هراس</td><td>حول</td><td>پیرامون</td></tr>
+    </tbody>
+</table>
+
+<div class="footer-note">
+    طراحی و تدوین: دیانتی ۰۹۱۶۵۱۶۲۱۶۶
+</div>
+
+</div>
+
+<script>
+(function() {
+    var persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    function toPersian(str) {
+        return str.replace(/\d/g, function(d) {
+            return persianDigits[parseInt(d, 10)];
+        });
+    }
+    var walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: function(node) {
+                var parent = node.parentNode;
+                if (parent) {
+                    var tag = parent.tagName.toLowerCase();
+                    if (tag === 'script' || tag === 'style' || tag === 'noscript') {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        },
+        false
+    );
+    var textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+    textNodes.forEach(function(node) {
+        node.nodeValue = toPersian(node.nodeValue);
+    });
+})();
+</script>
+
+</body>
+</html>
