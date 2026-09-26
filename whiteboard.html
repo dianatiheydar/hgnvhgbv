@@ -209,7 +209,7 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 }
 #dialogOverlay.open{display:flex}
 .dialogBox{
-  background:#fff;border-radius:16px;padding:18px;width:330px;
+  background:#fff;border-radius:16px;padding:18px;width:360px;max-height:calc(100vh - 32px);overflow-y:auto;
   max-width:calc(100vw - 32px);box-shadow:0 20px 60px rgba(15,23,42,.3);
 }
 .dialogTitle{font-size:14px;font-weight:800;margin-bottom:12px}
@@ -261,6 +261,17 @@ body.board-dark #credit{color:rgba(255,255,255,.42)}
 
 /* انتخاب حالت در پنجره‌ی پارامترها */
 .seg{flex:1;display:flex;background:#f1f3f6;border-radius:10px;padding:3px;gap:3px}
+.dialogBox .row.col{flex-direction:column;align-items:stretch;gap:6px}
+.pickgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pickgrid button{
+  min-height:62px;border:1px solid var(--border);border-radius:10px;background:#fafbfc;padding:4px 2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted);
+}
+.pickgrid button:hover{background:#f1f3f6}
+.pickgrid button.on{border-color:var(--primary);background:var(--primary-soft);color:var(--primary);font-weight:700}
+.pickgrid svg{display:block;max-width:100%}
+.pickgrid b{font-size:14px;color:var(--text)}
+.cb-field select{height:32px;flex:none;padding:0 6px;font-size:13px}
 .seg button{flex:1;height:32px;border-radius:8px;font-size:13px;color:var(--muted)}
 .seg button.on{background:#fff;color:var(--primary);font-weight:700;box-shadow:0 1px 3px rgba(15,23,42,.15)}
 
@@ -720,6 +731,58 @@ function installFabricPatches(){
   };
   defineSmartClasses();
   defineNetClass();
+  defineFracLabelClass();
+}
+
+/* ---------- برچسبِ کسر زیر شکل‌های کسری: صورت، خط کسری و مخرج روی هم ----------
+   (نوشتنِ «۳/۸» در فارسی با عدد اعشاری اشتباه گرفته می‌شود)
+   در مدل اعشاری کنارش « = ۰٫۳۵ » هم نوشته می‌شود */
+let measureCtx = null;
+function defineFracLabelClass(){
+  fabric.WbFracLabel = fabric.util.createClass(fabric.Object, {
+    type:'wbFracLabel',
+    num:0, den:1, dec:0, maxN:1, fontSize:32, fontFamily:'Tahoma',
+    originX:'center', originY:'center', stroke:null, strokeWidth:0,
+    cacheProperties: fabric.Object.prototype.cacheProperties.concat(['num','den','dec','maxN','fontSize','fontFamily']),
+    initialize: function(options){ this.callSuper('initialize', options || {}); this._syncDims(); },
+    _font: function(){ return 'bold ' + this.fontSize + 'px ' + this.fontFamily + ', Tahoma, sans-serif'; },
+    _syncDims: function(){
+      const fs = this.fontSize;
+      if(!measureCtx) measureCtx = document.createElement('canvas').getContext('2d');
+      measureCtx.font = this._font();
+      const tw = t => measureCtx.measureText(t).width;
+      this._fw = tw(faNum(Math.max(1, this.maxN), 0)) + fs*0.5;          // پهنای بخشِ کسر
+      this._ew = this.dec ? fs*0.7 + tw('=') + tw('۰٫' + '۰'.repeat(this.dec)) : 0;
+      this.width = Math.ceil(this._fw + this._ew) + 4;
+      this.height = Math.ceil(fs*2.3);
+    },
+    _render: function(ctx){
+      const fs = this.fontSize, p = paint(ctx, this, this.fill || '#111111');
+      const num = faNum(this.num, 0), den = faNum(this.den, 0);
+      const x0 = -this.width/2 + 2, cx = x0 + this._fw/2;
+      ctx.save();
+      ctx.font = this._font(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      try{ ctx.direction = 'ltr'; }catch(e){}
+      ctx.fillStyle = p; ctx.strokeStyle = p;
+      ctx.fillText(num, cx, -fs*0.6);
+      ctx.fillText(den, cx, fs*0.64);
+      const bw = Math.max(ctx.measureText(num).width, ctx.measureText(den).width) + fs*0.3;
+      ctx.lineWidth = Math.max(2, fs*0.08); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(cx - bw/2, 0); ctx.lineTo(cx + bw/2, 0); ctx.stroke();
+      if(this.dec){
+        ctx.textAlign = 'left';
+        let x = x0 + this._fw + fs*0.35;
+        ctx.fillText('=', x, 0);
+        x += ctx.measureText('=').width + fs*0.35;
+        ctx.fillText(faNum(this.num/Math.max(1, this.den), this.dec), x, 0);
+      }
+      ctx.restore();
+    },
+    toObject: function(props){
+      return this.callSuper('toObject', ['num','den','dec','maxN','fontSize','fontFamily'].concat(props || []));
+    }
+  });
+  fabric.WbFracLabel.fromObject = function(obj, cb){ return fabric.Object._fromObject('WbFracLabel', obj, cb); };
 }
 
 function objToScreen(o, lx, ly){
@@ -774,6 +837,7 @@ const M34_ID = [1,0,0,0, 0,1,0,0, 0,0,1,0];
 const smoothstep = x => x*x*(3 - 2*x);
 
 function netName(kind, n){
+  if(kind === 'cube') return 'مکعب';
   if(kind === 'cylinder') return 'استوانه';
   if(kind === 'cone') return 'مخروط';
   if(kind === 'pyramid') return n === 4 ? 'هرم مربعی' : 'هرم ' + (NET_POLY[n] || faNum(n, 0) + '‌ضلعی');
@@ -786,15 +850,64 @@ function regPolyPts(n, R, cx, cy, a0){
 }
 const rectPts = (x, y, w, h) => [{ x, y }, { x:x + w, y }, { x:x + w, y:y + h }, { x, y:y + h }];
 
+// ۱۱ گسترده‌ی مختلفِ مکعب — خانه‌ها به صورت [ستون، سطر] (سطر رو به پایین)
+const CUBE_NETS = [
+  // ۱-۴-۱: چهار مربع در یک ردیف، یکی بالا و یکی پایین (شش حالت)
+  [[1,0],[0,1],[1,1],[2,1],[3,1],[1,2]],
+  [[0,0],[0,1],[1,1],[2,1],[3,1],[0,2]],
+  [[0,0],[0,1],[1,1],[2,1],[3,1],[1,2]],
+  [[0,0],[0,1],[1,1],[2,1],[3,1],[2,2]],
+  [[0,0],[0,1],[1,1],[2,1],[3,1],[3,2]],
+  [[1,0],[0,1],[1,1],[2,1],[3,1],[2,2]],
+  // ۲-۳-۱ (سه حالت)
+  [[0,0],[1,0],[1,1],[2,1],[3,1],[1,2]],
+  [[0,0],[1,0],[1,1],[2,1],[3,1],[2,2]],
+  [[0,0],[1,0],[1,1],[2,1],[3,1],[3,2]],
+  // ۲-۲-۲ (پله‌ای)
+  [[0,0],[1,0],[1,1],[2,1],[2,2],[3,2]],
+  // ۳-۳
+  [[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]]
+];
+function cubeNetSvg(cells){
+  const u = 9, W = Math.max(...cells.map(c=> c[0])) + 1, H = Math.max(...cells.map(c=> c[1])) + 1;
+  return `<svg width="${W*u + 2}" height="${H*u + 2}" viewBox="-1 -1 ${W*u + 2} ${H*u + 2}" aria-hidden="true">` +
+    cells.map(([c, r])=> `<rect x="${c*u}" y="${r*u}" width="${u}" height="${u}" fill="#fde68a" stroke="#475569" stroke-width="1"/>`).join('') + '</svg>';
+}
+
 // ساختِ گسترده: وجه‌ها با مختصات تخت (y رو به بالا)، والد، لولا (A→B)، زاویه‌ی تا، مرحله و رنگ
+// برای مکعب، n شماره‌ی حالتِ گسترده است (۰ تا ۱۰)
 function buildNet(kind, n){
   const F = [];
   const add = (pts, col, parent, A, B, theta, stage) => { F.push({ pts, col, parent, A, B, theta, stage:stage || 0, nb:[] }); return F.length - 1; };
   const link = (f1, e1, f2, e2) => { F[f1].nb[e1] = f2; F[f2].nb[e2] = f1; F[f1].smooth = F[f2].smooth = true; };
   // درزِ کاغذ (دو لبه‌ی آزاد که در جسمِ بسته به هم می‌رسند): در حالت کاملاً بسته مثل لبه‌ی نرم رفتار می‌کند
   const seam = (f1, e1, f2, e2) => { (F[f1].seam = F[f1].seam || [])[e1] = f2; (F[f2].seam = F[f2].seam || [])[e2] = f1; };
-  let hz = 0, lid = false;
-  if(kind === 'prism' || kind === 'cylinder'){
+  let hz = 0, stages = 0;
+  if(kind === 'cube'){
+    // درختِ وجه‌ها از خانه‌های مجاور؛ ریشه (کفِ مکعب) خانه‌ای است که کمترین فاصله را تا دورترین خانه دارد
+    const cells = CUBE_NETS[clamp(n | 0, 0, CUBE_NETS.length - 1)], s = 80, N = cells.length;
+    const adj = cells.map(a=> cells.map((b, j)=> Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1 ? j : -1).filter(j=> j >= 0));
+    let best = null;
+    for(let r=0; r<N; r++){
+      const d = new Array(N).fill(-1), par = new Array(N).fill(-1), order = [r];
+      d[r] = 0;
+      for(let q=0; q<order.length; q++) for(const j of adj[order[q]]) if(d[j] < 0){ d[j] = d[order[q]] + 1; par[j] = order[q]; order.push(j); }
+      const key = Math.max(...d)*10 - adj[r].length;
+      if(!best || key < best.key) best = { key, d, par, order };
+    }
+    const idx = [];
+    for(const ci of best.order){
+      const [c, r] = cells[ci], pts = rectPts(c*s, -(r + 1)*s, s, s), pi = best.par[ci];
+      if(pi < 0){ idx[ci] = add(pts, 0, -1); continue; }
+      const [pc, pr] = cells[pi];
+      let A, B;
+      if(pr === r){ const x = Math.max(c, pc)*s; A = { x, y:-(r + 1)*s }; B = { x, y:-r*s }; }
+      else { const y = -Math.max(r, pr)*s; A = { x:c*s, y }; B = { x:(c + 1)*s, y }; }
+      idx[ci] = add(pts, F.length, idx[pi], A, B, Math.PI/2, best.d[ci] - 1);
+      stages = Math.max(stages, best.d[ci] - 1);
+    }
+    hz = s;
+  } else if(kind === 'prism' || kind === 'cylinder'){
     // نوار وجه‌های جانبی + دو قاعده که به وجهِ وسطِ نوار وصل‌اند (برای ۴ = صلیبِ مکعب)
     const cyl = kind === 'cylinder', m = cyl ? 48 : n;
     let s, h;
@@ -810,7 +923,7 @@ function buildNet(kind, n){
     add(regPolyPts(m, R, 0, h + a, -Math.PI/2 + Math.PI/m), 1, lat[k], { x:-s/2, y:h }, { x:s/2, y:h }, Math.PI/2, 1);
     // سطح خمیده‌ی استوانه: خطِ بین نوارها فقط وقتی لبه‌ی دید است کشیده می‌شود
     if(cyl){ for(let i=0; i<m - 1; i++) link(lat[i], 1, lat[i+1], 3); seam(lat[0], 3, lat[m - 1], 1); }
-    hz = h; lid = true;
+    hz = h; stages = 1;
   } else if(kind === 'pyramid'){
     // قاعده در وسط، مثلث‌ها دورِ آن (ستاره)
     const s = n === 3 ? 130 : n === 4 ? 110 : 440/n;
@@ -858,7 +971,7 @@ function buildNet(kind, n){
     // جهتِ چرخش طوری که وجهِ فرزند به سمت بالا (داخلِ جسم) تا شود
     f.sign = (f.u.x*(f.c.y - f.A.y) - f.u.y*(f.c.x - f.A.x)) > 0 ? 1 : -1;
   }
-  return { faces:F, hz, lid, ax:F[0].c.x, ay:F[0].c.y, name:netName(kind, n) };
+  return { faces:F, hz, stages, ax:F[0].c.x, ay:F[0].c.y, name:netName(kind, n) };
 }
 function m34mul(A, B){
   const r = new Array(12);
@@ -880,11 +993,21 @@ function hingeRot(f, ang){
           r10, r11, -s*ux, ay - r10*ax - r11*ay,
           r20, r21, c, -r20*ax - r21*ay];
 }
-// پیشرفتِ هر لولا: دیواره‌ها اول، درِ بالا کمی بعد
+// پیشرفتِ هر لولا: دیواره‌ها اول، وجه‌های دورتر (مثل درِ بالا) کمی بعد
 function netStageT(net, t, stage){
   t = clamp(t, 0, 1);
-  if(!net.lid) return smoothstep(t);
-  return stage ? smoothstep(clamp((t - 0.5)/0.5, 0, 1)) : smoothstep(clamp(t/0.72, 0, 1));
+  const M = net.stages || 0;
+  if(!M) return smoothstep(t);
+  const w = Math.max(0.4, 0.62 - 0.06*(M - 1)), st = stage*(1 - w)/M;
+  return smoothstep(clamp((t - st)/w, 0, 1));
+}
+function pointInPoly(x, y, P){
+  let inside = false;
+  for(let i=0, j=P.length - 1; i<P.length; j=i++){
+    const a = P[i], b = P[j];
+    if((a.y > y) !== (b.y > y) && x < (b.x - a.x)*(y - a.y)/(b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
 }
 // رنگِ مات با سایه (برای سطح‌های خمیده)
 function netShade(hex, dark, lite){
@@ -921,19 +1044,43 @@ function renderOrbitHandle(ctx, left, top){
 function defineNetClass(){
   fabric.WbNet = fabric.util.createClass(fabric.Object, {
     type:'wbNet',
-    kind:'prism', n:4, fold:0, yaw:NET_YAW, elev:NET_ELEV, autoCam:true, colorful:true,
+    kind:'prism', n:4, variant:0, fold:0, yaw:NET_YAW, elev:NET_ELEV, autoCam:true, colorful:true, faceColors:null,
     originX:'center', originY:'center', fill:null,
     lockRotation:true, lockSkewingX:true, lockSkewingY:true, lockScalingFlip:true,
     perPixelTargetFind:true, cornerSize:13, touchCornerSize:34,
-    cacheProperties: fabric.Object.prototype.cacheProperties.concat(['kind','n','fold','yaw','elev','autoCam','colorful']),
+    cacheProperties: fabric.Object.prototype.cacheProperties.concat(['kind','n','variant','fold','yaw','elev','autoCam','colorful','faceColors']),
     initialize: function(options){
       this.callSuper('initialize', options || {});
-      if(this.kind !== 'pyramid' && this.kind !== 'cylinder' && this.kind !== 'cone') this.kind = 'prism';
+      if(!['cube','pyramid','cylinder','cone'].includes(this.kind)) this.kind = 'prism';
       this.n = clamp(Math.round(+this.n || 4), 3, 12);
-      this._net = buildNet(this.kind, this.n);
+      this.variant = clamp(Math.round(+this.variant || 0), 0, CUBE_NETS.length - 1);
+      this._net = buildNet(this.kind, this.kind === 'cube' ? this.variant : this.n);
       this._syncDims();
     },
     netName: function(){ return this._net.name; },
+    // عوض کردنِ حالتِ گسترده‌ی مکعب (مرکزِ کادر ثابت می‌ماند)
+    setVariant: function(v){
+      this.variant = ((Math.round(v) % CUBE_NETS.length) + CUBE_NETS.length) % CUBE_NETS.length;
+      this._net = buildNet('cube', this.variant);
+      this._syncDims();
+      this.dirty = true;
+      this.setCoords();
+      return this;
+    },
+    // ترتیبِ کشیدن: اول وجه‌هایی که داخلشان پیداست (پشتی)، بعد بقیه؛ در هر گروه از دور به نزدیک
+    _order: function(){
+      if(this._gKey !== this._stateKey()){ this._g = this._geom(); this._gKey = this._stateKey(); }
+      const g = this._g, inner = g.map(f=> f.nF >= -1e-9);   // روی داخلیِ کاغذ دیده می‌شود؟
+      const order = g.slice().sort((a, b)=> (inner[a.i] === inner[b.i] ? a.depth - b.depth : (inner[a.i] ? -1 : 1)));
+      return { order, inner };
+    },
+    // گروهِ رنگِ وجهی که نقطه‌ی (جهانیِ) w رویش است؛ -1 یعنی بیرون (برای سطل رنگ)
+    faceAt: function(w){
+      const L = fabric.util.transformPoint(new fabric.Point(w.x, w.y), fabric.util.invertTransform(this.calcTransformMatrix()));
+      const x = L.x - this._off.x, y = L.y - this._off.y, { order } = this._order();
+      for(let k=order.length - 1; k>=0; k--) if(pointInPoly(x, y, order[k].pts)) return this._net.faces[order[k].i].col;
+      return -1;
+    },
     // «نمای خودکار»: گسترده‌ی باز از بالا دیده می‌شود و هنگام بسته شدن، نما کم‌کم سه‌بعدی می‌شود
     camera: function(){
       if(!this.autoCam) return { E:clamp(this.elev, 0, 90), Y:this.yaw };
@@ -988,12 +1135,8 @@ function defineNetClass(){
       return this;
     },
     _render: function(ctx){
-      if(this._gKey !== this._stateKey()){ this._g = this._geom(); this._gKey = this._stateKey(); }
-      const F = this._net.faces, g = this._g, ox = this._off.x, oy = this._off.y;
-      const inner = g.map(f=> f.nF >= -1e-9);            // روی داخلیِ کاغذ دیده می‌شود؟
-      // اول وجه‌هایی که داخلشان پیداست (پشتی)، بعد بقیه؛ در هر گروه از دور به نزدیک
-      const order = g.slice().sort((a, b)=> (inner[a.i] === inner[b.i] ? a.depth - b.depth : (inner[a.i] ? -1 : 1)));
-      const col = this.stroke || '#111111', sw = this.strokeWidth || 2, closed = this.fold > 0.995;
+      const F = this._net.faces, ox = this._off.x, oy = this._off.y, { order, inner } = this._order();
+      const col = this.stroke || '#111111', sw = this.strokeWidth || 2, closed = this.fold > 0.995, fcs = this.faceColors || [];
       ctx.save();
       ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.lineWidth = sw;
       const st = paint(ctx, this, col);
@@ -1007,14 +1150,16 @@ function defineNetClass(){
         const sg = inner[gf.i] ? 1 : -1;
         const lam = Math.max(0, sg*(gf.nR*NET_LIGHT[0] + gf.nU*NET_LIGHT[1] + gf.nF*NET_LIGHT[2]));
         const dark = Math.max(0, 0.72 - lam)*0.34, lite = Math.max(0, lam - 0.8)*0.8;
-        if(this.colorful && f.smooth){
+        // رنگِ وجه: رنگی که با سطل زده شده، وگرنه رنگ‌های پیش‌فرض (یا کم‌رنگِ خط در حالت یک‌رنگ)
+        const custom = fcs[f.col], base = custom || (this.colorful ? NET_COLORS[f.col % NET_COLORS.length] : null);
+        if(base && f.smooth){
           // سطح خمیده: رنگِ مات + خط هم‌رنگ تا درزی بین نوارهای باریک دیده نشود
-          const fc = netShade(NET_COLORS[f.col % NET_COLORS.length], dark, lite);
+          const fc = netShade(base, dark, lite);
           ctx.fillStyle = fc; ctx.fill();
           ctx.lineWidth = 1.2; ctx.strokeStyle = fc; ctx.stroke();
           ctx.lineWidth = sw;
         } else {
-          ctx.fillStyle = this.colorful ? hexToRgba(NET_COLORS[f.col % NET_COLORS.length], .88) : hexToRgba(col, S.dark ? .2 : .14);
+          ctx.fillStyle = base ? hexToRgba(base, custom ? .92 : .88) : hexToRgba(col, S.dark ? .2 : .14);
           ctx.fill();
           if(dark > 0.01){ ctx.fillStyle = 'rgba(15,23,42,' + dark.toFixed(3) + ')'; ctx.fill(); }
           else if(lite > 0.01){ ctx.fillStyle = 'rgba(255,255,255,' + lite.toFixed(3) + ')'; ctx.fill(); }
@@ -1035,7 +1180,7 @@ function defineNetClass(){
       ctx.restore();
     },
     toObject: function(props){
-      return this.callSuper('toObject', ['kind','n','fold','yaw','elev','autoCam','colorful'].concat(props || []));
+      return this.callSuper('toObject', ['kind','n','variant','fold','yaw','elev','autoCam','colorful','faceColors'].concat(props || []));
     }
   });
   fabric.WbNet.fromObject = function(obj, cb){ return fabric.Object._fromObject('WbNet', obj, cb); };
@@ -1657,7 +1802,7 @@ const TOOL_LABELS = {
   pan:'جابجایی — بکشید (یا Space + درگ، یا دو انگشت)',
   pen:'قلم — بنویسید', highlighter:'هایلایتر — بکشید',
   eraser:'پاک‌کن — روی نوشته بکشید', laser:'لیزر — بکشید',
-  bucket:'سطل رنگ — داخل یک ناحیه‌ی بسته یا یک قسمت از شکل کسری بزنید (دوباره بزنید = پاک)',
+  bucket:'سطل رنگ — داخل یک ناحیه‌ی بسته، یک قسمت از شکل کسری یا یک وجهِ گسترده بزنید (دوباره بزنید = پاک)',
   shape:'شکل — بکشید برای اندازه دلخواه، کلیک ساده = اندازه پیش‌فرض'
 };
 
@@ -1904,6 +2049,11 @@ function styleObject(o, opts, nested){
     return;
   }
   if(o.type === 'image') return;
+  if(o.type === 'wbFracLabel'){
+    if(opts.color) o.set('fill', opts.color);
+    if(opts.font) o.set('fontFamily', opts.font);
+    return;
+  }
   if(isTextObj(o)){
     if(opts.color) o.set('fill', opts.color);
     if(opts.font) o.set('fontFamily', opts.font);
@@ -1958,7 +2108,9 @@ function bindCanvas(){
   // دوبار زدن روی گسترده = باز/بسته شدن
   canvas.on('mouse:dblclick', e=>{
     const t = e && e.target;
-    if(t && t.type === 'wbNet' && S.tool === 'select'){ netToggle(t); updateCtxBar(); }
+    if(!t || S.tool !== 'select') return;
+    const L = t.type === 'wbNet' ? [t] : t.type === 'activeSelection' ? netList() : [];
+    if(L.length){ netToggle(L); updateCtxBar(); }
   });
 }
 function onSelChange(){ syncProps(); updateCtxBar(); ovRender(); }
@@ -3373,7 +3525,7 @@ const CTX_TPL = {
     <span class="cb-title">🍕 شکل کسری</span>
     <span class="cb-field" data-info="stat"></span>
     <button class="cb-btn" data-a="bucket" title="با سطل رنگ روی قسمت‌ها بزنید">🪣 رنگ‌کردن</button>
-    <button class="cb-btn" data-a="flabel" title="نمایش کسرِ رنگ‌شده زیر شکل">نمایش عدد</button>
+    <button class="cb-btn" data-a="flabel" title="نمایش کسرِ رنگ‌شده زیر شکل">نمایش کسر</button>
     <button class="cb-btn" data-a="fclear" title="پاک‌کردن همه‌ی رنگ‌ها">🧹 پاک‌کردن رنگ‌ها</button>` + REFLECT_BTNS,
   obj: ()=>`<span class="cb-title">🔷 قرینه</span>` + REFLECT_BTNS.replace('<span class="cb-sep"></span>', ''),
   net: ()=>`
@@ -3386,7 +3538,15 @@ const CTX_TPL = {
     <button class="cb-btn" data-a="netrotL" title="چرخاندن به چپ">↺</button>
     <button class="cb-btn" data-a="netrotR" title="چرخاندن به راست">↻</button>
     <button class="cb-btn" data-a="netview" title="نمای خودکار: باز = از بالا، بسته = سه‌بعدی">🎥</button>
-    <button class="cb-btn" data-a="netcolor" title="وجه‌های رنگی / یک‌رنگ">🎨</button>`
+    <button class="cb-btn" data-a="netcolor" title="وجه‌های رنگی / یک‌رنگ">🎨</button>
+    <span class="cb-sep"></span>
+    <button class="cb-btn" data-a="netbucket" title="با سطل رنگ روی هر وجه بزنید تا رنگی شود (باز یا بسته)">🪣 رنگ‌کردن وجه‌ها</button>
+    <button class="cb-btn" data-a="netclear" title="پاک‌کردنِ رنگ‌هایی که با سطل زده شده">🧹</button>
+    <span data-info="cube" class="cb-field">
+      <span class="cb-sep"></span>
+      <label class="cb-field">گسترده <select data-k="variant" title="۱۱ حالتِ گسترده‌ی مکعب">${CUBE_NETS.map((_, i)=> `<option value="${i}">${faNum(i + 1, 0)} از ${faNum(CUBE_NETS.length, 0)}</option>`).join('')}</select></label>
+      <button class="cb-btn" data-a="netnext" title="حالتِ بعدیِ گسترده‌ی مکعب">🔀 بعدی</button>
+    </span>`
 };
 
 function updateCtxBar(){
@@ -3395,7 +3555,7 @@ function updateCtxBar(){
   let mode = null;
   if(o && o.type === 'wbArc') mode = 'arc';
   else if(o && o.type === 'wbAngle') mode = 'angle';
-  else if(o && o.type === 'wbNet') mode = 'net';
+  else if(o && netList().length) mode = 'net';
   else if(o && o.wbFrac) mode = 'frac';
   else if(o && !o.isEditing) mode = 'obj';
   else if(INST.focus === 'compass' && INST.compass.on) mode = 'compass';
@@ -3438,14 +3598,27 @@ function fillCtx(){
     if(st) st.textContent = 'رنگی: ' + faNum(k, 0) + ' از ' + faNum(n, 0) + (dec ? ' = ' + faNum(k/n, dec) : '');
     const lab = o.getObjects().find(x=> x.wbRole === 'fracLabel');
     on('flabel', lab && lab.visible);
-  } else if(cb.mode === 'net' && o){
-    const nm = els.ctxBar.querySelector('[data-info="netname"]');
-    if(nm) nm.textContent = '📦 ' + o.netName();
-    const tb = els.ctxBar.querySelector('[data-a="nettoggle"]');
-    if(tb) tb.textContent = netGoal(o, 'fold') >= 0.5 ? '📂 باز کردن' : '📦 بستن';
-    setV('fold', String(Math.round(o.fold*100)));
-    on('netview', o.autoCam); on('netcolor', o.colorful);
+  } else if(cb.mode === 'net'){
+    const L = netList(), n1 = L[0];
+    if(!n1) return;
+    const many = L.length > 1, q = sel => els.ctxBar.querySelector(sel);
+    const nm = q('[data-info="netname"]');
+    if(nm) nm.textContent = '📦 ' + (many ? faNum(L.length, 0) + ' گسترده' : n1.netName());
+    const tb = q('[data-a="nettoggle"]');
+    if(tb) tb.textContent = (netGoal(n1, 'fold') >= 0.5 ? '📂 باز کردن' : '📦 بستن') + (many ? ' همه' : '');
+    setV('fold', String(Math.round(n1.fold*100)));
+    on('netview', n1.autoCam); on('netcolor', n1.colorful);
+    const clr = q('[data-a="netclear"]');
+    if(clr) clr.style.display = L.some(x=> x.faceColors && x.faceColors.some(Boolean)) ? '' : 'none';
+    const cube = q('[data-info="cube"]'), one = !many && n1.kind === 'cube';
+    if(cube) cube.style.display = one ? '' : 'none';
+    if(one) setV('variant', String(n1.variant));
   }
+}
+function netChanged(){
+  netSelRefresh();
+  canvas.requestRenderAll();
+  saveHistoryDebounced();
 }
 function smartChanged(o){
   o.setCoords();
@@ -3472,11 +3645,12 @@ function ctxApply(k, val){
   } else if(cb.mode === 'angle' && o){
     if(k === 'deg') o.setMeasure(val);
     smartChanged(o);
-  } else if(cb.mode === 'net' && o){
-    if(k === 'fold'){ netStop(o, ['fold']); o.setNetState({ fold:clamp(val/100, 0, 1) }); }
-    smartChanged(o);
-    const tb = els.ctxBar.querySelector('[data-a="nettoggle"]');
-    if(tb) tb.textContent = o.fold >= 0.5 ? '📂 باز کردن' : '📦 بستن';
+  } else if(cb.mode === 'net'){
+    const L = netList();
+    if(k === 'fold') L.forEach(x=>{ netStop(x, ['fold']); x.setNetState({ fold:clamp(val/100, 0, 1) }); });
+    if(k === 'variant' && L.length === 1 && L[0].kind === 'cube') L[0].setVariant(val);
+    netChanged();
+    fillCtx();
   }
 }
 function bindCtxBar(){
@@ -3523,16 +3697,21 @@ function bindCtxBar(){
       if(a === 'full') o.set('sweep', 360);
       else if(a === 'center') o.set('showCenter', !o.showCenter);
       smartChanged(o);
-    } else if(cb.mode === 'net' && o){
-      if(a === 'nettoggle') netToggle(o);
-      else if(a === 'netrotL') netRotate(o, 45);
-      else if(a === 'netrotR') netRotate(o, -45);
-      else if(a === 'netview'){
-        netStop(o, ['yaw','elev']);
-        o.setNetState({ autoCam:true, yaw:NET_YAW, elev:NET_ELEV });
-        smartChanged(o);
+    } else if(cb.mode === 'net'){
+      const L = netList();
+      if(!L.length) return;
+      if(a === 'nettoggle') netToggle(L);
+      else if(a === 'netrotL') L.forEach(x=> netRotate(x, 45));
+      else if(a === 'netrotR') L.forEach(x=> netRotate(x, -45));
+      else if(a === 'netbucket'){ setTool('bucket'); status('🪣 روی هر وجهِ گسترده بزنید تا رنگی شود؛ دوباره با همان رنگ = پاک'); return; }
+      else {
+        flushHistory();
+        if(a === 'netview') L.forEach(x=>{ netStop(x, ['yaw','elev']); x.setNetState({ autoCam:true, yaw:NET_YAW, elev:NET_ELEV }); });
+        else if(a === 'netcolor'){ const v = !L[0].colorful; L.forEach(x=> x.set('colorful', v)); }
+        else if(a === 'netclear') L.forEach(x=> x.set('faceColors', null));
+        else if(a === 'netnext' && L.length === 1 && L[0].kind === 'cube') L[0].setVariant(L[0].variant + 1);
+        netChanged();
       }
-      else if(a === 'netcolor'){ o.set('colorful', !o.colorful); smartChanged(o); }
     } else if(cb.mode === 'angle' && o){
       if(a === 'inc' || a === 'dec'){
         o.setMeasure(clamp(Math.round(o.measure()) + (a === 'inc' ? 1 : -1), 0, 359));
@@ -3617,14 +3796,17 @@ function promptDialog(title, fields){
       const lab = document.createElement('label');
       lab.textContent = f.label;
       row.appendChild(lab);
-      if(f.type === 'choice'){
-        // انتخاب حالت (دکمه‌های کنار هم)
+      if(f.type === 'choice' || f.type === 'pick'){
+        // انتخاب حالت (دکمه‌های کنار هم؛ pick = جدولِ تصویرها)
         choice[f.key] = f.value;
         const seg = document.createElement('div');
-        seg.className = 'seg';
+        seg.className = f.type === 'pick' ? 'pickgrid' : 'seg';
+        if(f.type === 'pick') row.classList.add('col');
         f.options.forEach(op=>{
           const b = document.createElement('button');
-          b.type = 'button'; b.textContent = op.t;
+          b.type = 'button';
+          if(op.html) b.innerHTML = op.html; else b.textContent = op.t;
+          if(op.title) b.title = op.title;
           b.classList.toggle('on', op.v === f.value);
           b.addEventListener('click', ()=>{
             choice[f.key] = op.v;
@@ -3668,7 +3850,7 @@ function promptDialog(title, fields){
     const submit = ()=>{
       const vals = {};
       for(const f of fields){
-        if(f.type === 'choice'){ vals[f.key] = choice[f.key]; continue; }
+        if(f.type === 'choice' || f.type === 'pick'){ vals[f.key] = choice[f.key]; continue; }
         if(!shown(f)){ vals[f.key] = null; continue; }
         let v = parseNum(inputs[f.key].value);
         if(!isFinite(v)){ toast('لطفاً مقدار عددی وارد کنید'); inputs[f.key].focus(); return; }
@@ -3687,7 +3869,7 @@ function promptDialog(title, fields){
     cx.addEventListener('click', ()=> close(null));
     wrap.addEventListener('click', e=>{ if(e.target === wrap) close(null); });
     wrap.classList.add('open');
-    const first = fields.find(f=> f.type !== 'choice' && shown(f));
+    const first = fields.find(f=> f.type !== 'choice' && f.type !== 'pick' && shown(f));
     if(first){ inputs[first.key].focus(); inputs[first.key].select(); }
   });
 }
@@ -3840,11 +4022,18 @@ function addAxes(n){
 function openNetDialog(){
   const nLabel = k => k === 'pyramid' ? 'تعداد ضلع‌های قاعده' : 'تعداد ضلع‌ها (۴ = مکعب)';
   promptDialog('📦 گسترده‌ی اشکال', [
-    { key:'kind', type:'choice', label:'شکل', value:'prism',
-      options:[{ v:'prism', t:'منشور' }, { v:'pyramid', t:'هرم' }, { v:'cylinder', t:'استوانه' }, { v:'cone', t:'مخروط' }],
+    { key:'kind', type:'choice', label:'شکل', value:'cube',
+      options:[{ v:'cube', t:'مکعب' }, { v:'prism', t:'منشور' }, { v:'pyramid', t:'هرم' }, { v:'cylinder', t:'استوانه' }, { v:'cone', t:'مخروط' }],
       onPick:(v, inp)=>{ const i = inp.n; if(i && i.previousSibling) i.previousSibling.textContent = nLabel(v); } },
+    { key:'variant', type:'pick', label:'کدام گسترده‌ی مکعب؟ (۱۱ حالت)', value:0, showIf:c => c.kind === 'cube',
+      options:CUBE_NETS.map((c, i)=> ({ v:i, title:'گسترده‌ی ' + faNum(i + 1, 0), html:cubeNetSvg(c) + '<span>' + faNum(i + 1, 0) + '</span>' }))
+        .concat([{ v:'all', title:'هر ۱۱ گسترده کنار هم', html:'<b>همه</b><span>۱۱ حالت</span>' }]) },
     { key:'n', label:nLabel('prism'), min:3, max:12, int:true, value:4, showIf:c => c.kind === 'prism' || c.kind === 'pyramid' }
-  ]).then(v=>{ if(v) addNet(v.kind, v.n || 4); });
+  ]).then(v=>{
+    if(!v) return;
+    if(v.kind === 'cube' && v.variant === 'all') addAllCubeNets();
+    else addNet(v.kind, v.n || 4, v.variant || 0);
+  });
 }
 // بخشی از بوم که زیر نوار ابزار، نوار تنظیمات و منوی پایینِ سایت نیست (مختصات صفحه)
 function freeArea(){
@@ -3855,11 +4044,11 @@ function freeArea(){
   const t = mobile ? 100 : 12, b = mobile ? H - sb - 8 : H - 110;
   return { l, t, w:Math.max(80, W - l - 8), h:Math.max(80, b - t) };
 }
-function addNet(kind, n){
+function addNet(kind, n, variant){
   const z = canvas.getZoom(), fa = freeArea();
   const c = toWorld({ x:fa.l + fa.w/2, y:fa.t + fa.h/2 });
   const o = new fabric.WbNet({
-    kind, n, stroke:S.color, strokeWidth:clamp(S.width, 2, 5), opacity:S.opacity, left:c.x, top:c.y
+    kind, n, variant, stroke:S.color, strokeWidth:clamp(S.width, 2, 5), opacity:S.opacity, left:c.x, top:c.y
   });
   // گسترده در صفحه جا شود (مخصوصاً در موبایل)
   const fit = Math.min(1, fa.w*0.92/(o.width + 30), fa.h*0.92/(o.height + 30));
@@ -3867,6 +4056,54 @@ function addNet(kind, n){
   o.setCoords();
   addAndSelect(o);
   status('📦 «بستن» را بزنید تا ' + o.netName() + ' ساخته شود — دوبار زدن روی شکل = باز/بسته، دایره‌ی بالای کادر = چرخاندن');
+}
+// هر ۱۱ گسترده‌ی مکعب در یک جدول، همه با هم انتخاب‌شده تا با یک دکمه بسته شوند
+function addAllCubeNets(){
+  flushHistory();
+  if(S.tool !== 'select') setTool('select');
+  const z = canvas.getZoom(), fa = freeArea(), N = CUBE_NETS.length;
+  const cols = fa.w >= fa.h ? 4 : 3, rows = Math.ceil(N/cols), cw = fa.w/cols, ch = fa.h/rows;
+  const list = CUBE_NETS.map((_, v)=> new fabric.WbNet({ kind:'cube', variant:v, stroke:S.color, opacity:S.opacity }));
+  const sc = Math.min(1, ...list.map(o=> Math.min(cw*0.86/(o.width + 10), ch*0.8/(o.height + 10))));
+  list.forEach((o, i)=>{
+    // از راست به چپ (مثل ترتیبِ جدولِ انتخاب): گسترده‌ی ۱ بالا-راست
+    const c = toWorld({ x:fa.l + cw*(cols - 1 - i % cols + 0.5), y:fa.t + ch*(Math.floor(i/cols) + 0.5) });
+    o.set({ left:c.x, top:c.y, scaleX:sc/z, scaleY:sc/z, strokeWidth:clamp(S.width, 2, 5)/Math.max(sc, 0.55) });
+    o.setCoords();
+    canvas.add(o);
+  });
+  canvas.setActiveObject(new fabric.ActiveSelection(list, { canvas }));
+  canvas.requestRenderAll();
+  saveHistory();
+  status('🧊 هر ۱۱ گسترده‌ی مکعب — «بستن همه» را بزنید؛ برای یکی، اول بیرون و بعد روی همان گسترده بزنید');
+}
+// گسترده(های) انتخاب‌شده — یکی، یا چندتا وقتی همه‌ی انتخاب گسترده باشد
+function netList(){
+  const o = canvas.getActiveObject();
+  if(!o) return [];
+  if(o.type === 'wbNet') return [o];
+  if(o.type === 'activeSelection'){
+    const l = o.getObjects();
+    if(l.length && l.every(x=> x.type === 'wbNet')) return l;
+  }
+  return [];
+}
+// کادرِ انتخابِ چندتایی بعد از تغییر اندازه‌ی گسترده‌ها به‌روز شود
+function netSelRefresh(){
+  const a = canvas.getActiveObject();
+  if(a && a.type === 'activeSelection') a.addWithUpdate();
+  else if(a) a.setCoords();
+}
+// رنگ‌کردنِ وجه با سطل (برای سطحِ خمیده، کلِ آن سطح)؛ همان رنگ دوباره = برگشت به رنگِ پیش‌فرض
+function paintNetFace(o, gi){
+  flushHistory();
+  const arr = (o.faceColors || []).slice();
+  const same = arr[gi] && toHex(arr[gi]) === toHex(S.color);
+  arr[gi] = same ? null : S.color;
+  o.set('faceColors', arr.some(Boolean) ? arr : null);
+  canvas.requestRenderAll();
+  saveHistory();
+  updateCtxBar();
 }
 // پویانمایی: هر ویژگی (fold, yaw, elev) مسیر جدای خودش را دارد تا هم‌زمان کار کنند
 const netAnims = new Map();
@@ -3896,9 +4133,14 @@ function netStep(o, now){
   o.setNetState(p);
   canvas.requestRenderAll();
   if(foldDone) status(o.fold > 0.5 ? '📦 ' + o.netName() + ' بسته شد' : '📂 گسترده‌ی ' + o.netName() + ' باز شد');
+  const act = canvas.getActiveObject(), inSel = !!act && (act === o || o.group === act);
   if(Object.keys(a.tracks).length) a.raf = requestAnimationFrame(t=> netStep(o, t));
-  else { netAnims.delete(o); saveHistory(); }
-  if(canvas.getActiveObject() === o) fillCtx();
+  else {
+    netAnims.delete(o);
+    if(inSel) netSelRefresh();
+    saveHistoryDebounced();       // چند گسترده با هم = یک مرحله در تاریخچه
+  }
+  if(inSel) fillCtx();
 }
 function netStop(o, keys){
   const a = netAnims.get(o);
@@ -3911,10 +4153,13 @@ function netGoal(o, k){
   const a = netAnims.get(o), tr = a && a.tracks[k];
   return tr ? tr.to : o[k];
 }
-function netToggle(o){
-  const closing = netGoal(o, 'fold') < 0.5, to = closing ? 1 : 0;
-  netAnimate(o, { fold:to }, 2600*Math.abs(to - o.fold), false);
-  status(closing ? '📦 در حال بسته شدنِ ' + o.netName() + '…' : '📂 در حال باز شدنِ ' + o.netName() + '…');
+function netToggle(list){
+  if(!Array.isArray(list)) list = [list];
+  if(!list.length) return;
+  const closing = netGoal(list[0], 'fold') < 0.5, to = closing ? 1 : 0;
+  list.forEach(o=> netAnimate(o, { fold:to }, 2600*Math.abs(to - o.fold), false));
+  const nm = list.length > 1 ? 'گسترده‌ها' : list[0].netName();
+  status(closing ? '📦 در حال بسته شدنِ ' + nm + '…' : '📂 در حال باز شدنِ ' + nm + '…');
   fillCtx();
 }
 // نمای خودکار خاموش می‌شود ولی نمای فعلی دقیقاً حفظ می‌شود
@@ -4052,12 +4297,11 @@ function addFracShape(kind, opts){
     halfH = h/2;
   }
   meta.dec = opts.dec || 0;
-  // برچسب با طولانی‌ترین متن ساخته می‌شود تا جای آن در کادر گروه رزرو شود
-  const longest = meta.dec ? '۰٫' + '۰'.repeat(meta.dec) : faNum(meta.n, 0) + '/' + faNum(meta.n, 0);
-  const label = new fabric.Text(longest, {
-    left:0, top:halfH + 38, originX:'center', originY:'center',
-    fontSize:34, fontWeight:'bold', fontFamily:'Tahoma', fill:col, visible:!!opts.label, wbRole:'fracLabel'
+  // کسرِ واقعی (صورت، خط کسری، مخرج) زیر شکل؛ جای بزرگ‌ترین عدد از اول رزرو می‌شود
+  const label = new fabric.WbFracLabel({
+    num:0, den:meta.n, maxN:meta.n, dec:meta.dec, fill:col, visible:!!opts.label, wbRole:'fracLabel', left:0, top:0
   });
+  label.set('top', halfH + 14 + label.height/2);
   const g = new fabric.Group(parts.concat(lines, [label]), { originX:'center', originY:'center', wbFrac:meta });
   const c = viewCenter(), z = canvas.getZoom();
   g.set({ left:c.x, top:c.y, scaleX:1/z, scaleY:1/z, opacity:S.opacity });
@@ -4075,8 +4319,27 @@ function updateFracLabel(g){
   const lab = g.getObjects().find(o=> o.wbRole === 'fracLabel');
   if(!lab) return;
   const { k, n } = fracStats(g), dec = g.wbFrac && g.wbFrac.dec;
-  lab.set('text', dec ? faNum(k/n, dec) : faNum(k, 0) + '/' + faNum(n, 0));
+  if(lab.type === 'wbFracLabel') lab.set({ num:k, den:n });
+  else lab.set('text', dec ? faNum(k/n, dec) : faNum(k, 0) + '/' + faNum(n, 0));
   g.dirty = true;
+}
+// پروژه‌های قبلی: برچسبِ «۳/۸» (که با اعشار اشتباه گرفته می‌شد) به کسرِ واقعی تبدیل می‌شود
+function upgradeFracLabel(g){
+  const objs = g._objects || [], i = objs.findIndex(o=> o.wbRole === 'fracLabel');
+  if(i < 0 || objs[i].type === 'wbFracLabel') return;
+  const old = objs[i], f = g.wbFrac || {};
+  const lab = new fabric.WbFracLabel({
+    den:f.n || 1, maxN:f.n || 1, dec:f.dec || 0, fill:old.fill, visible:old.visible, wbRole:'fracLabel', left:old.left, top:0
+  });
+  lab.set('top', old.top - 38 + 14 + lab.height/2);   // برچسبِ قبلی ۳۸ واحد زیرِ شکل بود
+  lab.group = g;
+  lab.canvas = g.canvas;
+  objs[i] = lab;
+  // اگر کسر از کادرِ گروه بیرون می‌زند، کادر بزرگ‌تر شود (جای بقیه‌ی اجزا تغییر نمی‌کند)
+  g.height = Math.max(g.height, 2*(Math.abs(lab.top) + lab.height/2 + 2));
+  g.width = Math.max(g.width, 2*(Math.abs(lab.left) + lab.width/2 + 2));
+  updateFracLabel(g);
+  g.setCoords();
 }
 // شماره‌ی قسمتی از شکل کسری که نقطه‌ی (جهانی) w داخل آن است؛ -1 یعنی بیرون
 function fracPartAt(g, w){
@@ -4130,7 +4393,13 @@ function bucketAt(p){
   const objs = canvas.getObjects();
   for(let i=objs.length - 1; i>=0; i--){
     const o = objs[i];
-    if(!o.wbFrac || !o.visible) continue;
+    if(!o.visible) continue;
+    if(o.type === 'wbNet'){
+      const gi = o.faceAt(w);
+      if(gi >= 0){ paintNetFace(o, gi); return; }
+      continue;
+    }
+    if(!o.wbFrac) continue;
     const idx = fracPartAt(o, w);
     if(idx >= 0){ paintFracPart(o, idx); return; }
   }
@@ -4520,6 +4789,7 @@ function migrateLegacy(){
     .filter(o=> o.wbRole === 'pivot' || o.wbRole === 'pencilHit' || o.wbRole === 'handleHit')
     .forEach(o=> canvas.remove(o));
   canvas.getObjects().forEach(o=>{ if(o.type === 'path' && o.objectCaching === false) o.objectCaching = true; });
+  canvas.getObjects().forEach(o=>{ if(o.wbFrac && o.type === 'group') upgradeFracLabel(o); });
 }
 function tryAutoLoad(){
   let raw = null;
