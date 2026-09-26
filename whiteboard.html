@@ -56,6 +56,25 @@ input[type=text]{-webkit-user-select:text;user-select:text}
 .swatch.active{box-shadow:0 0 0 2px var(--primary)}
 .swatch.custom i{background:conic-gradient(#f43f5e,#f59e0b,#84cc16,#06b6d4,#6366f1,#d946ef,#f43f5e)}
 .swatch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+/* دو رنگ اصلی در نوار بالا — زدنِ دوباره روی رنگِ فعال، بقیه‌ی رنگ‌ها را باز می‌کند */
+.cslot{width:30px;height:30px}
+.cslot i{width:21px;height:21px}
+.cslot.active::after{
+  content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M1 2.5 L4 5.5 L7 2.5' fill='none' stroke='%233b6ef5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/8px no-repeat;
+  box-shadow:0 0 0 1px var(--primary);pointer-events:none;
+}
+#colorMenu{grid-template-columns:repeat(3,1fr);width:156px;gap:6px;padding:8px}
+#colorMenu .menuitem,#colorMenu .cpick-custom{min-height:40px;padding:0;border-radius:50%;width:40px;height:40px;justify-self:center}
+#colorMenu .menuitem i,#colorMenu .cpick-custom i{
+  display:block;width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.22);pointer-events:none;
+}
+#colorMenu .menuitem.active{background:none;box-shadow:0 0 0 2px var(--primary)}
+#colorMenu .cpick-custom{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#colorMenu .cpick-custom:hover{background:#f1f3f6}
+#colorMenu .cpick-custom i{background:conic-gradient(#f43f5e,#f59e0b,#84cc16,#06b6d4,#6366f1,#d946ef,#f43f5e)}
+#colorMenu .cpick-custom input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+#colorMenu .cm-title{grid-column:1 / -1;font-size:11px;color:var(--muted);text-align:center;padding:2px 0 0}
 .sizebtn{
   width:28px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
   flex-shrink:0;color:#374151;
@@ -118,6 +137,7 @@ input[type=text]{-webkit-user-select:text;user-select:text}
 .menuitem:hover{background:#f1f3f6}
 .menuitem:active{transform:scale(.97)}
 .menuitem.active{background:var(--primary-soft);border-color:var(--primary);color:var(--primary);font-weight:700}
+.menuitem.wide{grid-column:1 / -1}
 
 /* ===== Panels ===== */
 .panel{
@@ -179,6 +199,8 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 .cb-btn.on{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
 .cb-btn.cb-x{color:#b91c1c}
 .cb-sep{width:1px;height:22px;background:var(--border)}
+.cb-range{width:120px;accent-color:var(--primary);direction:ltr;cursor:pointer}
+.cb-info{color:var(--muted);font-variant-numeric:tabular-nums;min-width:34px;text-align:center;white-space:nowrap}
 
 /* ===== Dialog ===== */
 #dialogOverlay{
@@ -192,6 +214,8 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 }
 .dialogTitle{font-size:14px;font-weight:800;margin-bottom:12px}
 .dialogBox .row{margin-bottom:10px}
+.dialogBox .row label{flex-shrink:0}
+.dialogBox .row input[type=text]{min-width:0}
 .dialogBox input[type=text]{
   flex:1;height:36px;border:1px solid var(--border);border-radius:8px;
   padding:0 10px;font-size:14px;font-variant-numeric:tabular-nums;direction:ltr;text-align:center;
@@ -248,26 +272,39 @@ body.board-dark #credit{color:rgba(255,255,255,.42)}
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ===== موبایل: نوار ابزار سمت چپ (عمودی) تا زیر منوی پایینِ سایت نرود =====
+   --safe-b: فضای خالی پایین صفحه برای منوی موبایلی سایت (در تمام‌صفحه لازم نیست) */
 @media(max-width:700px){
-  :root{--topbar-h:46px}
+  :root{--topbar-h:46px;--safe-b:84px}
+  body.is-full{--safe-b:10px}
   #toolbar{
-    top:auto;bottom:8px;left:8px;right:8px;width:auto;height:58px;
-    flex-direction:row;padding:6px;border-radius:16px;gap:3px;
-    overflow-x:auto;overflow-y:hidden;max-height:none;
+    top:6px;left:6px;bottom:auto;right:auto;width:50px;
+    padding:4px;border-radius:13px;gap:2px;
+    max-height:calc(100% - var(--safe-b) - 6px);
   }
-  .toolWrap{flex-shrink:0;display:flex}
-  .tsep{width:1px;height:auto;margin:4px 3px}
-  .toolbtn{min-width:44px;height:44px}
-  .menu{width:min(300px,calc(100vw - 24px));max-height:55vh}
-  #bgPanel,#props{top:auto;bottom:74px;left:8px;right:8px;width:auto;max-height:55vh;overflow-y:auto}
+  .toolbtn{width:40px;height:40px;font-size:18px}
+  .toolbtn.glyph{font-size:25px}
+  .tsep{margin:2px 3px}
+  .menu{width:min(280px,calc(100vw - 72px));max-height:60vh}
+  #colorMenu{width:156px}
+  #bgPanel,#props{top:6px;left:62px;right:6px;width:auto;max-height:calc(100% - var(--safe-b) - 6px);overflow-y:auto}
   #status{display:none}
-  #zoomCtl{bottom:74px}
-  #credit{left:12px;bottom:70px;font-size:9px}
+  #zoomCtl{bottom:var(--safe-b);right:8px}
+  #credit{left:64px;bottom:calc(var(--safe-b) - 4px);font-size:9px}
   .brand img{height:19px}
-  #ctxBar{left:8px;right:8px;transform:none;max-width:none;bottom:118px;gap:4px;padding:6px}
+  #ctxBar{top:6px;bottom:auto;left:62px;right:6px;transform:none;max-width:none;gap:4px;padding:6px}
   #ctxBar .cb-sep{display:none}
   .cb-field input{width:50px}
   .cb-btn{padding:0 8px}
+  .cb-range{width:92px}
+}
+/* گوشی افقی: همان فضای پایین برای منوی سایت */
+@media(min-width:701px) and (max-height:520px) and (pointer:coarse){
+  :root{--safe-b:64px}
+  body.is-full{--safe-b:10px}
+  #toolbar{max-height:calc(100% - var(--safe-b) - 10px)}
+  #zoomCtl{bottom:var(--safe-b)}
+  #ctxBar{bottom:calc(var(--safe-b) + 4px)}
 }
 </style>
 </head>
@@ -319,6 +356,7 @@ body.board-dark #credit{color:rgba(255,255,255,.42)}
       <div class="toolWrap">
         <button class="toolbtn hasmenu" data-menu="shapeMenu" title="اشکال — بکشید">🔷</button>
         <div class="menu" id="shapeMenu">
+          <button class="menuitem wide" data-math="net" title="گسترده‌ی منشور، مکعب، هرم، استوانه و مخروط — با نمایش باز و بسته شدن (N)">📦 گسترده‌ی اشکال (باز و بسته)</button>
           <button class="menuitem" data-shape="rect">▭ مستطیل</button>
           <button class="menuitem" data-shape="circle">○ دایره</button>
           <button class="menuitem" data-shape="triangle">△ مثلث</button>
@@ -403,6 +441,8 @@ body.board-dark #credit{color:rgba(255,255,255,.42)}
     </div>
   </main>
 </div>
+
+<div class="menu" id="colorMenu"></div>
 
 <div class="menu" id="logoMenu">
   <button class="menuitem" data-logo="pick">🖼 انتخاب لوگو</button>
@@ -510,11 +550,14 @@ const COLOR_NAMES = {
   light:['مشکی','آبی','قرمز','سبز','نارنجی','بنفش','صورتی','فیروزه‌ای'],
   dark: ['گچ سفید','گچ زرد','گچ صورتی','گچ آبی','گچ سبز','گچ نارنجی','گچ ارغوانی','گچ یاسی']
 };
+// دو رنگِ اصلیِ نوار بالا (برای هر تخته جدا) — با زدنِ دوباره روی رنگِ فعال، قابل تعویض‌اند
+const SLOT_KEY = 'mc-color-slots';
+const SLOTS = { light:[PALETTES.light[0], PALETTES.light[1]], dark:[PALETTES.dark[0], PALETTES.dark[1]] };
 const SIZES = [2, 4, 7, 12];
 const DRAW_TOOLS = new Set(['pen','highlighter']);
 
 const S = {
-  tool:'pen', bg:'none', color:'#111111', width:4, opacity:1,
+  tool:'pen', bg:'none', color:'#111111', slotIdx:0, width:4, opacity:1,
   font:'Tahoma', fontSize:28,
   history:[], hIndex:-1, restoring:false,
   pendingShape:'rect', drawingShape:null, shapeStart:null,
@@ -676,6 +719,7 @@ function installFabricPatches(){
     return r;
   };
   defineSmartClasses();
+  defineNetClass();
 }
 
 function objToScreen(o, lx, ly){
@@ -713,6 +757,311 @@ function smartControl(posFn, actFn, visFn){
   });
   if(visFn) c.getVisibility = function(o){ return visFn(o); };
   return c;
+}
+
+/* ============================================================
+   گسترده‌ی اشکال سه‌بعدی (منشور/مکعب، هرم، استوانه، مخروط) با باز و بسته شدن
+   · گسترده روی «میز» (صفحه‌ی z=0) پهن است و روی کاغذ رو به بالاست (= داخلِ جسم)
+   · هر وجه حول لولای مشترک با وجهِ والدش (درخت وجه‌ها) به سمت بالا تا می‌شود
+   · زاویه‌ی تا = زاویه‌ی بین بردارهای عمودِ دو وجه در جسمِ بسته
+   · fold: ۰ = کاملاً باز (گسترده)، ۱ = کاملاً بسته (جسم)
+============================================================ */
+const NET_COLORS = ['#fca5a5','#93c5fd','#86efac','#fde68a','#c4b5fd','#fdba74','#67e8f9','#f9a8d4','#bef264','#a5b4fc','#fcd34d','#5eead4','#fda4af','#d8b4fe'];
+const NET_POLY = ['','','','مثلثی','چهارضلعی','پنج‌ضلعی','شش‌ضلعی','هفت‌ضلعی','هشت‌ضلعی','نُه‌ضلعی','ده‌ضلعی','یازده‌ضلعی','دوازده‌ضلعی'];
+const NET_ELEV = 30, NET_YAW = 30;               // نمای سه‌بعدیِ پیش‌فرض (درجه)
+const NET_LIGHT = (()=>{ const v = [-0.45, 0.55, 0.7], L = Math.hypot(...v); return v.map(x=> x/L); })();
+const M34_ID = [1,0,0,0, 0,1,0,0, 0,0,1,0];
+const smoothstep = x => x*x*(3 - 2*x);
+
+function netName(kind, n){
+  if(kind === 'cylinder') return 'استوانه';
+  if(kind === 'cone') return 'مخروط';
+  if(kind === 'pyramid') return n === 4 ? 'هرم مربعی' : 'هرم ' + (NET_POLY[n] || faNum(n, 0) + '‌ضلعی');
+  return n === 4 ? 'مکعب' : 'منشور ' + (NET_POLY[n] || faNum(n, 0) + '‌ضلعی');
+}
+function regPolyPts(n, R, cx, cy, a0){
+  const pts = [];
+  for(let j=0; j<n; j++){ const a = a0 + j*TAU/n; pts.push({ x:cx + R*Math.cos(a), y:cy + R*Math.sin(a) }); }
+  return pts;
+}
+const rectPts = (x, y, w, h) => [{ x, y }, { x:x + w, y }, { x:x + w, y:y + h }, { x, y:y + h }];
+
+// ساختِ گسترده: وجه‌ها با مختصات تخت (y رو به بالا)، والد، لولا (A→B)، زاویه‌ی تا، مرحله و رنگ
+function buildNet(kind, n){
+  const F = [];
+  const add = (pts, col, parent, A, B, theta, stage) => { F.push({ pts, col, parent, A, B, theta, stage:stage || 0, nb:[] }); return F.length - 1; };
+  const link = (f1, e1, f2, e2) => { F[f1].nb[e1] = f2; F[f2].nb[e2] = f1; F[f1].smooth = F[f2].smooth = true; };
+  // درزِ کاغذ (دو لبه‌ی آزاد که در جسمِ بسته به هم می‌رسند): در حالت کاملاً بسته مثل لبه‌ی نرم رفتار می‌کند
+  const seam = (f1, e1, f2, e2) => { (F[f1].seam = F[f1].seam || [])[e1] = f2; (F[f2].seam = F[f2].seam || [])[e2] = f1; };
+  let hz = 0, lid = false;
+  if(kind === 'prism' || kind === 'cylinder'){
+    // نوار وجه‌های جانبی + دو قاعده که به وجهِ وسطِ نوار وصل‌اند (برای ۴ = صلیبِ مکعب)
+    const cyl = kind === 'cylinder', m = cyl ? 48 : n;
+    let s, h;
+    if(cyl){ s = 2*56*Math.sin(Math.PI/m); h = 130; }
+    else { s = m === 3 ? 90 : 360/m; h = Math.max(s, 1.2*s/(2*Math.sin(Math.PI/m))); }   // ۴ ضلعی: ارتفاع = ضلع ← مکعب
+    const R = s/(2*Math.sin(Math.PI/m)), a = s/(2*Math.tan(Math.PI/m));
+    const k = Math.floor((m - 1)/2), X = i => (i - k - 0.5)*s;
+    const root = add(regPolyPts(m, R, 0, -a, Math.PI/2 + Math.PI/m), 0, -1);
+    const lat = [];
+    lat[k] = add(rectPts(X(k), 0, s, h), cyl ? 2 : 2 + k, root, { x:-s/2, y:0 }, { x:s/2, y:0 }, Math.PI/2);
+    for(let i=k+1; i<m; i++) lat[i] = add(rectPts(X(i), 0, s, h), cyl ? 2 : 2 + i, lat[i-1], { x:X(i), y:0 }, { x:X(i), y:h }, TAU/m);
+    for(let i=k-1; i>=0; i--) lat[i] = add(rectPts(X(i), 0, s, h), cyl ? 2 : 2 + i, lat[i+1], { x:X(i) + s, y:0 }, { x:X(i) + s, y:h }, TAU/m);
+    add(regPolyPts(m, R, 0, h + a, -Math.PI/2 + Math.PI/m), 1, lat[k], { x:-s/2, y:h }, { x:s/2, y:h }, Math.PI/2, 1);
+    // سطح خمیده‌ی استوانه: خطِ بین نوارها فقط وقتی لبه‌ی دید است کشیده می‌شود
+    if(cyl){ for(let i=0; i<m - 1; i++) link(lat[i], 1, lat[i+1], 3); seam(lat[0], 3, lat[m - 1], 1); }
+    hz = h; lid = true;
+  } else if(kind === 'pyramid'){
+    // قاعده در وسط، مثلث‌ها دورِ آن (ستاره)
+    const s = n === 3 ? 130 : n === 4 ? 110 : 440/n;
+    const R = s/(2*Math.sin(Math.PI/n)), a = s/(2*Math.tan(Math.PI/n));
+    const fh = n <= 4 ? s*Math.sqrt(3)/2 : Math.hypot(1.1*R, a);   // ۳ و ۴: وجه‌های متساوی‌الاضلاع (۳ = چهاروجهیِ منتظم)
+    const tilt = Math.atan2(Math.sqrt(Math.max(1, fh*fh - a*a)), a);
+    const base = regPolyPts(n, R, 0, 0, -Math.PI/2 - Math.PI/n);
+    const root = add(base, 0, -1);
+    for(let j=0; j<n; j++){
+      const P = base[j], Q = base[(j + 1) % n], mx = (P.x + Q.x)/2, my = (P.y + Q.y)/2, L = Math.hypot(mx, my);
+      add([P, Q, { x:mx + mx/L*fh, y:my + my/L*fh }], 1 + j, root, P, Q, Math.PI - tilt);
+    }
+    hz = Math.sqrt(Math.max(1, fh*fh - a*a));
+  } else {
+    // مخروط: دایره (۴۸ ضلعی) + قطاع (بادبزنِ ۴۸ مثلث باریک حول رأس)
+    const m = 48, r = 62, e = 150;
+    const s = 2*r*Math.sin(Math.PI/m), a = r*Math.cos(Math.PI/m);
+    const fh = Math.sqrt(e*e - s*s/4), hp = Math.sqrt(e*e - r*r), tilt = Math.atan2(hp, a);
+    const g = 2*Math.asin(s/(2*e));
+    const th = Math.acos(clamp(Math.pow(Math.sin(tilt), 2)*Math.cos(TAU/m) + Math.pow(Math.cos(tilt), 2), -1, 1));
+    const P = { x:0, y:a + fh }, at = ang => ({ x:P.x + e*Math.cos(ang), y:P.y + e*Math.sin(ang) });
+    const root = add(regPolyPts(m, r, 0, 0, Math.PI/2 + Math.PI/m), 0, -1);
+    const hub = add([P, { x:-s/2, y:a }, { x:s/2, y:a }], 1, root, { x:-s/2, y:a }, { x:s/2, y:a }, Math.PI - tilt);
+    const nR = Math.floor((m - 1)/2), nL = m - 1 - nR;
+    const b0 = Math.atan2(-fh, s/2), b1 = Math.atan2(-fh, -s/2);
+    let prev = hub, pe = 2;
+    for(let j=1; j<=nR; j++){
+      const Q0 = at(b0 + (j - 1)*g), id = add([P, Q0, at(b0 + j*g)], 1, prev, P, Q0, th);
+      link(prev, pe, id, 0); prev = id; pe = 2;
+    }
+    const lastR = prev;
+    prev = hub; pe = 0;
+    for(let j=1; j<=nL; j++){
+      const Q0 = at(b1 - (j - 1)*g), id = add([P, at(b1 - j*g), Q0], 1, prev, P, Q0, th);
+      link(prev, pe, id, 2); prev = id; pe = 0;
+    }
+    seam(lastR, 2, prev, 0);
+    hz = hp;
+  }
+  for(const f of F){
+    f.c = f.pts.reduce((q, p)=> ({ x:q.x + p.x/f.pts.length, y:q.y + p.y/f.pts.length }), { x:0, y:0 });
+    if(f.parent < 0) continue;
+    const ux = f.B.x - f.A.x, uy = f.B.y - f.A.y, L = Math.hypot(ux, uy) || 1;
+    f.u = { x:ux/L, y:uy/L };
+    // جهتِ چرخش طوری که وجهِ فرزند به سمت بالا (داخلِ جسم) تا شود
+    f.sign = (f.u.x*(f.c.y - f.A.y) - f.u.y*(f.c.x - f.A.x)) > 0 ? 1 : -1;
+  }
+  return { faces:F, hz, lid, ax:F[0].c.x, ay:F[0].c.y, name:netName(kind, n) };
+}
+function m34mul(A, B){
+  const r = new Array(12);
+  for(let i=0; i<3; i++){
+    const a0 = A[i*4], a1 = A[i*4 + 1], a2 = A[i*4 + 2];
+    r[i*4]     = a0*B[0] + a1*B[4] + a2*B[8];
+    r[i*4 + 1] = a0*B[1] + a1*B[5] + a2*B[9];
+    r[i*4 + 2] = a0*B[2] + a1*B[6] + a2*B[10];
+    r[i*4 + 3] = a0*B[3] + a1*B[7] + a2*B[11] + A[i*4 + 3];
+  }
+  return r;
+}
+// چرخش حول خطِ لولا (گذرنده از A با جهت u در صفحه‌ی z=0) — رابطه‌ی رودریگز
+function hingeRot(f, ang){
+  const ux = f.u.x, uy = f.u.y, c = Math.cos(ang), s = Math.sin(ang), t = 1 - c, ax = f.A.x, ay = f.A.y;
+  const r00 = c + t*ux*ux, r01 = t*ux*uy, r10 = r01, r11 = c + t*uy*uy;
+  const r20 = -s*uy, r21 = s*ux;
+  return [r00, r01, s*uy, ax - r00*ax - r01*ay,
+          r10, r11, -s*ux, ay - r10*ax - r11*ay,
+          r20, r21, c, -r20*ax - r21*ay];
+}
+// پیشرفتِ هر لولا: دیواره‌ها اول، درِ بالا کمی بعد
+function netStageT(net, t, stage){
+  t = clamp(t, 0, 1);
+  if(!net.lid) return smoothstep(t);
+  return stage ? smoothstep(clamp((t - 0.5)/0.5, 0, 1)) : smoothstep(clamp(t/0.72, 0, 1));
+}
+// رنگِ مات با سایه (برای سطح‌های خمیده)
+function netShade(hex, dark, lite){
+  const n = parseInt(toHex(hex).slice(1), 16);
+  let r = n>>16&255, g = n>>8&255, b = n&255;
+  if(dark > 0.01){ r = r*(1 - dark) + 15*dark; g = g*(1 - dark) + 23*dark; b = b*(1 - dark) + 42*dark; }
+  else if(lite > 0.01){ r += (255 - r)*lite; g += (255 - g)*lite; b += (255 - b)*lite; }
+  return 'rgb(' + Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b) + ')';
+}
+function renderOrbitHandle(ctx, left, top){
+  ctx.save();
+  ctx.shadowColor = 'rgba(15,23,42,.35)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 1;
+  ctx.beginPath(); ctx.arc(left, top, 12, 0, TAU);
+  ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.lineWidth = 2.2; ctx.strokeStyle = '#3b6ef5'; ctx.stroke();
+  // فلشِ بیضیِ چرخش سه‌بعدی
+  const a1 = 1.85*Math.PI, rx = 6.8, ry = 3.4;
+  ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.ellipse(left, top, rx, ry, 0, 0.2*Math.PI, a1); ctx.stroke();
+  const ex = left + rx*Math.cos(a1), ey = top + ry*Math.sin(a1);
+  const tx = -rx*Math.sin(a1), ty = ry*Math.cos(a1), tl = Math.hypot(tx, ty);
+  const dx = tx/tl, dy = ty/tl;
+  ctx.fillStyle = '#3b6ef5';
+  ctx.beginPath();
+  ctx.moveTo(ex + dx*3.6, ey + dy*3.6);
+  ctx.lineTo(ex - dx*1.6 - dy*3, ey - dy*1.6 + dx*3);
+  ctx.lineTo(ex - dx*1.6 + dy*3, ey - dy*1.6 - dx*3);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(left, top - 8); ctx.lineTo(left, top + 8); ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.restore();
+}
+
+function defineNetClass(){
+  fabric.WbNet = fabric.util.createClass(fabric.Object, {
+    type:'wbNet',
+    kind:'prism', n:4, fold:0, yaw:NET_YAW, elev:NET_ELEV, autoCam:true, colorful:true,
+    originX:'center', originY:'center', fill:null,
+    lockRotation:true, lockSkewingX:true, lockSkewingY:true, lockScalingFlip:true,
+    perPixelTargetFind:true, cornerSize:13, touchCornerSize:34,
+    cacheProperties: fabric.Object.prototype.cacheProperties.concat(['kind','n','fold','yaw','elev','autoCam','colorful']),
+    initialize: function(options){
+      this.callSuper('initialize', options || {});
+      if(this.kind !== 'pyramid' && this.kind !== 'cylinder' && this.kind !== 'cone') this.kind = 'prism';
+      this.n = clamp(Math.round(+this.n || 4), 3, 12);
+      this._net = buildNet(this.kind, this.n);
+      this._syncDims();
+    },
+    netName: function(){ return this._net.name; },
+    // «نمای خودکار»: گسترده‌ی باز از بالا دیده می‌شود و هنگام بسته شدن، نما کم‌کم سه‌بعدی می‌شود
+    camera: function(){
+      if(!this.autoCam) return { E:clamp(this.elev, 0, 90), Y:this.yaw };
+      const s = smoothstep(clamp(this.fold/0.8, 0, 1));
+      return { E:90 + (this.elev - 90)*s, Y:this.yaw*s };
+    },
+    _stateKey: function(){ return [this.fold, this.yaw, this.elev, this.autoCam].join('|'); },
+    // مختصات تصویرشده‌ی وجه‌ها نسبت به «لنگر» (مرکز قاعده‌ی پایین، در ارتفاعِ نیمه‌ی جسمِ در حال بسته شدن)
+    _geom: function(){
+      const net = this._net, F = net.faces, t = clamp(this.fold, 0, 1), cam = this.camera();
+      const se = Math.sin(cam.E*D2R), ce = Math.cos(cam.E*D2R), sy = Math.sin(cam.Y*D2R), cy = Math.cos(cam.Y*D2R);
+      const az = net.hz/2*netStageT(net, t, 0);
+      const M = new Array(F.length), out = new Array(F.length);
+      for(let i=0; i<F.length; i++){
+        const f = F[i];
+        const m = M[i] = f.parent < 0 ? M34_ID : m34mul(M[f.parent], hingeRot(f, f.sign*f.theta*netStageT(net, t, f.stage)));
+        let dsum = 0;
+        const pts = f.pts.map(p=>{
+          const X = m[0]*p.x + m[1]*p.y + m[3] - net.ax;
+          const Y = m[4]*p.x + m[5]*p.y + m[7] - net.ay;
+          const Z = m[8]*p.x + m[9]*p.y + m[11] - az;
+          const xr = X*cy - Y*sy, yr = X*sy + Y*cy, d = -yr*ce + Z*se;
+          dsum += d;
+          return { x:xr, y:-(yr*se + Z*ce) };
+        });
+        // بردار عمودِ روی داخلیِ کاغذ در فضای دوربین (راست، بالا، رو به بیننده)
+        const nx = m[2], ny = m[6], nz = m[10], nyr = nx*sy + ny*cy;
+        out[i] = { i, pts, depth:dsum/pts.length, nR:nx*cy - ny*sy, nU:nyr*se + nz*ce, nF:-nyr*ce + nz*se };
+      }
+      return out;
+    },
+    _syncDims: function(){
+      const g = this._geom();
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for(const f of g) for(const p of f.pts){
+        if(p.x < x0) x0 = p.x; if(p.x > x1) x1 = p.x;
+        if(p.y < y0) y0 = p.y; if(p.y > y1) y1 = p.y;
+      }
+      this.width = Math.max(6, x1 - x0 + 4);
+      this.height = Math.max(6, y1 - y0 + 4);
+      this._off = { x:-(x0 + x1)/2, y:-(y0 + y1)/2 };
+      this._g = g; this._gKey = this._stateKey();
+    },
+    // تغییر حالت (باز/بسته، نما) با ثابت ماندنِ لنگر روی تخته
+    setNetState: function(p){
+      const old = this._off, m = this.calcOwnMatrix();
+      this.set(p);
+      this._syncDims();
+      const dx = old.x - this._off.x, dy = old.y - this._off.y;
+      this.set({ left:this.left + m[0]*dx + m[2]*dy, top:this.top + m[1]*dx + m[3]*dy });
+      this.setCoords();
+      return this;
+    },
+    _render: function(ctx){
+      if(this._gKey !== this._stateKey()){ this._g = this._geom(); this._gKey = this._stateKey(); }
+      const F = this._net.faces, g = this._g, ox = this._off.x, oy = this._off.y;
+      const inner = g.map(f=> f.nF >= -1e-9);            // روی داخلیِ کاغذ دیده می‌شود؟
+      // اول وجه‌هایی که داخلشان پیداست (پشتی)، بعد بقیه؛ در هر گروه از دور به نزدیک
+      const order = g.slice().sort((a, b)=> (inner[a.i] === inner[b.i] ? a.depth - b.depth : (inner[a.i] ? -1 : 1)));
+      const col = this.stroke || '#111111', sw = this.strokeWidth || 2, closed = this.fold > 0.995;
+      ctx.save();
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.lineWidth = sw;
+      const st = paint(ctx, this, col);
+      for(const gf of order){
+        const f = F[gf.i], P = gf.pts, n = P.length;
+        ctx.beginPath();
+        ctx.moveTo(P[0].x + ox, P[0].y + oy);
+        for(let j=1; j<n; j++) ctx.lineTo(P[j].x + ox, P[j].y + oy);
+        ctx.closePath();
+        // سایه‌روشن بر اساس جهتِ وجه
+        const sg = inner[gf.i] ? 1 : -1;
+        const lam = Math.max(0, sg*(gf.nR*NET_LIGHT[0] + gf.nU*NET_LIGHT[1] + gf.nF*NET_LIGHT[2]));
+        const dark = Math.max(0, 0.72 - lam)*0.34, lite = Math.max(0, lam - 0.8)*0.8;
+        if(this.colorful && f.smooth){
+          // سطح خمیده: رنگِ مات + خط هم‌رنگ تا درزی بین نوارهای باریک دیده نشود
+          const fc = netShade(NET_COLORS[f.col % NET_COLORS.length], dark, lite);
+          ctx.fillStyle = fc; ctx.fill();
+          ctx.lineWidth = 1.2; ctx.strokeStyle = fc; ctx.stroke();
+          ctx.lineWidth = sw;
+        } else {
+          ctx.fillStyle = this.colorful ? hexToRgba(NET_COLORS[f.col % NET_COLORS.length], .88) : hexToRgba(col, S.dark ? .2 : .14);
+          ctx.fill();
+          if(dark > 0.01){ ctx.fillStyle = 'rgba(15,23,42,' + dark.toFixed(3) + ')'; ctx.fill(); }
+          else if(lite > 0.01){ ctx.fillStyle = 'rgba(255,255,255,' + lite.toFixed(3) + ')'; ctx.fill(); }
+        }
+        ctx.strokeStyle = st;
+        if(f.nb.length || (closed && f.seam)){
+          ctx.beginPath();
+          for(let j=0; j<n; j++){
+            let q = f.nb[j];
+            if(q == null && closed && f.seam) q = f.seam[j];
+            if(q != null && inner[q] === inner[gf.i]) continue;   // لبه‌ی نرم که لبه‌ی دید نیست
+            const A = P[j], B = P[(j + 1) % n];
+            ctx.moveTo(A.x + ox, A.y + oy); ctx.lineTo(B.x + ox, B.y + oy);
+          }
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+    toObject: function(props){
+      return this.callSuper('toObject', ['kind','n','fold','yaw','elev','autoCam','colorful'].concat(props || []));
+    }
+  });
+  fabric.WbNet.fromObject = function(obj, cb){ return fabric.Object._fromObject('WbNet', obj, cb); };
+  const oc = fabric.Object.prototype.controls;
+  fabric.WbNet.prototype.controls = {
+    tl:oc.tl, tr:oc.tr, bl:oc.bl, br:oc.br,
+    // دستگیره‌ی چرخاندنِ سه‌بعدی: چپ/راست = چرخش، بالا/پایین = زاویه‌ی دید
+    orbit: new fabric.Control({
+      x:0, y:-0.5, offsetY:-32, withConnection:true, cursorStyle:'grab', actionName:'wbOrbit',
+      sizeX:26, sizeY:26, touchSizeX:44, touchSizeY:44,
+      mouseDownHandler: function(ev, tr){
+        const o = tr.target;
+        netStop(o, ['yaw','elev']);
+        netFreezeCam(o);
+        tr.wbOrbit = { yaw:o.yaw, elev:o.elev, x:ev.clientX, y:ev.clientY };
+        return false;
+      },
+      actionHandler: function(ev, tr){
+        const o = tr.target, s = tr.wbOrbit;
+        if(!s) return false;
+        o.setNetState({ yaw:s.yaw + (ev.clientX - s.x)*0.6, elev:clamp(s.elev + (ev.clientY - s.y)*0.45, 0, 90) });
+        return true;
+      },
+      render: renderOrbitHandle
+    })
+  };
 }
 
 function defineSmartClasses(){
@@ -915,8 +1264,14 @@ function init(){
 
   resize();
   window.addEventListener('resize', debounce(resize, 120));
-  document.addEventListener('fullscreenchange', ()=> setTimeout(resize, 80));
+  document.addEventListener('fullscreenchange', ()=>{
+    document.body.classList.toggle('is-full', !!document.fullscreenElement);
+    setTimeout(resize, 80);
+  });
 
+  loadSlots();
+  S.color = slotsNow()[S.slotIdx];
+  els.color.value = S.color;
   buildSwatches();
   buildSizes();
   initLogo();
@@ -945,7 +1300,7 @@ function cacheDom(){
   ['status','zoomBadge','bgPanel','props','canvasWrap','mainCanvas','ovCanvas','inkCanvas',
    'color','width','widthVal','opacity','opacityVal','font','fontSize','fontSizeVal',
    'undoBtn','redoBtn','loading','projectInput','imageInput','toast','zoomIn','zoomOut',
-   'swatches','sizes','ctxBar','boardBtn','logoImg','logoFallback','logoInput']
+   'swatches','sizes','ctxBar','boardBtn','logoImg','logoFallback','logoInput','colorMenu']
   .forEach(id=>{ els[id] = document.getElementById(id); });
 }
 
@@ -1037,12 +1392,45 @@ function applyCursor(force){
 /* ============================================================
    نوار بالا — رنگ و ضخامت سریع
 ============================================================ */
+const slotsNow = () => SLOTS[S.dark ? 'dark' : 'light'];
+function loadSlots(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(SLOT_KEY) || 'null'); }catch(e){}
+  if(!d) return;
+  for(const k of ['light','dark']){
+    if(!Array.isArray(d[k])) continue;
+    d[k].slice(0, 2).forEach((c, i)=>{ if(typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c)) SLOTS[k][i] = c.toLowerCase(); });
+  }
+}
+function saveSlots(){ try{ localStorage.setItem(SLOT_KEY, JSON.stringify(SLOTS)); }catch(e){} }
+function colorName(c){
+  for(const k of ['light','dark']){
+    const i = PALETTES[k].indexOf(c);
+    if(i >= 0) return COLOR_NAMES[k][i];
+  }
+  return 'رنگ دلخواه';
+}
 function buildSwatches(){
-  const key = S.dark ? 'dark' : 'light';
-  els.swatches.innerHTML = PALETTES[key].map((c, i)=>
-    `<button class="swatch" data-color="${c}" title="${COLOR_NAMES[key][i]} (${i+1})"><i style="background:${c}"></i></button>`
-  ).join('') + `<label class="swatch custom" title="رنگ دلخواه"><i></i><input type="color" id="customColor"></label>`;
+  els.swatches.innerHTML = [0, 1].map(i=> `<button class="swatch cslot" data-slot="${i}"><i></i></button>`).join('');
   refreshQuickBar();
+}
+// زدن روی رنگِ غیرفعال = انتخابش؛ زدنِ دوباره روی رنگِ فعال = بازشدن بقیه‌ی رنگ‌ها
+function onSlotTap(btn){
+  const i = +btn.dataset.slot, menu = els.colorMenu;
+  const wasOpen = menu.classList.contains('open') && menu._slot === i;
+  closeAllMenus();
+  if(i !== S.slotIdx){ S.slotIdx = i; setColor(slotsNow()[i]); return; }
+  if(!wasOpen) openColorMenu(btn, i);
+}
+function openColorMenu(btn, i){
+  const key = S.dark ? 'dark' : 'light', cur = slotsNow()[i], menu = els.colorMenu;
+  menu._slot = i;
+  menu.innerHTML = `<div class="cm-title">تعویض ${i ? 'رنگ دوم' : 'رنگ اول'}</div>` +
+    PALETTES[key].map((c, k)=>
+      `<button class="menuitem${c === cur ? ' active' : ''}" data-pick="${c}" title="${COLOR_NAMES[key][k]} (${faNum(k + 1, 0)})"><i style="background:${c}"></i></button>`
+    ).join('') +
+    `<label class="cpick-custom" title="رنگ دلخواه"><i></i><input type="color" value="${cur}"></label>`;
+  openMenuAt(menu, btn);
 }
 function buildSizes(){
   els.sizes.innerHTML = SIZES.map(w=>{
@@ -1052,24 +1440,26 @@ function buildSizes(){
   refreshQuickBar();
 }
 function refreshQuickBar(){
-  const col = toHex(S.color);
-  let found = false;
-  $$('.swatch[data-color]', els.swatches).forEach(b=>{
-    const on = b.dataset.color.toLowerCase() === col;
-    if(on) found = true;
+  const sl = slotsNow();
+  $$('.cslot', els.swatches).forEach(b=>{
+    const i = +b.dataset.slot, on = i === S.slotIdx;
+    b.querySelector('i').style.background = sl[i];
     b.classList.toggle('active', on);
+    b.title = colorName(sl[i]) + (on ? ' — دوباره بزنید تا رنگ‌های دیگر باز شود' : ' — بزنید تا انتخاب شود');
   });
-  const cu = $('.swatch.custom', els.swatches);
-  if(cu){
-    cu.classList.toggle('active', !found);
-    const i = cu.querySelector('i');
-    i.style.background = found ? '' : col;
-    const inp = cu.querySelector('input');
-    if(inp && document.activeElement !== inp) inp.value = col;
+  const menu = els.colorMenu;
+  if(menu && menu.classList.contains('open')){
+    const cur = sl[menu._slot];
+    $$('.menuitem[data-pick]', menu).forEach(b=> b.classList.toggle('active', b.dataset.pick === cur));
   }
   $$('.sizebtn', els.sizes).forEach(b=> b.classList.toggle('active', +b.dataset.size === S.width));
 }
 function setColor(c){
+  c = toHex(c);
+  // اگر یکی از دو رنگ اصلی است همان فعال شود؛ وگرنه جای رنگِ فعال را بگیرد
+  const sl = slotsNow(), j = sl.indexOf(c);
+  if(j >= 0) S.slotIdx = j;
+  else { sl[S.slotIdx] = c; saveSlots(); }
   S.color = c;
   els.color.value = toHex(c);
   refreshQuickBar();
@@ -1148,8 +1538,6 @@ function setLogoFile(f){
 ============================================================ */
 function bindTopbar(){
   $('#topbar').addEventListener('click', e=>{
-    const sw = e.target.closest('.swatch[data-color]');
-    if(sw){ setColor(sw.dataset.color); return; }
     const sz = e.target.closest('.sizebtn');
     if(sz){ setWidth(+sz.dataset.size); return; }
     const tb = e.target.closest('[data-tool]');
@@ -1157,8 +1545,11 @@ function bindTopbar(){
     const ab = e.target.closest('[data-act]');
     if(ab) runAction(ab.dataset.act);
   });
-  els.swatches.addEventListener('input', e=>{
-    if(e.target.id === 'customColor') setColor(e.target.value);
+  els.colorMenu.addEventListener('input', e=>{
+    if(e.target.type === 'color') setColor(e.target.value);
+  });
+  els.colorMenu.addEventListener('change', e=>{
+    if(e.target.type === 'color') closeAllMenus();
   });
   els.projectInput.addEventListener('change', loadProject);
   els.logoInput.addEventListener('change', e=>{
@@ -1301,11 +1692,19 @@ function bindMenus(){
       e.preventDefault();
       e.stopPropagation();
       closeAllMenus();
-      if(item.dataset.tool) setTool(item.dataset.tool);
+      if(item.dataset.pick) setColor(item.dataset.pick);
+      else if(item.dataset.tool) setTool(item.dataset.tool);
       else if(item.dataset.shape){ S.pendingShape = item.dataset.shape; setTool('shape'); }
       else if(item.dataset.math) createMath(item.dataset.math);
       else if(item.dataset.logo) logoAction(item.dataset.logo);
       else if(item.dataset.act) runAction(item.dataset.act);
+      return;
+    }
+    const slot = e.target.closest('.cslot');
+    if(slot){
+      e.preventDefault();
+      e.stopPropagation();
+      onSlotTap(slot);
       return;
     }
     const btn = e.target.closest('.hasmenu');
@@ -1335,15 +1734,14 @@ function openMenuAt(menu, btn){
   let left, top;
   if(btn.closest('#topbar')){
     left = r.left; top = r.bottom + 6;
-  } else if(vw <= 700){
-    left = r.left + r.width/2 - mw/2;
-    top = r.top - mh - 10;
-    if(top < 8) top = r.bottom + 10;
   } else {
-    left = r.right + 10;
+    // نوار ابزار در همه‌ی اندازه‌ها سمت چپ است؛ منو کنارش باز می‌شود
+    // و در موبایل بالاتر از منوی پایینِ سایت می‌ماند
+    const sb = Math.max(8, parseFloat(getComputedStyle(document.body).getPropertyValue('--safe-b')) || 0);
+    left = r.right + 8;
     top = r.top;
-    if(left + mw > vw - 8) left = r.left - mw - 10;
-    if(top + mh > vh - 8) top = vh - mh - 8;
+    if(left + mw > vw - 8) left = r.left - mw - 8;
+    if(top + mh > vh - sb) top = vh - sb - mh;
   }
   menu.style.left = clamp(left, 8, Math.max(8, vw - mw - 8)) + 'px';
   menu.style.top = clamp(top, 8, Math.max(8, vh - mh - 8)) + 'px';
@@ -1388,10 +1786,9 @@ function setBackground(name, record){
   els.boardBtn.title = S.dark ? 'تخته سفید' : 'تخته سبز (گچی)';
 
   if(wasDark !== S.dark){
-    // رنگ قلم هم‌ارزِ همان رنگ در پالت جدید (مشکی ⇄ گچ سفید، آبی ⇄ گچ آبی، …)
-    const from = PALETTES[wasDark ? 'dark' : 'light'], to = PALETTES[S.dark ? 'dark' : 'light'];
-    const i = from.indexOf(toHex(S.color));
-    if(i >= 0){ S.color = to[i]; els.color.value = toHex(S.color); }
+    // رنگ قلم = همان خانه (اول/دوم) از دو رنگِ اصلیِ این تخته (مشکی ⇄ گچ سفید، آبی ⇄ گچ زرد، …)
+    S.color = slotsNow()[S.slotIdx];
+    els.color.value = toHex(S.color);
     buildSwatches();
     if(canvas){ markAllDirty(); canvas.requestRenderAll(); }
     if(DRAW_TOOLS.has(S.tool)) status(S.tool === 'pen' && S.chalk ? 'گچ — روی تخته بنویسید' : TOOL_LABELS[S.tool]);
@@ -1453,6 +1850,7 @@ function bindProps(){
     else if(act === 'rotate'){
       if(o.type === 'wbAngle') o.set({ a1:normDeg(o.a1 + 15), a2:normDeg(o.a2 + 15) });
       else if(o.type === 'wbArc') o.set('startAngle', normDeg(o.startAngle + 15));
+      else if(o.type === 'wbNet'){ netFreezeCam(o); o.setNetState({ yaw:o.yaw - 15 }); }
       else o.rotate((o.angle || 0) + 15);
       o.setCoords();
     }
@@ -1557,6 +1955,11 @@ function bindCanvas(){
   canvas.on('selection:updated', onSelChange);
   canvas.on('selection:cleared', onSelChange);
   canvas.on('after:render', onAfterRender);
+  // دوبار زدن روی گسترده = باز/بسته شدن
+  canvas.on('mouse:dblclick', e=>{
+    const t = e && e.target;
+    if(t && t.type === 'wbNet' && S.tool === 'select'){ netToggle(t); updateCtxBar(); }
+  });
 }
 function onSelChange(){ syncProps(); updateCtxBar(); ovRender(); }
 
@@ -2972,7 +3375,18 @@ const CTX_TPL = {
     <button class="cb-btn" data-a="bucket" title="با سطل رنگ روی قسمت‌ها بزنید">🪣 رنگ‌کردن</button>
     <button class="cb-btn" data-a="flabel" title="نمایش کسرِ رنگ‌شده زیر شکل">نمایش عدد</button>
     <button class="cb-btn" data-a="fclear" title="پاک‌کردن همه‌ی رنگ‌ها">🧹 پاک‌کردن رنگ‌ها</button>` + REFLECT_BTNS,
-  obj: ()=>`<span class="cb-title">🔷 قرینه</span>` + REFLECT_BTNS.replace('<span class="cb-sep"></span>', '')
+  obj: ()=>`<span class="cb-title">🔷 قرینه</span>` + REFLECT_BTNS.replace('<span class="cb-sep"></span>', ''),
+  net: ()=>`
+    <span class="cb-title" data-info="netname">📦 گسترده</span>
+    <button class="cb-btn" data-a="nettoggle" title="نمایشِ بسته شدن / باز شدن (یا دوبار زدن روی شکل)">📦 بستن</button>
+    <span class="cb-info">بسته</span>
+    <input class="cb-range" data-k="fold" type="range" min="0" max="100" step="1" title="باز و بسته کردنِ دستی — بکشید">
+    <span class="cb-info">باز</span>
+    <span class="cb-sep"></span>
+    <button class="cb-btn" data-a="netrotL" title="چرخاندن به چپ">↺</button>
+    <button class="cb-btn" data-a="netrotR" title="چرخاندن به راست">↻</button>
+    <button class="cb-btn" data-a="netview" title="نمای خودکار: باز = از بالا، بسته = سه‌بعدی">🎥</button>
+    <button class="cb-btn" data-a="netcolor" title="وجه‌های رنگی / یک‌رنگ">🎨</button>`
 };
 
 function updateCtxBar(){
@@ -2981,6 +3395,7 @@ function updateCtxBar(){
   let mode = null;
   if(o && o.type === 'wbArc') mode = 'arc';
   else if(o && o.type === 'wbAngle') mode = 'angle';
+  else if(o && o.type === 'wbNet') mode = 'net';
   else if(o && o.wbFrac) mode = 'frac';
   else if(o && !o.isEditing) mode = 'obj';
   else if(INST.focus === 'compass' && INST.compass.on) mode = 'compass';
@@ -3023,6 +3438,13 @@ function fillCtx(){
     if(st) st.textContent = 'رنگی: ' + faNum(k, 0) + ' از ' + faNum(n, 0) + (dec ? ' = ' + faNum(k/n, dec) : '');
     const lab = o.getObjects().find(x=> x.wbRole === 'fracLabel');
     on('flabel', lab && lab.visible);
+  } else if(cb.mode === 'net' && o){
+    const nm = els.ctxBar.querySelector('[data-info="netname"]');
+    if(nm) nm.textContent = '📦 ' + o.netName();
+    const tb = els.ctxBar.querySelector('[data-a="nettoggle"]');
+    if(tb) tb.textContent = netGoal(o, 'fold') >= 0.5 ? '📂 باز کردن' : '📦 بستن';
+    setV('fold', String(Math.round(o.fold*100)));
+    on('netview', o.autoCam); on('netcolor', o.colorful);
   }
 }
 function smartChanged(o){
@@ -3050,6 +3472,11 @@ function ctxApply(k, val){
   } else if(cb.mode === 'angle' && o){
     if(k === 'deg') o.setMeasure(val);
     smartChanged(o);
+  } else if(cb.mode === 'net' && o){
+    if(k === 'fold'){ netStop(o, ['fold']); o.setNetState({ fold:clamp(val/100, 0, 1) }); }
+    smartChanged(o);
+    const tb = els.ctxBar.querySelector('[data-a="nettoggle"]');
+    if(tb) tb.textContent = o.fold >= 0.5 ? '📂 باز کردن' : '📦 بستن';
   }
 }
 function bindCtxBar(){
@@ -3096,6 +3523,16 @@ function bindCtxBar(){
       if(a === 'full') o.set('sweep', 360);
       else if(a === 'center') o.set('showCenter', !o.showCenter);
       smartChanged(o);
+    } else if(cb.mode === 'net' && o){
+      if(a === 'nettoggle') netToggle(o);
+      else if(a === 'netrotL') netRotate(o, 45);
+      else if(a === 'netrotR') netRotate(o, -45);
+      else if(a === 'netview'){
+        netStop(o, ['yaw','elev']);
+        o.setNetState({ autoCam:true, yaw:NET_YAW, elev:NET_ELEV });
+        smartChanged(o);
+      }
+      else if(a === 'netcolor'){ o.set('colorful', !o.colorful); smartChanged(o); }
     } else if(cb.mode === 'angle' && o){
       if(a === 'inc' || a === 'dec'){
         o.setMeasure(clamp(Math.round(o.measure()) + (a === 'inc' ? 1 : -1), 0, 359));
@@ -3123,6 +3560,7 @@ function createMath(type){
   else if(type === 'axes') openAxesDialog();
   else if(type === 'ruler') addRuler();
   else if(type === 'setSquare') addSetSquare();
+  else if(type === 'net') openNetDialog();
 }
 function addAndSelect(o){
   flushHistory();
@@ -3398,6 +3836,98 @@ function addAxes(n){
   g.set({ left:c.x, top:c.y });
   addAndSelect(g);
 }
+/* ---- گسترده‌ی اشکال: ساختن، باز و بسته کردنِ نمایشی، چرخاندن ---- */
+function openNetDialog(){
+  const nLabel = k => k === 'pyramid' ? 'تعداد ضلع‌های قاعده' : 'تعداد ضلع‌ها (۴ = مکعب)';
+  promptDialog('📦 گسترده‌ی اشکال', [
+    { key:'kind', type:'choice', label:'شکل', value:'prism',
+      options:[{ v:'prism', t:'منشور' }, { v:'pyramid', t:'هرم' }, { v:'cylinder', t:'استوانه' }, { v:'cone', t:'مخروط' }],
+      onPick:(v, inp)=>{ const i = inp.n; if(i && i.previousSibling) i.previousSibling.textContent = nLabel(v); } },
+    { key:'n', label:nLabel('prism'), min:3, max:12, int:true, value:4, showIf:c => c.kind === 'prism' || c.kind === 'pyramid' }
+  ]).then(v=>{ if(v) addNet(v.kind, v.n || 4); });
+}
+// بخشی از بوم که زیر نوار ابزار، نوار تنظیمات و منوی پایینِ سایت نیست (مختصات صفحه)
+function freeArea(){
+  const W = canvas.getWidth(), H = canvas.getHeight(), mobile = W <= 700;
+  const tr = document.getElementById('toolbar').getBoundingClientRect();
+  const l = tr.width && tr.right - wrapRect.left < W/2 ? tr.right - wrapRect.left + 8 : 0;
+  const sb = parseFloat(getComputedStyle(document.body).getPropertyValue('--safe-b')) || 0;
+  const t = mobile ? 100 : 12, b = mobile ? H - sb - 8 : H - 110;
+  return { l, t, w:Math.max(80, W - l - 8), h:Math.max(80, b - t) };
+}
+function addNet(kind, n){
+  const z = canvas.getZoom(), fa = freeArea();
+  const c = toWorld({ x:fa.l + fa.w/2, y:fa.t + fa.h/2 });
+  const o = new fabric.WbNet({
+    kind, n, stroke:S.color, strokeWidth:clamp(S.width, 2, 5), opacity:S.opacity, left:c.x, top:c.y
+  });
+  // گسترده در صفحه جا شود (مخصوصاً در موبایل)
+  const fit = Math.min(1, fa.w*0.92/(o.width + 30), fa.h*0.92/(o.height + 30));
+  o.set({ scaleX:fit/z, scaleY:fit/z });
+  o.setCoords();
+  addAndSelect(o);
+  status('📦 «بستن» را بزنید تا ' + o.netName() + ' ساخته شود — دوبار زدن روی شکل = باز/بسته، دایره‌ی بالای کادر = چرخاندن');
+}
+// پویانمایی: هر ویژگی (fold, yaw, elev) مسیر جدای خودش را دارد تا هم‌زمان کار کنند
+const netAnims = new Map();
+function netAnimate(o, props, ms, ease){
+  let a = netAnims.get(o);
+  if(!a){ a = { tracks:{}, raf:0 }; netAnims.set(o, a); }
+  const now = performance.now();
+  for(const k in props){
+    if(Math.abs(props[k] - o[k]) < 1e-4) delete a.tracks[k];
+    else a.tracks[k] = { from:o[k], to:props[k], t0:now, ms:Math.max(1, ms), ease };
+  }
+  if(!Object.keys(a.tracks).length){ netStop(o); return; }
+  if(!a.raf) a.raf = requestAnimationFrame(t=> netStep(o, t));
+}
+function netStep(o, now){
+  const a = netAnims.get(o);
+  if(!a) return;
+  a.raf = 0;
+  if(!o.canvas){ netAnims.delete(o); return; }          // حذف شد یا تاریخچه برگشت
+  const p = {};
+  let foldDone = false;
+  for(const k in a.tracks){
+    const tr = a.tracks[k], u = clamp((now - tr.t0)/tr.ms, 0, 1);
+    p[k] = tr.from + (tr.to - tr.from)*(tr.ease ? easeInOut(u) : u);
+    if(u >= 1){ delete a.tracks[k]; if(k === 'fold') foldDone = true; }
+  }
+  o.setNetState(p);
+  canvas.requestRenderAll();
+  if(foldDone) status(o.fold > 0.5 ? '📦 ' + o.netName() + ' بسته شد' : '📂 گسترده‌ی ' + o.netName() + ' باز شد');
+  if(Object.keys(a.tracks).length) a.raf = requestAnimationFrame(t=> netStep(o, t));
+  else { netAnims.delete(o); saveHistory(); }
+  if(canvas.getActiveObject() === o) fillCtx();
+}
+function netStop(o, keys){
+  const a = netAnims.get(o);
+  if(!a) return;
+  if(keys){ keys.forEach(k=> delete a.tracks[k]); if(Object.keys(a.tracks).length) return; }
+  if(a.raf) cancelAnimationFrame(a.raf);
+  netAnims.delete(o);
+}
+function netGoal(o, k){
+  const a = netAnims.get(o), tr = a && a.tracks[k];
+  return tr ? tr.to : o[k];
+}
+function netToggle(o){
+  const closing = netGoal(o, 'fold') < 0.5, to = closing ? 1 : 0;
+  netAnimate(o, { fold:to }, 2600*Math.abs(to - o.fold), false);
+  status(closing ? '📦 در حال بسته شدنِ ' + o.netName() + '…' : '📂 در حال باز شدنِ ' + o.netName() + '…');
+  fillCtx();
+}
+// نمای خودکار خاموش می‌شود ولی نمای فعلی دقیقاً حفظ می‌شود
+function netFreezeCam(o){
+  if(!o.autoCam) return;
+  const c = o.camera();
+  o.setNetState({ autoCam:false, elev:c.E, yaw:c.Y });
+}
+function netRotate(o, deg){
+  netFreezeCam(o);
+  netAnimate(o, { yaw:netGoal(o, 'yaw') + deg }, 650, true);
+}
+
 function onlyRotateControls(o){
   o.setControlsVisibility({ ml:false, mr:false, mt:false, mb:false, tl:false, tr:false, bl:false, br:false, mtr:true });
   return o;
@@ -4276,6 +4806,7 @@ function bindShortcuts(){
     if(code === 'KeyA'){ e.preventDefault(); addAngle(); return; }
     if(code === 'KeyG'){ e.preventDefault(); runAction('board'); return; }
     if(code === 'KeyF'){ e.preventDefault(); setTool('bucket'); return; }
+    if(code === 'KeyN'){ e.preventDefault(); createMath('net'); return; }
     if(TOOL_KEYS[code]){ e.preventDefault(); setTool(TOOL_KEYS[code]); }
   });
   document.addEventListener('keyup', e=>{
