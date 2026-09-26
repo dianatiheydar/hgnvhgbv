@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>جزوهٔ علوم تجربی ششم دبستان - دیانتی</title>
+<meta name="author" content="دیانتی">
+<style>
+@page { size: A4; margin: 13mm 13mm 15mm 13mm;
+  @bottom-right { content: "جزوهٔ علوم تجربی ششم دبستان  |  دیانتی ۰۹۱۶۵۱۶۲۱۶۶"; font-family:'Vazirmatn'; font-size:8pt; color:#6b7486; vertical-align:middle; }
+  @bottom-left { content: "صفحهٔ " counter(page, persian); font-family:'Vazirmatn'; font-size:8.5pt; font-weight:700; color:#1e4d8c; vertical-align:middle; }
+}
+@page cover { margin: 0; @bottom-right{content:none} @bottom-left{content:none} }
+:root{
+  --ink:#1d2433; --muted:#5b6475;
+  --pri:#1e4d8c; --pri-d:#163a6b; --pri-l:#e8f0fb; --pri-ll:#f4f8fd;
+  --acc:#d9731a; --acc-l:#fff3e6;
+  --ans:#0f7b5a; --ans-l:#eaf7f1;
+  --line:#d5deea;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Vazirmatn',sans-serif;color:var(--ink);font-size:10.3pt;line-height:1.78;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;font-feature-settings:"ss01" 0;}
+b{font-weight:700;color:var(--pri-d)}
+.wm{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);
+  font-size:30pt;font-weight:800;color:var(--pri);opacity:.045;white-space:nowrap;z-index:-1;pointer-events:none}
+
+/* cover */
+.cover{page:cover;height:297mm;width:210mm;position:relative;overflow:hidden;background:#fff;page-break-after:always;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cover .band{position:absolute;inset:0 0 auto 0;height:118mm;background:linear-gradient(160deg,var(--pri-d),var(--pri) 70%,#2f6db8)}
+.cover .band:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-38mm;height:76mm;background:#fff;border-radius:50%}
+.cover .inner{position:relative;z-index:2;margin-top:-18mm}
+.cover .bism{color:#fff;font-size:14pt;font-weight:500;opacity:.95;margin-bottom:18mm}
+.cover .badge{display:inline-block;width:46mm;height:46mm;border-radius:50%;background:#fff;box-shadow:0 3mm 8mm rgba(22,58,107,.25);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 10mm;border:2.2mm solid var(--acc)}
+.cover .badge span{font-size:30pt;font-weight:900;color:var(--pri-d);line-height:1.1}
+.cover .badge small{display:block;font-size:11pt;font-weight:600;color:var(--acc)}
+.cover h1{font-size:30pt;font-weight:900;color:var(--pri-d);margin:0;line-height:1.5}
+.cover h2{font-size:16pt;font-weight:700;color:var(--acc);margin:2mm 0 0}
+.cover .desc{font-size:11.5pt;color:var(--muted);margin-top:8mm;line-height:2}
+.cover .meta{margin-top:16mm;display:flex;gap:6mm;justify-content:center}
+.cover .meta div{border:0.4mm solid var(--line);border-radius:3mm;padding:3mm 7mm;font-size:11pt;color:var(--ink);background:var(--pri-ll)}
+.cover .meta b{color:var(--pri)}
+.cover .foot{position:absolute;bottom:14mm;left:0;right:0;font-size:10pt;color:var(--muted)}
+
+/* toc */
+.toc{page-break-after:always}
+.toc h1{font-size:19pt;font-weight:900;color:var(--pri-d);margin:0 0 6mm;padding-bottom:3mm;border-bottom:0.6mm solid var(--acc);display:inline-block}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc li{display:flex;align-items:baseline;gap:3mm;padding:2.6mm 0;border-bottom:0.25mm dashed var(--line);font-size:12pt}
+.toc .tn{color:var(--acc);font-weight:800;min-width:17mm}
+.toc .tt{font-weight:600}
+.toc .dots{flex:1}
+.toc .tp{font-weight:800;color:var(--pri);min-width:10mm;text-align:left}
+.toc .info{margin-top:10mm;font-size:10.5pt;color:var(--muted);background:var(--pri-ll);border-radius:3mm;padding:4mm 6mm;line-height:2}
+
+/* lesson */
+.lesson{page-break-before:always}
+.lh{display:flex;align-items:center;gap:5mm;background:linear-gradient(135deg,var(--pri-d),var(--pri));color:#fff;
+  border-radius:4mm;padding:4mm 6mm;margin-bottom:5mm;position:relative}
+.lh .mark{position:absolute;font-size:1pt;color:#fff;top:1mm;left:1mm}
+.lnum{background:#fff;color:var(--pri-d);border-radius:3mm;min-width:17mm;text-align:center;padding:1mm 2mm;line-height:1.2}
+.lnum small{display:block;font-size:8.5pt;font-weight:600;color:var(--acc)}
+.lnum span{font-size:20pt;font-weight:900}
+.lh h1{margin:0;font-size:19pt;font-weight:800}
+h3.sec{font-size:13pt;font-weight:800;color:var(--pri-d);margin:5mm 0 2.5mm;padding:0.6mm 3mm 0.6mm 0;border-right:1.4mm solid var(--acc);
+  break-after:avoid;page-break-after:avoid}
+.note{display:flex;gap:2.6mm;margin:0 0 1.1mm;break-inside:avoid;text-align:justify}
+.nn{flex:0 0 auto;width:6.2mm;height:6.2mm;border-radius:50%;background:var(--pri-l);color:var(--pri);font-weight:800;font-size:9pt;
+  display:flex;align-items:center;justify-content:center;margin-top:0.9mm}
+.nt{flex:1}
+ul.lst,ol.lst{margin:0 0 2mm;padding:0 9mm 0 0}
+ul.lst li,ol.lst li{margin:0 0 0.8mm;break-inside:avoid;text-align:justify}
+ul.lst li::marker{color:var(--acc)}
+ol.lst{list-style-type:persian}
+ol.lst li::marker{color:var(--acc);font-weight:800}
+.note + ul.lst,.note + ol.lst{margin-top:-0.6mm}
+
+.box{background:var(--acc-l);border:0.35mm solid #f1c797;border-radius:3mm;padding:3mm 4.5mm;margin:3mm 0 3.5mm;break-inside:avoid}
+.box-t{font-weight:800;color:var(--acc);font-size:10.5pt;margin-bottom:1mm}
+.box p{margin:0;text-align:justify}
+
+table.tbl{width:100%;border-collapse:separate;border-spacing:0;margin:2mm 0 4mm;font-size:10pt;line-height:1.7;
+  border:0.35mm solid var(--line);border-radius:3mm;overflow:hidden;break-inside:auto}
+table.tbl th{background:var(--pri);color:#fff;font-weight:700;padding:1.8mm 3mm;text-align:right}
+table.tbl td{padding:1.6mm 3mm;border-top:0.25mm solid var(--line);vertical-align:top}
+table.tbl td + td,table.tbl th + th{border-right:0.25mm solid var(--line)}
+table.tbl th + th{border-right-color:rgba(255,255,255,.25)}
+table.tbl tbody tr:nth-child(even) td{background:var(--pri-ll)}
+table.tbl td.first{font-weight:700;color:var(--pri-d);background:var(--pri-l)!important}
+table.tbl tr{break-inside:avoid}
+table.tbl.plain td.first{font-weight:400;color:var(--ink);background:transparent!important}
+table.tbl.plain tbody tr:nth-child(even) td.first{background:var(--pri-ll)!important}
+
+/* Q&A */
+.qa{column-count:2;column-gap:7mm;column-rule:0.3mm solid var(--line)}
+.qa .q{font-size:9.9pt}
+.qa .qt,.qa .qa-a{text-align:right}
+h2.qa-title{margin:7mm 0 3mm;font-size:13.5pt;break-after:avoid;page-break-after:avoid}
+h2.qa-title span{display:inline-block;background:var(--acc);color:#fff;font-weight:800;border-radius:2.5mm;padding:1mm 5mm}
+.q{border-bottom:0.25mm solid var(--line);padding:1mm 0 1.1mm;break-inside:avoid}
+.qq{display:flex;gap:2.4mm;font-weight:600}
+.qn{flex:0 0 auto;min-width:8mm;height:6mm;border-radius:1.6mm;background:var(--pri);color:#fff;font-size:8.8pt;font-weight:800;
+  display:flex;align-items:center;justify-content:center;margin-top:0.9mm;padding:0 1mm}
+.qt{flex:1;text-align:justify}
+.qa-a{margin:0.2mm 0 0 0;color:var(--ink);text-align:justify}
+.qa-a .al{color:var(--ans);font-weight:800}
+.qa-a.sub{margin-top:0}
+.qa-a .tk{color:var(--ans);font-weight:700}
+.blank{display:inline-block;min-width:14mm;height:1em;border-bottom:0.35mm dotted #7a869a;margin:0 1mm;vertical-align:baseline}
+.arr{color:var(--acc);font-weight:800}
+</style>
+</head>
+<body>
+<div class="wm">دیانتی  ۰۹۱۶۵۱۶۲۱۶۶</div>
+
+<section class="cover">
+  <div class="band"></div>
+  <div class="inner">
+    <div class="bism">به نام خداوند دانا و توانا</div>
+    <div class="badge"><div><small>پایهٔ</small><span>ششم</span></div></div>
+    <h1>علوم تجربی</h1>
+    <h2>جزوهٔ آموزشی درس‌به‌درس</h2>
+    <div class="desc">درس‌نامه و نکات مهم هر چهارده درس<br>همراه با ۳۶۶ پرسش و پاسخ</div>
+    <div class="meta"><div>سال تحصیلی <b>۱۴۰۵</b></div><div>تدوین: <b>دیانتی</b></div></div>
+  </div>
+  <div class="foot">تلفن تماس: ۰۹۱۶۵۱۶۲۱۶۶</div>
+</section>
+
+<section class="toc">
+  <h1>فهرست مطالب</h1>
+  <ol>
+{{TOC}}
+  </ol>
+</section>
+
+{{BODY}}
+</body>
+</html>
