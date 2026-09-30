@@ -1447,12 +1447,12 @@ function defineSmartClasses(){
 ============================================================ */
 let toastTimer;
 function toast(msg, ms=1800){
-  els.toast.textContent = msg;
+  els.toast.textContent = bidiMath(msg);
   els.toast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>els.toast.classList.remove('show'), ms);
 }
-function status(msg){ els.status.textContent = msg; }
+function status(msg){ els.status.textContent = bidiMath(msg); }
 
 /* ============================================================
    INIT
@@ -3696,7 +3696,7 @@ function fillCtx(){
   } else if(cb.mode === 'frac' && o){
     const { k, n } = fracStats(o), dec = o.wbFrac.dec;
     const st = els.ctxBar.querySelector('[data-info="stat"]');
-    if(st) st.textContent = 'رنگی: ' + faNum(k, 0) + ' از ' + faNum(n, 0) + (dec ? ' = ' + faNum(k/n, dec) : '');
+    if(st) st.textContent = bidiMath('رنگی: ' + faNum(k, 0) + ' از ' + faNum(n, 0) + (dec ? ' = ' + faNum(k/n, dec) : ''));
     const lab = o.getObjects().find(x=> x.wbRole === 'fracLabel');
     on('flabel', lab && lab.visible);
   } else if(cb.mode === 'net'){
@@ -4540,12 +4540,55 @@ function inkOn(hex){
   const n = parseInt(toHex(hex).slice(1), 16);
   return 0.299*(n>>16&255) + 0.587*(n>>8&255) + 0.114*(n&255) > 172 ? '#1f2937' : '#ffffff';
 }
+/* محاسبه‌ی عددی (۲ × ۳/۱۴ × ۳ = ۱۸/۸۴) همیشه مثل کتاب از چپ به راست نوشته شود، حتی وسط جمله‌ی فارسی.
+   هر عبارتِ کامل با عملگر داخل «جدا‌کننده‌ی چپ‌به‌راست» (U+2066…U+2069) گذاشته می‌شود؛
+   عبارتی که با کلمه ادامه دارد («۳ × قطر») همان‌طور راست‌به‌چپ می‌ماند. */
+const BM_RUN = /[0-9۰-۹()√½⅓⅔¼¾][0-9۰-۹()√½⅓⅔¼¾²³°٪%.,٫\/\s+\-−×÷=<>≤≥≠]*[0-9۰-۹)²³°٪%½⅓⅔¼¾]/g;
+const BM_OP = /[+\-−×÷=<>≤≥≠]/;
+function bidiRuns(txt){
+  const runs = [];
+  if(!BM_OP.test(txt)) return runs;
+  BM_RUN.lastIndex = 0;
+  let m;
+  while((m = BM_RUN.exec(txt))){
+    const st = m.index, en = st + m[0].length, run = m[0];
+    if(!BM_OP.test(run) || !/[0-9۰-۹][^0-9۰-۹]*[0-9۰-۹]/.test(run)) continue;
+    const before = txt.slice(Math.max(0, st - 6), st), after = txt.slice(en, en + 6);
+    if(/[؀-ۿA-Za-z]\s*[+\-−×÷]\s*$/.test(before) || /^\s*[+\-−×÷]\s*[؀-ۿA-Za-z]/.test(after)) continue;
+    runs.push([st, en]);
+  }
+  return runs;
+}
+function bidiMath(s){
+  s = String(s);
+  const runs = bidiRuns(s);
+  if(!runs.length) return s;
+  let out = '', last = 0;
+  runs.forEach(([a, b])=>{ out += s.slice(last, a) + '⁦' + s.slice(a, b) + '⁩'; last = b; });
+  return out + s.slice(last);
+}
+// HTML: برچسب‌ها نادیده گرفته می‌شوند تا عبارتی که بین چند <span> پخش شده هم یک‌تکه دیده شود
+function bidiMathHtml(h){
+  h = String(h);
+  const map = []; let txt = '', inTag = false;
+  for(let i = 0; i < h.length; i++){
+    const ch = h[i];
+    if(!inTag && ch === '<' && /[A-Za-z\/!]/.test(h[i + 1] || '')) inTag = true;
+    if(!inTag){ map.push(i); txt += ch; }
+    if(inTag && ch === '>') inTag = false;
+  }
+  const runs = bidiRuns(txt);
+  if(!runs.length) return h;
+  let out = '', last = 0;
+  runs.forEach(([a, b])=>{ const ia = map[a], ib = map[b - 1] + 1; out += h.slice(last, ia) + '⁦' + h.slice(ia, ib) + '⁩'; last = ib; });
+  return out + h.slice(last);
+}
 function kidText(ctx, txt, x, y, fs, col){
   ctx.font = fs + 'px ' + KID_FONT;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   try{ ctx.direction = 'ltr'; }catch(e){}
   ctx.fillStyle = col;
-  ctx.fillText(txt, x, y + fs*0.06);
+  ctx.fillText(bidiMath(txt), x, y + fs*0.06);
 }
 // کسرِ روی هم: صورت، خط کسری، مخرج
 function drawStackFrac(ctx, num, den, x, y, fs, col){
@@ -5491,7 +5534,7 @@ function pieceFill(){
   const L = pieceList();
   if(!L.length) return;
   const s = els.ctxBar.querySelector('[data-info="psum"]');
-  if(s) s.innerHTML = pieceSummary(L);
+  if(s) s.innerHTML = bidiMathHtml(pieceSummary(L));
   const pn = els.ctxBar.querySelector('[data-info="pn"]');
   if(pn && L[0].fam === 'spin') pn.textContent = faNum(L[0].n, 0) + ' قسمت';
 }
@@ -5548,7 +5591,22 @@ function kidTextA(ctx, txt, x, y, fs, col, align, dir){
   ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
   try{ ctx.direction = dir || 'ltr'; }catch(e){}
   ctx.fillStyle = col;
-  ctx.fillText(txt, x, y + fs*0.06);
+  ctx.fillText(bidiMath(txt), x, y + fs*0.06);
+}
+// «عنوان : محاسبه» — عنوانِ فارسی سمت راست، محاسبه‌ی عددی مثل کتاب از چپ به راست
+function drawTitleCalc(ctx, title, calc, cx, y, fs, col){
+  const t = title + ' :', tw = textW(t, fs), cw = textW(calc, fs), tot = tw + 10 + cw;
+  kidTextA(ctx, t, cx + tot/2, y, fs, col, 'right', 'rtl');
+  kidTextA(ctx, calc, cx - tot/2, y, fs, col, 'left', 'ltr');
+}
+// فرمول دوخطی: خط اول با کلمه‌ها (راست‌به‌چپ)، خط دوم محاسبه‌ی عددی (چپ‌به‌راست)
+const FORM_GAP = 56;
+function drawFormulaLines(ctx, list, cx, y0, fs, col){
+  list.forEach(([words, calc], i)=>{
+    const y = y0 + i*FORM_GAP;
+    kidTextA(ctx, words, cx, y, fs - 1, col, 'center', 'rtl');
+    kidTextA(ctx, calc, cx, y + fs + 8, fs + 2, col, 'center', 'ltr');
+  });
 }
 const toolCol = o => o.stroke || '#111111';
 const softFill = (hex, a) => hexToRgba(hex, a);
@@ -5739,7 +5797,7 @@ function toolFill(){
   T.params(o).forEach(sp=> setV(sp.k, numStr(toolGet(sp, o), 2)));
   T.fill && T.fill(o, { setV, on, q:s=> bar.querySelector(s) });
   const s = bar.querySelector('[data-info="tsum"]');
-  if(s) s.innerHTML = T.sum(o);
+  if(s) s.innerHTML = bidiMathHtml(T.sum(o));
 }
 function toolSetParam(o, k, v){
   const T = TOOLS[o.kind], sp = T.params(o).find(x=> x.k === k);
@@ -6173,14 +6231,14 @@ function geoVals(o){
 function geoFormula(o){
   const p = o.p, v = geoVals(o), f = fmt2, x = n=> faNum(n, 0);
   switch(p.sh){
-    case 'rect': return ['مساحت = ' + f(p.l) + ' × ' + f(p.w) + ' = ' + f(v.A), 'محیط = ۲ × (' + f(p.l) + ' + ' + f(p.w) + ') = ' + f(v.P)];
-    case 'square': return ['مساحت = ' + f(p.s) + ' × ' + f(p.s) + ' = ' + f(v.A), 'محیط = ۴ × ' + f(p.s) + ' = ' + f(v.P)];
-    case 'para': return ['مساحت = قاعده × ارتفاع = ' + f(p.b) + ' × ' + f(p.h) + ' = ' + f(v.A), 'محیط = ۲ × (' + f(p.b) + ' + ' + f(Math.max(p.d, p.h)) + ') = ' + f(v.P)];
-    case 'tri': return ['مساحت = (قاعده × ارتفاع) ÷ ۲ = (' + f(p.b) + ' × ' + f(p.h) + ') ÷ ۲ = ' + f(v.A)];
-    case 'trap': return ['مساحت = (' + f(p.a) + ' + ' + f(p.b) + ') × ' + f(p.h) + ' ÷ ۲ = ' + f(v.A)];
-    case 'rhomb': return ['مساحت = (قطر اول × قطر دوم) ÷ ۲ = (' + f(p.d1) + ' × ' + f(p.d2) + ') ÷ ۲ = ' + f(v.A)];
-    case 'circle': return ['محیط = ۲ × ۳/۱۴ × ' + f(p.r) + ' = ' + f(v.P), 'مساحت = ۳/۱۴ × ' + f(p.r) + ' × ' + f(p.r) + ' = ' + f(v.A)];
-    case 'poly': return ['محیط = ' + x(p.n) + ' × ' + f(p.sd) + ' = ' + f(v.P), 'مجموع زاویه‌ها = (' + x(p.n) + ' − ۲) × ۱۸۰ = ' + x(v.S) + '°'];
+    case 'rect': return [['مساحت = طول × عرض', f(p.l) + ' × ' + f(p.w) + ' = ' + f(v.A)], ['محیط = ۲ × (طول + عرض)', '۲ × (' + f(p.l) + ' + ' + f(p.w) + ') = ' + f(v.P)]];
+    case 'square': return [['مساحت = ضلع × ضلع', f(p.s) + ' × ' + f(p.s) + ' = ' + f(v.A)], ['محیط = ۴ × ضلع', '۴ × ' + f(p.s) + ' = ' + f(v.P)]];
+    case 'para': return [['مساحت = قاعده × ارتفاع', f(p.b) + ' × ' + f(p.h) + ' = ' + f(v.A)], ['محیط = ۲ × (قاعده + ضلع مایل)', '۲ × (' + f(p.b) + ' + ' + f(Math.max(p.d, p.h)) + ') = ' + f(v.P)]];
+    case 'tri': return [['مساحت = (قاعده × ارتفاع) ÷ ۲', '(' + f(p.b) + ' × ' + f(p.h) + ') ÷ ۲ = ' + f(v.A)]];
+    case 'trap': return [['مساحت = (قاعده‌ی اول + قاعده‌ی دوم) × ارتفاع ÷ ۲', '(' + f(p.a) + ' + ' + f(p.b) + ') × ' + f(p.h) + ' ÷ ۲ = ' + f(v.A)]];
+    case 'rhomb': return [['مساحت = (قطر اول × قطر دوم) ÷ ۲', '(' + f(p.d1) + ' × ' + f(p.d2) + ') ÷ ۲ = ' + f(v.A)]];
+    case 'circle': return [['محیط = ۲ × ۳/۱۴ × شعاع', '۲ × ۳/۱۴ × ' + f(p.r) + ' = ' + f(v.P)], ['مساحت = ۳/۱۴ × شعاع × شعاع', '۳/۱۴ × ' + f(p.r) + ' × ' + f(p.r) + ' = ' + f(v.A)]];
+    case 'poly': return [['محیط = تعداد ضلع‌ها × اندازه‌ی ضلع', x(p.n) + ' × ' + f(p.sd) + ' = ' + f(v.P)], ['مجموع زاویه‌ها = (تعداد ضلع‌ها − ۲) × ۱۸۰', '(' + x(p.n) + ' − ۲) × ۱۸۰ = ' + x(v.S) + '°']];
   }
   return [];
 }
@@ -6250,7 +6308,7 @@ function geoProofExit(o){
 }
 function geoSize(o){
   const g = geoGeom(o), fl = o.p.f ? geoFormula(o).length : 0;
-  return { w:Math.max(g.bw*GEO_U + 76, fl ? 400 : 0), h:g.bh*GEO_U + 64 + fl*30 };
+  return { w:Math.max(g.bw*GEO_U + 76, fl ? 420 : 0), h:g.bh*GEO_U + 64 + fl*FORM_GAP };
 }
 TOOLS.geo = {
   title:o=> '📐 ' + GEO[o.p.sh].name,
@@ -6337,7 +6395,7 @@ TOOLS.geo = {
       }
     }
     if(p.f){
-      geoFormula(o).forEach((t, i)=> kidTextA(ctx, t, 0, Y(g.bh) + 48 + i*30, 19, col, 'center', 'ltr'));
+      drawFormulaLines(ctx, geoFormula(o), 0, Y(g.bh) + 46, 18, col);
     }
   },
   ctxx:o=>
@@ -6396,7 +6454,7 @@ TOOLS.vol = {
   },
   sum(o){
     const { l, w, h } = o.p, V = l*w*h, SA = 2*(l*w + l*h + w*h);
-    return '<span dir="ltr">حجم = ' + kn(l) + ' × ' + kn(w) + ' × ' + kn(h) + ' = ' + kn(V) + '</span> <span class="muted">مکعب واحد</span> <span class="muted">· مساحت کل: ' + kn(SA) + '</span>';
+    return 'حجم: <span dir="ltr">' + kn(l) + ' × ' + kn(w) + ' × ' + kn(h) + ' = ' + kn(V) + '</span> <span class="muted">مکعب واحد</span> <span class="muted">· مساحت کل: ' + kn(SA) + '</span>';
   }
 };
 
@@ -6587,8 +6645,8 @@ TOOLS.fline = {
     const { mark, den } = o.p;
     if(!mark) return '<span class="muted">با «علامت» یک کسر را روی محور نشان دهید</span>';
     const g = gcd(mark, den), val = mark/den;
-    return stackHtml(mark, den) + (g > 1 ? ' = ' + stackHtml(mark/g, den/g) : '') + (val > 1 ? ' = ' + fracHtml([mark/g, den/g]) : '') +
-      ' = <span class="kidnum" dir="ltr">' + faNum(val, 3) + '</span> = <span class="kidnum" dir="ltr">' + faNum(val*100, 1) + '٪</span>';
+    return '<span dir="ltr">' + stackHtml(mark, den) + (g > 1 ? ' = ' + stackHtml(mark/g, den/g) : '') + (val > 1 ? ' = ' + fracHtml([mark/g, den/g]) : '') +
+      ' = <span class="kidnum">' + faNum(val, 3) + '</span> = <span class="kidnum">' + faNum(val*100, 1) + '٪</span></span>';
   }
 };
 
@@ -6642,7 +6700,7 @@ TOOLS.fmul = {
   fill(o, api){ api.on('fmeq', o.p.eq); },
   sum(o){
     const { a, b, c, d } = o.p, num = a*c, den = b*d, g = gcd(num, den) || 1;
-    return stackHtml(a, b) + ' × ' + stackHtml(c, d) + ' = ' + stackHtml(num, den) + (g > 1 && num > 0 ? ' = ' + stackHtml(num/g, den/g) : '');
+    return '<span dir="ltr">' + stackHtml(a, b) + ' × ' + stackHtml(c, d) + ' = ' + stackHtml(num, den) + (g > 1 && num > 0 ? ' = ' + stackHtml(num/g, den/g) : '') + '</span>';
   }
 };
 
@@ -7485,18 +7543,18 @@ function solLayout(o){
   if(showNet) u = Math.min(u, 400/g.net.w, 320/g.net.h);
   u = Math.max(u, 5);
   const bw = g.body.w*u, bh = g.body.h*u, nw = showNet ? g.net.w*u : 0, nh = showNet ? g.net.h*u : 0;
-  const W = Math.max(bw + (showNet ? nw + 70 : 0) + 70, fl ? 480 : 300), H = Math.max(bh, nh) + 60 + fl*28;
+  const W = Math.max(bw + (showNet ? nw + 70 : 0) + 70, fl ? 480 : 300), H = Math.max(bh, nh) + 60 + fl*FORM_GAP;
   return { g, u, showNet, bw, bh, nw, nh, W, H };
 }
 function solFormula(o){
-  const p = o.p, v = solVals(o), f = fmt2, a = p.a, b = p.b, c = p.c;
+  const p = o.p, v = solVals(o), f = fmt2, a = p.a, b = p.b, c = p.c, pi = SOL_PI;
   switch(p.k){
-    case 'box': return ['مساحت جانبی = محیط قاعده × ارتفاع = ۲ × (' + f(a) + ' + ' + f(b) + ') × ' + f(c) + ' = ' + f(v.lat), 'مساحت کل = جانبی + ۲ × مساحت قاعده = ' + f(v.lat) + ' + ۲ × ' + f(a*b) + ' = ' + f(v.tot), 'حجم = مساحت قاعده × ارتفاع = ' + f(a*b) + ' × ' + f(c) + ' = ' + f(v.vol)];
-    case 'cube': return ['مساحت جانبی = ۴ × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.lat), 'مساحت کل = ۶ × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.tot), 'حجم = ' + f(a) + ' × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.vol)];
-    case 'cyl': return ['مساحت جانبی = محیط قاعده × ارتفاع = ۲ × ۳/۱۴ × ' + f(a) + ' × ' + f(c) + ' = ' + f(v.lat), 'مساحت کل = جانبی + ۲ × (۳/۱۴ × ' + f(a) + ' × ' + f(a) + ') = ' + f(v.tot), 'حجم = ۳/۱۴ × ' + f(a) + ' × ' + f(a) + ' × ' + f(c) + ' = ' + f(v.vol)];
-    case 'cone': return ['مولد = √(' + f(a) + '² + ' + f(c) + '²) = ' + f(v.s), 'مساحت جانبی = ۳/۱۴ × ' + f(a) + ' × ' + f(v.s) + ' = ' + f(v.lat) + '   ، کل = ' + f(v.tot), 'حجم = ⅓ × ۳/۱۴ × ' + f(a) + ' × ' + f(a) + ' × ' + f(c) + ' = ' + f(v.vol)];
-    case 'pyr': return ['ارتفاع وجه = √((' + f(a/2) + ')² + ' + f(c) + '²) = ' + f(v.sl), 'مساحت جانبی = ۴ × (' + f(a) + ' × ' + f(v.sl) + ' ÷ ۲) = ' + f(v.lat) + '   ، کل = ' + f(v.tot), 'حجم = ⅓ × ' + f(a*a) + ' × ' + f(c) + ' = ' + f(v.vol)];
-    case 'sph': return ['مساحت کره = ۴ × ۳/۱۴ × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.tot), 'حجم کره = ⁴⁄₃ × ۳/۱۴ × ' + f(a) + '³ = ' + f(v.vol)];
+    case 'box': return [['مساحت جانبی = محیط قاعده × ارتفاع', '۲ × (' + f(a) + ' + ' + f(b) + ') × ' + f(c) + ' = ' + f(v.lat)], ['مساحت کل = جانبی + ۲ × مساحت قاعده', f(v.lat) + ' + ۲ × ' + f(a*b) + ' = ' + f(v.tot)], ['حجم = مساحت قاعده × ارتفاع', f(a*b) + ' × ' + f(c) + ' = ' + f(v.vol)]];
+    case 'cube': return [['مساحت جانبی = ۴ × ضلع × ضلع', '۴ × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.lat)], ['مساحت کل = ۶ × ضلع × ضلع', '۶ × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.tot)], ['حجم = ضلع × ضلع × ضلع', f(a) + ' × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.vol)]];
+    case 'cyl': return [['مساحت جانبی = محیط قاعده × ارتفاع', '۲ × ۳/۱۴ × ' + f(a) + ' × ' + f(c) + ' = ' + f(v.lat)], ['مساحت کل = جانبی + ۲ × مساحت قاعده', f(v.lat) + ' + ۲ × (۳/۱۴ × ' + f(a) + ' × ' + f(a) + ') = ' + f(v.tot)], ['حجم = مساحت قاعده × ارتفاع', '۳/۱۴ × ' + f(a) + ' × ' + f(a) + ' × ' + f(c) + ' = ' + f(v.vol)]];
+    case 'cone': return [['مولد = √(شعاع² + ارتفاع²)', '√(' + f(a) + '² + ' + f(c) + '²) = ' + f(v.s)], ['مساحت جانبی = ۳/۱۴ × شعاع × مولد', '۳/۱۴ × ' + f(a) + ' × ' + f(v.s) + ' = ' + f(v.lat)], ['مساحت کل = جانبی + مساحت قاعده', f(v.lat) + ' + ' + f(pi*a*a) + ' = ' + f(v.tot)], ['حجم = ⅓ × مساحت قاعده × ارتفاع', '⅓ × ۳/۱۴ × ' + f(a) + ' × ' + f(a) + ' × ' + f(c) + ' = ' + f(v.vol)]];
+    case 'pyr': return [['ارتفاع وجه = √((قاعده ÷ ۲)² + ارتفاع²)', '√((' + f(a/2) + ')² + ' + f(c) + '²) = ' + f(v.sl)], ['مساحت جانبی = ۴ × (قاعده × ارتفاع وجه ÷ ۲)', '۴ × (' + f(a) + ' × ' + f(v.sl) + ' ÷ ۲) = ' + f(v.lat)], ['مساحت کل = جانبی + مساحت قاعده', f(v.lat) + ' + ' + f(a*a) + ' = ' + f(v.tot)], ['حجم = ⅓ × مساحت قاعده × ارتفاع', '⅓ × ' + f(a*a) + ' × ' + f(c) + ' = ' + f(v.vol)]];
+    case 'sph': return [['مساحت کره = ۴ × ۳/۱۴ × شعاع × شعاع', '۴ × ۳/۱۴ × ' + f(a) + ' × ' + f(a) + ' = ' + f(v.tot)], ['حجم کره = ⁴⁄₃ × ۳/۱۴ × شعاع³', '⁴⁄₃ × ۳/۱۴ × ' + f(a) + '³ = ' + f(v.vol)]];
   }
   return [];
 }
@@ -7577,18 +7635,18 @@ TOOLS.solid = {
         w.forEach((wi, i)=>{ rect(x, yy, wi*u, C*u, cols[i % 2]); lab(faNum(wi, 2), x + wi*u/2, yy + C*u + 14); x += wi*u; });
         if(p.tot){ rect(nx0, ny0, A*u, B*u, 'rgba(251,191,36,.55)'); rect(nx0, yy + C*u, A*u, B*u, 'rgba(251,191,36,.55)'); }
         lab(faNum(C, 2), nx0 + N.w*u + 14, yy + C*u/2);
-        kidTextA(ctx, 'محیط قاعده = ' + faNum(2*(A + B), 2), nx0 + N.w*u/2, yy - 12, 16, '#c2410c', 'center', 'rtl');
+        drawTitleCalc(ctx, 'محیط قاعده', '۲ × (' + faNum(A, 2) + ' + ' + faNum(B, 2) + ') = ' + faNum(2*(A + B), 2), nx0 + N.w*u/2, yy - 12, 16, '#c2410c');
       } else if(p.k === 'cyl'){
         const W2 = N.w*u, yy = ny0 + (p.tot ? 2*a*u : 0);
         rect(nx0, yy, W2, c*u, cols[1]);
         if(p.tot){ [[ny0 + a*u], [yy + c*u + a*u]].forEach(([cy])=>{ ctx.beginPath(); ctx.arc(nx0 + a*u, cy, a*u, 0, TAU); ctx.fillStyle = 'rgba(251,191,36,.55)'; ctx.fill(); ctx.stroke(); }); }
-        kidTextA(ctx, 'محیط قاعده = ۲ × ۳/۱۴ × ' + faNum(a, 2) + ' = ' + faNum(2*SOL_PI*a, 2), nx0 + W2/2, p.tot ? yy + c*u/2 : yy - 12, 16, '#c2410c', 'center', 'rtl');
+        drawTitleCalc(ctx, 'محیط قاعده', '۲ × ۳/۱۴ × ' + faNum(a, 2) + ' = ' + faNum(2*SOL_PI*a, 2), nx0 + W2/2, p.tot ? yy + c*u/2 : yy - 12, 16, '#c2410c');
         lab(faNum(c, 2), nx0 + W2 + 14, yy + c*u/2);
       } else if(p.k === 'cone'){
         const s = N.s*u, ph = N.ph, ax = nx0 + N.w*u/2, ay = ny0 - N.top*s, a0 = (90 - Math.min(ph, 359)/2)*D2R, a1 = (90 + Math.min(ph, 359)/2)*D2R;
         ctx.beginPath(); ctx.moveTo(ax, ay); ctx.arc(ax, ay, s, a0, a1); ctx.closePath(); ctx.fillStyle = 'rgba(251,146,60,.55)'; ctx.fill(); ctx.stroke();
         lab(faNum(N.s, 2), ax + Math.cos(a0)*s*.5 + 16, ay + Math.sin(a0)*s*.5);
-        kidTextA(ctx, 'کمان = ۲ × ۳/۱۴ × ' + faNum(a, 2) + ' = ' + faNum(2*SOL_PI*a, 2), ax, ay + s + 16, 15, '#c2410c', 'center', 'rtl');
+        drawTitleCalc(ctx, 'کمان', '۲ × ۳/۱۴ × ' + faNum(a, 2) + ' = ' + faNum(2*SOL_PI*a, 2), ax, ay + s + 16, 15, '#c2410c');
         if(p.tot){ ctx.beginPath(); ctx.arc(ax, ay + s + 24 + a*u, a*u, 0, TAU); ctx.fillStyle = 'rgba(251,191,36,.55)'; ctx.fill(); ctx.stroke(); }
       } else if(p.k === 'pyr'){
         const sl = N.sl*u, s = a*u;
@@ -7600,7 +7658,7 @@ TOOLS.solid = {
         lab(faNum(a, 2), nx0 + s/2, ny0 + sl + (p.tot ? s : 0) + 14); lab(faNum(N.sl, 2), nx0 + s/4 - 30, ny0 + sl/2);
       }
     }
-    if(p.f) solFormula(o).forEach((t, i)=> kidTextA(ctx, t, 0, bottom + 32 + i*28, 17, col, 'center', 'ltr'));
+    if(p.f) drawFormulaLines(ctx, solFormula(o), 0, bottom + 34, 17, col);
   },
   ctxx:o=>
     selectHtml('k', Object.keys(SOLIDS).map(k=> [k, SOLIDS[k].name])) +
