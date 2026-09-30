@@ -1974,9 +1974,13 @@ function bindPanels(){
     if(e.target.closest('.panel')) return;
     if(e.target.closest('#dialogOverlay')) return;
     if(e.target.closest('[data-cmd="background"]') || e.target.closest('[data-cmd="props"]') || e.target.closest('[data-cmd="tray"]')) return;
-    // سینیِ مبحث‌های ریاضی باز می‌ماند تا چند قطعه پشت سر هم اضافه شود
+    // سینیِ مبحث‌های ریاضی با کلیک روی نوارها باز می‌ماند (فقط لمسِ خودِ صفحه آن را می‌بندد؛ پایین‌تر)
     $$('.panel.open').forEach(p=>{ if(p !== els.trayPanel) p.classList.remove('open'); });
   });
+  // لمس یا کلیک روی صفحه‌ی وایت‌برد: سینیِ «مبحث‌های ریاضی» بسته شود و از حالتِ ابزار خارج شویم
+  els.canvasWrap.addEventListener('pointerdown', ()=>{
+    if(els.trayPanel.classList.contains('open')) toggleTray(false);
+  }, true);
 }
 function togglePanel(panel){
   const isOpen = panel.classList.contains('open');
