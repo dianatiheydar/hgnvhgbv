@@ -8757,6 +8757,7 @@ function recBegin(){
     try{
       const AC = window.AudioContext || window.webkitAudioContext, ac = new AC(), an = ac.createAnalyser();
       an.fftSize = 512; ac.createMediaStreamSource(REC.mic).connect(an);
+      const z = ac.createGain(); z.gain.value = 0; an.connect(z); z.connect(ac.destination);     // سافاری: بی‌صدا به خروجی وصل شود تا پردازش شود
       if(ac.resume) ac.resume().catch(()=>{});
       REC.actx = ac; REC.an = an; REC.buf = new Uint8Array(an.fftSize);
     }catch(e){ REC.an = null; }
@@ -8871,8 +8872,8 @@ const LG_MAXG = 8;
 // حساسیت شیشه‌ی سکوت (دسی‌بل نسبت به بیشینه‌ی میکروفون)، sp = سرعتِ ترک برداشتن
 //   کم ≈ ‎−۴۲dB (گفتگوی معمولی)   متوسط ≈ ‎−۵۰dB (صحبتِ آرام)   زیاد ≈ ‎−۶۲dB (صدای کم: پچ‌پچ)
 // و همیشه دست‌کم ۵ دسی‌بل بالاتر از «صدای زمینه‌ی کلاس» که هنگام شروع سنجیده می‌شود (پنکه، کولر، خیابان)
-const LG_SENS = [{ t:'کم', db:-42, sp:0.9 }, { t:'متوسط', db:-50, sp:1.1 }, { t:'زیاد', db:-62, sp:1.4 }];
-const LG_FLOOR_MARGIN = 5;
+const LG_SENS = [{ t:'بلند', db:-42, sp:0.9 }, { t:'معمولی', db:-50, sp:1.1 }, { t:'کم', db:-62, sp:1.4 }];
+const LG_FLOOR_MARGIN = 5, LG_FLOOR_CAP = -50;      // صدای زمینه هیچ‌وقت بلندتر از ‎−۵۰dB فرض نمی‌شود (کلاسِ شلوغ هنگام شروع ≠ صدای زمینه)
 const lgLvl = db => clamp((db + 80)/70, 0, 1);                 // سنجه: ‎−۸۰dB = ۰ ، ‎−۱۰dB = ۱
 function lgGlassThr(){
   const G = LG.glass, SN = LG_SENS[LG.st.set.sens];
@@ -8935,6 +8936,8 @@ function lgNoise(ac, dur, vol, t, hp){
 function lgSound(kind){
   if(!LG.st || !LG.st.set.sound) return;
   const ac = lgAudio(); if(!ac) return;
+  // صدای خودِ برنامه (زنگ، تیک، ترک) را شیشه‌ی سکوت سر و صدای کلاس حساب نکند
+  LG.selfUntil = Math.max(LG.selfUntil || 0, performance.now() + ({ ding:450, minus:200, tick:60, reveal:450, wrong:550, alarm:1250, fanfare:1400, crack:200, shatter:1200 }[kind] || 300) + 300);
   const t = ac.currentTime + 0.01;
   if(kind === 'ding'){ lgTone(ac, 880, 0.14, 'sine', 0.22, t); lgTone(ac, 1318, 0.32, 'sine', 0.2, t + 0.1); }
   else if(kind === 'minus'){ lgTone(ac, 420, 0.16, 'triangle', 0.18, t, 300); }
@@ -9566,56 +9569,110 @@ function lgHgDraw(){
 function lgGlassInit(body){
   const S2 = LG.st.set;
   body.innerHTML = '<div class="lg-gw"><canvas width="260" height="170"></canvas></div>' +
-    '<div class="lg-meter"><i></i><em></em></div>' +
-    '<div class="lg-sens"><span class="lg-sublab">حساسیت:</span>' + lgChips('sens', LG_SENS.map((s, i)=> [i, s.t]), S2.sens, 'sm') + '</div>' +
+    '<div class="lg-meter" title="صدای کلاس — خطِ مشکی: از این بلندتر، شیشه ترک برمی‌دارد"><i></i><em></em></div>' +
+    '<div class="lg-sens"><span class="lg-sublab">بشکند با صدای:</span>' + lgChips('sens', LG_SENS.map((s, i)=> [i, s.t]), S2.sens, 'sm') + '</div>' +
     '<div class="lg-trow"><button type="button" class="lg-btn xs pri" data-g="on">🎙 شروع</button><button type="button" class="lg-btn xs" data-g="new" title="شیشه‌ی نو">🔁 نو</button></div>' +
     '<div class="lg-gstat">برای شروع، «🎙 شروع» را بزنید</div>';
-  lgOnChips(body, 'sens', v=>{ S2.sens = +v; lgSave(); lgGlassDraw(); });
-  body.querySelector('[data-g="on"]').addEventListener('click', ()=> LG.glass.on ? lgGlassStop(true) : lgGlassStart());
+  lgOnChips(body, 'sens', v=>{ S2.sens = +v; lgSave(); lgGlassUi(); lgGlassDraw(); });
+  body.querySelector('[data-g="on"]').addEventListener('click', ()=>{
+    if(LG.glass.on || LG.glass.starting){ lgGlassStop(true); return; }
+    lgGlassPrep(); lgGlassStart();
+  });
   body.querySelector('[data-g="new"]').addEventListener('click', lgGlassNew);
+  // سافاری: اگر مرورگر پردازش صدا را نگه داشت، یک لمس روی شیشه دوباره راهش می‌اندازد
+  body.querySelector('.lg-gw').addEventListener('pointerdown', ()=>{ const ac = LG.glass.ac; if(ac && ac.state !== 'running') ac.resume().then(lgGlassUi, ()=>{}); });
   lgGlassDraw();
+}
+// همان لحظه‌ی زدنِ دکمه (که مرورگر اجازه‌ی صدا می‌دهد) یک AudioContext جداگانه برای شنیدن آماده می‌شود
+function lgGlassPrep(){
+  const G = LG.glass;
+  if(!G.ac || G.ac.state === 'closed'){ try{ G.ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ G.ac = null; } }
+  if(G.ac && G.ac.state !== 'running') G.ac.resume().catch(()=>{});
 }
 async function lgGlassStart(){
   const G = LG.glass;
-  if(G.on) return;
+  if(G.on || G.starting) return;
+  G.starting = true; lgGlassUi();
+  const gum = c=> navigator.mediaDevices.getUserMedia({ audio:c, video:false });
   try{
     if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw { name:'Insecure' };
-    G.stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false }, video:false });
+    try{ G.stream = await gum({ echoCancellation:false, noiseSuppression:false, autoGainControl:false }); }
+    catch(e){ if(e && (e.name === 'OverconstrainedError' || e.name === 'TypeError')) G.stream = await gum(true); else throw e; }
   }catch(e){
+    G.starting = false; lgGlassUi();
     lgModal('<div class="lg-mtitle">🎙 میکروفون در دسترس نیست</div><div class="rec-msg">' + recMicError(e) + '<br>شیشه‌ی سکوت برای شنیدنِ سر و صدای کلاس به میکروفون نیاز دارد.</div><div class="lg-btns"><button type="button" class="lg-btn pri" data-b="ok">باشه</button></div>').querySelector('[data-b="ok"]').addEventListener('click', lgModalClose);
     return;
   }
-  const ac = lgAudio(); if(!ac){ G.stream.getTracks().forEach(t=> t.stop()); return; }
-  const an = ac.createAnalyser(); an.fftSize = 1024;
-  G.src = ac.createMediaStreamSource(G.stream); G.src.connect(an);
-  G.an = an; G.buf = new Float32Array(an.fftSize); G.on = true; G.last = performance.now();
+  if(!G.starting){ G.stream.getTracks().forEach(t=> t.stop()); G.stream = null; return; }      // در این فاصله «توقف» زده شد
+  const tr = G.stream.getAudioTracks()[0];
+  try{
+    const mk = rate=> new (window.AudioContext || window.webkitAudioContext)(rate ? { sampleRate:rate } : undefined);
+    if(!G.ac || G.ac.state === 'closed') G.ac = mk();
+    let src;
+    try{ src = G.ac.createMediaStreamSource(G.stream); }
+    catch(e){
+      // فایرفاکس: نرخ نمونه‌ی میکروفون (مثلاً هدست بلوتوثی) با خروجی فرق دارد → AudioContext هم‌نرخِ میکروفون
+      const rate = tr && tr.getSettings ? tr.getSettings().sampleRate : 0;
+      try{ G.ac.close(); }catch(_){}
+      G.ac = mk(rate); src = G.ac.createMediaStreamSource(G.stream);
+    }
+    const an = G.ac.createAnalyser(), mute = G.ac.createGain();
+    an.fftSize = 2048; mute.gain.value = 0;
+    src.connect(an); an.connect(mute); mute.connect(G.ac.destination);     // سافاری بدون اتصال به خروجی صدا را پردازش نمی‌کند (بی‌صدا وصل می‌شود)
+    G.src = src; G.an = an; G.mute = mute; G.buf = new Float32Array(an.fftSize);
+    if(G.ac.state !== 'running') G.ac.resume().catch(()=>{});
+    G.ac.onstatechange = lgGlassUi;
+  }catch(e){
+    G.stream.getTracks().forEach(t=> t.stop()); G.stream = null; G.starting = false; lgGlassUi();
+    lgModal('<div class="lg-mtitle">🎙 صدای میکروفون خوانده نشد</div><div class="rec-msg">این مرورگر صدای میکروفون را برای شیشه‌ی سکوت نداد (' + lgEsc(e.name || e.message || '') + '). مرورگر Chrome یا Edge تازه را امتحان کنید.</div><div class="lg-btns"><button type="button" class="lg-btn pri" data-b="ok">باشه</button></div>').querySelector('[data-b="ok"]').addEventListener('click', lgModalClose);
+    return;
+  }
+  if(tr){
+    tr.onended = ()=>{ if(LG.glass.stream){ lgGlassStop(true); toast('🎙 میکروفون قطع شد؛ دوباره «🎙 شروع» را بزنید', 4000); } };
+    tr.onmute = ()=>{ G.muted = true; lgGlassUi(); };
+    tr.onunmute = ()=>{ G.muted = false; lgGlassUi(); };
+  }
+  G.starting = false; G.on = true; G.muted = false; G.last = performance.now(); G.silent = 0; G.over = false; G.avg = 0; G.disp = 0;
   G.floor = null; G.cal = performance.now() + 1500; G.calv = [];       // سنجیدنِ صدای زمینه
   lgGlassUi(); lgGlassLoop();
 }
 function lgGlassStop(user){
   const G = LG.glass;
   cancelAnimationFrame(G.raf);
-  if(G.src){ try{ G.src.disconnect(); }catch(e){} G.src = null; }
-  if(G.stream){ G.stream.getTracks().forEach(t=> t.stop()); G.stream = null; }
-  G.on = false; G.an = null;
+  G.starting = false;
+  [G.src, G.an, G.mute].forEach(n=>{ if(n){ try{ n.disconnect(); }catch(e){} } });
+  G.src = G.an = G.mute = null;
+  if(G.stream){ G.stream.getTracks().forEach(t=>{ t.onended = null; t.stop(); }); G.stream = null; }
+  if(G.ac && G.ac.state === 'running') G.ac.suspend().catch(()=>{});
+  G.on = false; G.over = false; G.cal = 0;
   lgGlassUi();
   if(user) lgGlassDraw();
 }
 function lgGlassNew(){
   const G = LG.glass;
-  G.dmg = 0; G.stage = 0; G.broken = false; G.cracks = []; G.shards = null;
+  G.dmg = 0; G.stage = 0; G.broken = false; G.cracks = []; G.shards = null; G.over = false;
   if(G.on){ G.cal = performance.now() + 1500; G.calv = []; }           // شیشه‌ی نو: صدای زمینه دوباره سنجیده شود
   const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]'); if(card) card.classList.remove('lg-done');
   lgGlassUi(); lgGlassDraw();
 }
+function lgGlassStatus(){
+  const G = LG.glass, left = faNum(4 - G.stage, 0);
+  if(G.broken) return '💥 شیشه شکست! برای ادامه «🔁 نو» را بزنید';
+  if(G.starting) return '🎙 میکروفون روشن می‌شود… (اگر مرورگر پرسید، «اجازه» را بزنید)';
+  if(!G.on) return 'برای شروع، «🎙 شروع» را بزنید';
+  if(G.ac && G.ac.state !== 'running') return '👆 یک بار روی شیشه بزنید تا شنیدن شروع شود';
+  if(G.muted || G.silent > 3) return '⚠️ صدایی از میکروفون نمی‌رسد؛ میکروفون خاموش است یا برنامه‌ی دیگری آن را گرفته';
+  if(G.cal) return '🎧 چند لحظه… صدای زمینه‌ی کلاس سنجیده می‌شود';
+  if(G.over) return '🔊 صدا زیاد است!' + (G.stage ? ' ' + left + ' فرصت مانده' : '');
+  if(G.stage) return '⚠️ ' + left + ' فرصت مانده — آرام باشید';
+  return '😊 کلاس آرام است — گوش می‌دهم';
+}
 function lgGlassUi(){
   const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]'); if(!card) return;
   const G = LG.glass;
-  card.querySelector('[data-g="on"]').textContent = G.on ? '⏸ توقف' : '🎙 شروع';
-  card.querySelector('.lg-gstat').textContent = G.broken ? '💥 شیشه شکست! برای ادامه «🔁 شیشه‌ی نو» را بزنید'
-    : !G.on ? 'برای شروع، «🎙 شروع» را بزنید'
-    : G.cal ? '🎧 چند لحظه آرام… صدای زمینه‌ی کلاس سنجیده می‌شود'
-    : G.stage ? '⚠️ صدا زیاد است! ' + faNum(3 - G.stage + 1, 0) + ' فرصت مانده' : '😊 کلاس آرام است';
+  card.querySelector('[data-g="on"]').textContent = G.on || G.starting ? '⏸ توقف' : '🎙 شروع';
+  const t = lgGlassStatus(), el = card.querySelector('.lg-gstat');
+  if(el.textContent !== t) el.textContent = t;
 }
 function lgCrack(W, H){
   const x = W*(0.25 + Math.random()*0.5), y = H*(0.25 + Math.random()*0.5), lines = [];
@@ -9641,29 +9698,33 @@ function lgGlassLoop(){
     G.an.getFloatTimeDomainData(G.buf);
     let s = 0; for(let i = 0; i < G.buf.length; i++) s += G.buf[i]*G.buf[i];
     const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = lgLvl(db);
+    G.silent = db < -100 ? (G.silent || 0) + dt : 0;                // صفرِ کامل = میکروفون صدایی نمی‌فرستد
     G.avg = G.avg*0.85 + lvl*0.15; G.disp = Math.max(lvl, G.disp*0.92);
+    const self = now < (LG.selfUntil || 0);                           // صدای خودِ برنامه پخش می‌شود
     if(G.cal){
       // ۱٫۵ ثانیه‌ی اول: صدای زمینه (میانه‌ی صداها) سنجیده می‌شود؛ شیشه ترک برنمی‌دارد
-      G.calv.push(db);
-      if(now >= G.cal){ const v = G.calv.slice().sort((a, b)=> a - b); G.floor = clamp(v[Math.floor(v.length/2)] ?? -70, -90, -30); G.cal = 0; lgGlassUi(); }
-      lgGlassDraw(); G.raf = requestAnimationFrame(step); return;
-    }
-    // صدای زمینه آرام دنبال می‌شود: پایین آمدنش سریع، بالا رفتنش خیلی کند (سر و صدای کلاس آن را بالا نبرد)
-    if(db < G.floor) G.floor += (db - G.floor)*Math.min(1, dt*2); else G.floor = Math.min(db, G.floor + 0.2*dt);
-    const SN = LG_SENS[LG.st.set.sens], thr = lgGlassThr();
-    // کلاس که آرام شد، پیشرفتِ نیمه‌کاره به سمت ترکِ بعدی کم‌کم برمی‌گردد (ترک‌های قبلی می‌مانند)؛ یک دست‌زدن تنها جمع نمی‌شود
-    if(!G.broken && G.avg <= thr) G.dmg = Math.max(G.stage*0.25, G.dmg - 0.03*dt);
-    if(!G.broken && G.avg > thr){
-      G.dmg += ((G.avg - thr)*1.0 + 0.15)*SN.sp*dt;     // سر و صدای مداوم: هر ترک حدود ۱ تا ۲ ثانیه، شکستن ۳ تا ۷ ثانیه
-      const stage = G.dmg >= 1 ? 4 : Math.floor(G.dmg/0.25);
-      if(stage > G.stage){
-        G.stage = stage;
-        const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]');
-        if(stage >= 4) lgGlassBreak();
-        else { G.cracks.push(lgCrack(260, 170)); lgSound('crack'); if(card){ card.classList.remove('lg-shake'); void card.offsetWidth; card.classList.add('lg-shake'); } }
-        lgGlassUi();
+      if(!self && G.silent === 0) G.calv.push(db);
+      if(now >= G.cal){ const v = G.calv.slice().sort((a, b)=> a - b); G.floor = clamp(v.length ? v[Math.floor(v.length/2)] : -70, -90, LG_FLOOR_CAP); G.cal = 0; }
+    } else {
+      // صدای زمینه: پایین آمدنش سریع، بالا رفتنش خیلی کند و هیچ‌وقت بالاتر از ‎−۵۰dB
+      if(!self && G.silent === 0){ if(db < G.floor) G.floor += (db - G.floor)*Math.min(1, dt*2); else G.floor = Math.min(db, G.floor + 0.2*dt); }
+      G.floor = Math.min(G.floor, LG_FLOOR_CAP);
+      const SN = LG_SENS[LG.st.set.sens], thr = lgGlassThr();
+      if(!self) G.over = !G.broken && G.avg > thr;                  // هنگام پخشِ صدای خودِ برنامه، وضعیت عوض نشود و آسیب هم جمع نشود
+      // کلاس که آرام شد، پیشرفتِ نیمه‌کاره به سمت ترکِ بعدی کم‌کم برمی‌گردد (ترک‌های قبلی می‌مانند)؛ یک دست‌زدن تنها جمع نمی‌شود
+      if(!G.broken && !G.over && !self) G.dmg = Math.max(G.stage*0.25, G.dmg - 0.03*dt);
+      if(G.over && !self){
+        G.dmg += ((G.avg - thr)*1.0 + 0.15)*SN.sp*dt;     // سر و صدای مداوم: هر ترک حدود ۱ تا ۲ ثانیه، شکستن ۳ تا ۷ ثانیه
+        const stage = G.dmg >= 1 ? 4 : Math.floor(G.dmg/0.25);
+        if(stage > G.stage){
+          G.stage = stage;
+          const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]');
+          if(stage >= 4) lgGlassBreak();
+          else { G.cracks.push(lgCrack(260, 170)); lgSound('crack'); if(card){ card.classList.remove('lg-shake'); void card.offsetWidth; card.classList.add('lg-shake'); } }
+        }
       }
     }
+    lgGlassUi();
     lgGlassDraw();
     G.raf = requestAnimationFrame(step);
   };
@@ -9711,8 +9772,11 @@ function lgGlassDraw(){
     g.strokeStyle = 'rgba(30,41,59,.75)'; g.lineWidth = 1.4; g.lineJoin = 'round';
     G.cracks.forEach(c=> c.forEach(L=>{ g.beginPath(); L.forEach(([x, y], i)=> i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); }));
     g.restore();
+    if(G.on && G.over){                                                // همین حالا صدا از حد گذشته: شیشه سرخ می‌شود
+      g.fillStyle = 'rgba(239,68,68,' + Math.min(0.4, 0.12 + (G.avg - lgGlassThr())*2).toFixed(3) + ')'; g.fillRect(14, 14, W - 28, H - 28);
+    }
     g.font = '40px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText(G.stage >= 2 ? '😟' : G.stage ? '😐' : '🤫', W/2, H/2);
+    g.fillText(G.on && G.over ? '😠' : G.stage >= 2 ? '😟' : G.stage ? '😐' : '🤫', W/2, H/2);
   } else {
     g.fillStyle = '#f1f5f9'; g.fillRect(14, 14, W - 28, H - 28);
     g.font = 'bold 22px Tahoma, sans-serif'; g.fillStyle = '#b91c1c'; g.textAlign = 'center'; g.textBaseline = 'middle';
