@@ -375,6 +375,7 @@ body.rec-on #credit{visibility:hidden}
 .lg-card.lg-pop{animation:lgPop .28s ease-out}
 @keyframes lgPop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
 .lg-in.big{zoom:1.45}
+.lg-card.cmp .lg-in.big{zoom:2}
 .lg-head{display:flex;align-items:center;gap:4px;padding:6px 6px 2px 10px;cursor:grab;touch-action:none;font-size:12px;color:var(--muted)}
 .lg-head b{flex:1;font-weight:800;color:var(--text);font-size:13px;white-space:nowrap}
 .lg-head button{width:26px;height:26px;border-radius:8px;color:var(--muted);font-size:13px}
@@ -460,6 +461,15 @@ body.rec-on #credit{visibility:hidden}
 .lg-pod.r0 .lg-pcol{height:130px}.lg-pod.r1 .lg-pcol{height:96px}.lg-pod.r2 .lg-pcol{height:70px}
 .lg-rest,.lg-stars{text-align:center;font-size:13px;color:#334155;line-height:1.9}
 .lg-stars{margin-top:6px;color:#a16207;font-weight:700}
+/* کارت‌های جمع‌وجور */
+.lg-card.cmp .lg-head{padding:3px 3px 0 8px;gap:2px}
+.lg-card.cmp .lg-head b{font-size:11.5px}
+.lg-card.cmp .lg-head button{width:22px;height:22px;font-size:11px;border-radius:6px}
+.lg-card.cmp .lg-body{padding:2px 7px 7px}
+.lg-chips.sm{gap:2px;margin:4px auto;max-width:200px}
+.lg-chips.sm .lg-chip{height:22px;padding:0 5px;font-size:10.5px;border-radius:11px}
+.lg-btn.xs{height:26px;min-width:26px;padding:0 7px;font-size:12px;border-radius:8px}
+.lg-card.cmp .lg-trow{gap:4px;margin-top:4px}
 /* تایمر */
 .lg-tm{position:relative;width:170px;height:170px;margin:4px auto 0}
 .lg-tm svg{width:100%;height:100%;transform:rotate(-90deg)}
@@ -468,15 +478,25 @@ body.rec-on #credit{visibility:hidden}
 .lg-tm .fg{stroke:#22c55e;stroke-linecap:round}
 .lg-tdig{position:absolute;inset:18px;border-radius:50%;font-family:KidFont,Tahoma,sans-serif;font-size:40px;color:#0f172a;direction:ltr}
 .lg-card.lg-done .lg-tdig,.lg-card.lg-done .lg-hgt{color:#ef4444;animation:lgBlink .6s 5}
+.lg-card.cmp .lg-tm{width:96px;height:96px;margin-top:2px}
+.lg-card.cmp .lg-tm circle{stroke-width:11}
+.lg-card.cmp .lg-tdig{inset:12px;font-size:21px}
 .lg-card.lg-done{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.35),0 12px 32px rgba(15,23,42,.2)}
 /* ساعت شنی */
 .lg-hgw{display:flex;flex-direction:column;align-items:center}
 .lg-hgw canvas{width:120px;height:176px;transition:transform .55s ease-in-out}
+.lg-card.cmp .lg-hgw canvas{width:58px;height:85px}
+.lg-card.cmp .lg-hgt{font-size:16px}
 .lg-hgw canvas.flip{animation:lgFlip .55s ease-in-out}
 @keyframes lgFlip{from{transform:rotate(180deg)}to{transform:rotate(360deg)}}
 .lg-hgt{font-family:KidFont,Tahoma,sans-serif;font-weight:400;font-size:24px;direction:ltr}
 /* شیشه‌ی سکوت */
 .lg-gw canvas{display:block;width:240px;height:157px;margin:2px auto 0;border-radius:6px}
+.lg-card.cmp .lg-gw canvas{width:150px;height:98px}
+.lg-card.cmp .lg-meter{height:7px;margin:6px 2px 2px}
+.lg-sens{display:flex;align-items:center;justify-content:center;gap:4px}
+.lg-sens .lg-chips{margin:3px 0}
+.lg-card.cmp .lg-gstat{font-size:10.5px;max-width:170px;margin:4px auto 0;line-height:1.6}
 .lg-meter{position:relative;height:10px;border-radius:5px;background:#e2e8f0;margin:8px 4px 2px;overflow:visible;direction:ltr}
 .lg-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:#22c55e;transition:width .08s}
 .lg-meter em{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#0f172a;border-radius:2px}
@@ -484,10 +504,10 @@ body.rec-on #credit{visibility:hidden}
 .lg-card.lg-shake{animation:lgShake .4s}
 @keyframes lgShake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 /* چراغ کلاس */
-.lg-light{display:flex;flex-direction:column;align-items:center;gap:8px;background:#1f2937;border-radius:18px;padding:10px;width:86px;margin:4px auto 0}
-.lg-lamp{width:58px;height:58px;border-radius:50%;background:color-mix(in srgb,var(--c) 22%,#111827);transition:all .2s}
-.lg-lamp.on{background:var(--c);box-shadow:0 0 22px var(--c),inset 0 -6px 10px rgba(0,0,0,.18)}
-.lg-ltxt{text-align:center;font-weight:800;font-size:14px;margin-top:8px}
+.lg-light{display:flex;flex-direction:column;align-items:center;gap:5px;background:#1f2937;border-radius:12px;padding:5px;width:38px;margin:2px auto 0}
+.lg-lamp{width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--c) 22%,#111827);transition:all .2s}
+.lg-lamp.on{background:var(--c);box-shadow:0 0 12px var(--c),inset 0 -3px 5px rgba(0,0,0,.18)}
+.lg-ltxt{text-align:center;font-weight:800;font-size:11.5px;margin-top:4px}
 .lg-fx{position:fixed;inset:0;pointer-events:none;z-index:100002}
 /* برش تصویر */
 .lg-box.crop{width:auto;max-width:100%;text-align:center}
@@ -508,8 +528,6 @@ body.rec-on #credit{visibility:hidden}
   body.league-on #ctxBar{right:52px}
   .lg-card{max-width:calc(100% - 108px)}
   .lg-big{font-size:34px}
-  .lg-tm{width:140px;height:140px}
-  .lg-tdig{font-size:32px}
   .ch{width:24px;height:24px;margin:-12px 0 0 -12px}
 }
 
@@ -6241,7 +6259,7 @@ TOOLS.hund = {
     o.st.cur = clamp(o.st.cur | 0, 0, 3);
     o.p.n = clamp(Math.round(o.p.n) || 1, 1, 100);
   },
-  size:()=> ({ w:340, h:340 }),
+  size:()=> ({ w:344, h:344 }),          // ۲ پیکسل جا برای ضخامتِ قابِ بیرونی
   params:()=> [{ k:'n', label:'عدد', min:1, max:100, int:true }],
   draw(ctx, o){
     const c = 34, col = toolCol(o), m = o.st.m;
@@ -8958,7 +8976,8 @@ function toggleLeague(force){
 }
 const LG_DOCK = [['board', '🏆', 'امتیاز'], ['quiz', '❓', 'پرسش'], ['pick', '🎲', 'قرعه'], ['groups', '🔀', 'گروه‌بندی'], ['timer', '⏱', 'تایمر'],
                  ['hg', '⏳', 'ساعت شنی'], ['glass', '🤫', 'سکوت'], ['light', '🚦', 'چراغ'], ['names', '👥', 'اسامی'], ['sound', '🔊', 'صدا']];
-const LG_TITLES = { board:'🏆 جدول امتیاز', timer:'⏱ تایمر معکوس', hg:'⏳ ساعت شنی', glass:'🤫 شیشه‌ی سکوت', light:'🚦 چراغ کلاس' };
+const LG_TITLES = { board:'🏆 جدول امتیاز', timer:'⏱ تایمر', hg:'⏳ ساعت شنی', glass:'🤫 شیشه‌ی سکوت', light:'🚦 چراغ' };
+const LG_SMALL = { timer:1, hg:1, glass:1, light:1 };      // کارت‌های جمع‌وجور (با ⤢ بزرگ می‌شوند)
 function lgBuild(){
   const el = document.createElement('div'); el.id = 'league';
   el.innerHTML = '<nav id="lgDock">' + LG_DOCK.map(([k, i, t])=> '<button type="button" data-lg="' + k + '" title="' + t + '"><i>' + i + '</i><span>' + t + '</span></button>').join('') + '</nav>';
@@ -8978,7 +8997,7 @@ function lgBuild(){
   Object.keys(LG_TITLES).forEach(k=>{ if(LG.st.cards[k] && LG.st.cards[k].open) lgOpenCard(k, false); });
   lgDockState();
   window.addEventListener('resize', ()=> setTimeout(lgClampCards, 120));
-  document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && LG.modal && !LG.rolling) lgModalClose(); });
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && LG.modal && !LG.rolling && !LG.modal.dataset.sticky) lgModalClose(); });
 }
 function lgDockState(){
   if(!LG.el) return;
@@ -8998,7 +9017,8 @@ function lgCloseCard(k){
   const el = LG.el && LG.el.querySelector('.lg-card[data-k="' + k + '"]');
   if(el) el.remove();
   if(k === 'glass') lgGlassStop();
-  if(k === 'hg') cancelAnimationFrame(LG.hg.raf);
+  if(k === 'timer') lgTimerReset();
+  if(k === 'hg'){ cancelAnimationFrame(LG.hg.raf); LG.hg.run = false; LG.hg.left = LG.hg.total; }
   LG.st.cards[k] = Object.assign(LG.st.cards[k] || {}, { open:false });   // همان شیء می‌ماند تا موقعیت و اندازه یادش بماند
   lgSave(); lgDockState();
 }
@@ -9007,13 +9027,13 @@ function lgOpenCard(k, user){
   let el = LG.el.querySelector('.lg-card[data-k="' + k + '"]');
   const c = LG.st.cards[k] = Object.assign(LG.st.cards[k] || { x:null, y:null, big:0 }, { open:true });
   if(!el){
-    el = document.createElement('div'); el.className = 'lg-card'; el.dataset.k = k;
+    el = document.createElement('div'); el.className = 'lg-card' + (LG_SMALL[k] ? ' cmp' : ''); el.dataset.k = k;
     el.innerHTML = '<div class="lg-in' + (c.big ? ' big' : '') + '"><div class="lg-head"><b>' + LG_TITLES[k] + '</b>' +
       '<button type="button" data-c="big" title="بزرگ / کوچک (برای دیدن از ته کلاس)">⤢</button><button type="button" data-c="close" title="بستن">✕</button></div><div class="lg-body"></div></div>';
     LG.el.appendChild(el);
     lgCardDrag(el, k);
     el.querySelector('[data-c="close"]').addEventListener('click', ()=> lgCloseCard(k));
-    el.querySelector('[data-c="big"]').addEventListener('click', ()=>{ const cc = LG.st.cards[k]; cc.big = cc.big ? 0 : 1; el.firstChild.classList.toggle('big', !!cc.big); lgSave(); lgClampCards(); });
+    el.querySelector('[data-c="big"]').addEventListener('click', ()=>{ const cc = LG.st.cards[k]; cc.big = cc.big ? 0 : 1; el.firstChild.classList.toggle('big', !!cc.big); LG.el.appendChild(el); lgSave(); lgClampCards(); });
     ({ board:lgBoardInit, timer:lgTimerInit, hg:lgHgInit, glass:lgGlassInit, light:lgLightInit })[k](el.querySelector('.lg-body'));
     if(c.x == null){ const p = lgDefaultPos(k, el); c.x = p.x; c.y = p.y; }
     el.style.left = c.x + 'px'; el.style.top = c.y + 'px';
@@ -9069,7 +9089,8 @@ function lgModal(html, cls, sticky){
   lgModalClose();
   const o = document.createElement('div'); o.className = 'lg-ov';
   o.innerHTML = '<div class="lg-box ' + (cls || '') + '" role="dialog" aria-modal="true">' + html + '</div>';
-  if(!sticky) o.addEventListener('pointerdown', e=>{ if(e.target === o && !LG.rolling) lgModalClose(); });
+  if(sticky) o.dataset.sticky = '1';
+  else o.addEventListener('pointerdown', e=>{ if(e.target === o && !LG.rolling) lgModalClose(); });
   document.body.appendChild(o);
   LG.modal = o;
   return o.firstChild;
@@ -9079,7 +9100,7 @@ function lgModalClose(){
   clearInterval(LG.qTimer); LG.qTimer = 0;
   LG.modal.remove(); LG.modal = null; LG.rolling = false;
 }
-const lgChips = (key, opts, cur)=> '<div class="lg-chips">' + opts.map(([v, t])=> '<button type="button" class="lg-chip' + (String(v) === String(cur) ? ' on' : '') + '" data-' + key + '="' + v + '">' + t + '</button>').join('') + '</div>';
+const lgChips = (key, opts, cur, cls)=> '<div class="lg-chips' + (cls ? ' ' + cls : '') + '">' + opts.map(([v, t])=> '<button type="button" class="lg-chip' + (String(v) === String(cur) ? ' on' : '') + '" data-' + key + '="' + v + '">' + t + '</button>').join('') + '</div>';
 function lgOnChips(box, key, fn){
   box.querySelectorAll('[data-' + key + ']').forEach(b=> b.addEventListener('click', ()=>{
     box.querySelectorAll('[data-' + key + ']').forEach(x=> x.classList.toggle('on', x === b));
@@ -9151,8 +9172,10 @@ function lgParseNames(stuTxt, grpTxt){
   const norm = t=> String(t).replace(/^\p{Extended_Pictographic}\s*/u, '').replace(/\s+/g, ' ').trim();
   const prev = new Map(LG.st.students.map(s=> [s.n, s.g]));
   const students = [];
-  stuTxt.split(/\n/).forEach(line=>{
-    let t = line.trim(); if(!t) return;
+  // هر خط یک نام؛ «،» و «,» هم جدا می‌کنند. شماره‌ی ردیف (۱. یا 1-) و ستون‌های عددیِ اکسل حذف می‌شوند
+  stuTxt.split(/[\n،,؛;]+/).forEach(line=>{
+    let t = line.split('\t').map(c=> c.trim()).filter(c=> c && !/^[\d۰-۹]+$/.test(c)).join(' ');
+    t = t.replace(/^[\d۰-۹]+\s*[-.)\u066B\u06D4:]\s*/, '').trim(); if(!t) return;
     let g = -2;
     const m = /^(.+?)\s*[:：]\s*(.+)$/.exec(t);
     if(m){
@@ -9187,7 +9210,8 @@ function lgNames(){
   const upd = ()=>{
     const r = lgParseNames(ts.value, tg.value);
     lgAutoAssign(r.students, r.groups.length, false);
-    box.querySelector('[data-c="s"]').textContent = faNum(r.students.length, 0) + ' نفر';
+    const seen = new Set(), dup = new Set(); r.students.forEach(s=>{ if(seen.has(s.n)) dup.add(s.n); seen.add(s.n); });
+    box.querySelector('[data-c="s"]').textContent = faNum(r.students.length, 0) + ' نفر' + (dup.size ? ' — نام تکراری: ' + [...dup].slice(0, 3).join('، ') + ' (نام خانوادگی را هم بنویسید)' : '');
     box.querySelector('[data-c="g"]').textContent = faNum(r.groups.length, 0) + ' گروه';
     box.querySelector('.lg-prev').innerHTML = r.groups.map((g, i)=> '<span class="lg-pg" style="--c:' + lgCol(i) + '">' + lgEsc((lgHasEmoji(g) ? '' : lgTeam(i)[0] + ' ') + g) + ' <b>' + faNum(r.students.filter(s=> s.g === i).length, 0) + '</b></span>').join('');
     return r;
@@ -9396,15 +9420,15 @@ function lgGroupMaker(){
 
 /* ---- تایمر معکوس ---- */
 const lgClock = ms => { const t = Math.ceil(ms/1000), m = Math.floor(t/60), s = t % 60; return persDigits(String(m).padStart(2, '0')) + ':' + persDigits(String(s).padStart(2, '0')); };
-const LG_TPRE = [[30, '۳۰ث'], [60, '۱ دقیقه'], [120, '۲'], [180, '۳'], [300, '۵'], [600, '۱۰']];
+const LG_TPRE = [[30, '۳۰ث'], [60, '۱د'], [120, '۲د'], [180, '۳د'], [300, '۵د'], [600, '۱۰د']];
 function lgTimerInit(body){
   const T = LG.timer;
   if(!T.inited){ T.total = T.left = LG.st.set.timer*1000; T.inited = true; }
   body.innerHTML = '<div class="lg-tm"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="bg"/><circle cx="60" cy="60" r="52" class="fg"/></svg>' +
     '<button type="button" class="lg-tdig" title="شروع / مکث"></button></div>' +
-    lgChips('tp', LG_TPRE, LG.st.set.timer) +
-    '<div class="lg-trow"><button type="button" class="lg-btn sm" data-t="-10">−۱۰ث</button><button type="button" class="lg-btn pri" data-t="go">▶ شروع</button>' +
-    '<button type="button" class="lg-btn sm" data-t="reset" title="برگشت به اول">↺</button><button type="button" class="lg-btn sm" data-t="+10">+۱۰ث</button><button type="button" class="lg-btn sm" data-t="edit" title="زمان دلخواه">✎</button></div>';
+    lgChips('tp', LG_TPRE, LG.st.set.timer, 'sm') +
+    '<div class="lg-trow"><button type="button" class="lg-btn xs" data-t="-10" title="۱۰ ثانیه کمتر">−۱۰</button><button type="button" class="lg-btn xs pri" data-t="go" title="شروع / مکث">▶</button>' +
+    '<button type="button" class="lg-btn xs" data-t="reset" title="شروعِ دوباره">↺</button><button type="button" class="lg-btn xs" data-t="+10" title="۱۰ ثانیه بیشتر">+۱۰</button><button type="button" class="lg-btn xs" data-t="edit" title="زمان دلخواه">✎</button></div>';
   lgOnChips(body, 'tp', v=> lgTimerSet(+v));
   body.querySelector('.lg-tdig').addEventListener('click', lgTimerToggle);
   body.querySelector('[data-t="go"]').addEventListener('click', lgTimerToggle);
@@ -9461,16 +9485,16 @@ function lgTimerDraw(){
   fg.style.strokeDasharray = C; fg.style.strokeDashoffset = C*(1 - f);
   fg.style.stroke = f > 0.5 ? '#22c55e' : f > 0.2 ? '#f59e0b' : '#ef4444';
   card.classList.toggle('lg-done', T.done);
-  card.querySelector('[data-t="go"]').textContent = T.run ? '⏸ مکث' : T.done ? '↺ دوباره' : '▶ شروع';
+  card.querySelector('[data-t="go"]').textContent = T.run ? '⏸' : T.done ? '↺' : '▶';
 }
 
 /* ---- ساعت شنی ---- */
-const LG_HPRE = [[30, '۳۰ث'], [60, '۱ دقیقه'], [120, '۲'], [180, '۳'], [300, '۵']];
+const LG_HPRE = [[30, '۳۰ث'], [60, '۱د'], [120, '۲د'], [180, '۳د'], [300, '۵د']];
 function lgHgInit(body){
   const H = LG.hg;
   if(!H.inited){ H.total = H.left = LG.st.set.hg*1000; H.inited = true; }
-  body.innerHTML = '<div class="lg-hgw"><canvas width="150" height="220"></canvas><b class="lg-hgt"></b></div>' + lgChips('hp', LG_HPRE, LG.st.set.hg) +
-    '<div class="lg-trow"><button type="button" class="lg-btn pri" data-h="flip">🔄 برگردان</button><button type="button" class="lg-btn sm" data-h="pause">⏸</button></div>';
+  body.innerHTML = '<div class="lg-hgw"><canvas width="150" height="220"></canvas><b class="lg-hgt"></b></div>' + lgChips('hp', LG_HPRE, LG.st.set.hg, 'sm') +
+    '<div class="lg-trow"><button type="button" class="lg-btn xs pri" data-h="flip" title="برگرداندن و شروع از اول">🔄</button><button type="button" class="lg-btn xs" data-h="pause" title="مکث / ادامه">⏸</button></div>';
   lgOnChips(body, 'hp', v=>{ LG.st.set.hg = +v; lgSave(); lgHgFlip(); });
   body.querySelector('[data-h="flip"]').addEventListener('click', lgHgFlip);
   body.querySelector('[data-h="pause"]').addEventListener('click', ()=>{
@@ -9534,8 +9558,8 @@ function lgGlassInit(body){
   const S2 = LG.st.set;
   body.innerHTML = '<div class="lg-gw"><canvas width="260" height="170"></canvas></div>' +
     '<div class="lg-meter"><i></i><em></em></div>' +
-    '<div class="lg-sublab">حساسیت:</div>' + lgChips('sens', LG_SENS.map((s, i)=> [i, s.t]), S2.sens) +
-    '<div class="lg-trow"><button type="button" class="lg-btn pri" data-g="on">🎙 شروع</button><button type="button" class="lg-btn sm" data-g="new">🔁 شیشه‌ی نو</button></div>' +
+    '<div class="lg-sens"><span class="lg-sublab">حساسیت:</span>' + lgChips('sens', LG_SENS.map((s, i)=> [i, s.t]), S2.sens, 'sm') + '</div>' +
+    '<div class="lg-trow"><button type="button" class="lg-btn xs pri" data-g="on">🎙 شروع</button><button type="button" class="lg-btn xs" data-g="new" title="شیشه‌ی نو">🔁 نو</button></div>' +
     '<div class="lg-gstat">برای شروع، «🎙 شروع» را بزنید</div>';
   lgOnChips(body, 'sens', v=>{ S2.sens = +v; lgSave(); lgGlassDraw(); });
   body.querySelector('[data-g="on"]').addEventListener('click', ()=> LG.glass.on ? lgGlassStop(true) : lgGlassStart());
@@ -9669,7 +9693,7 @@ function lgGlassDraw(){
     g.fillText(G.stage >= 2 ? '😟' : G.stage ? '😐' : '🤫', W/2, H/2);
   } else {
     g.fillStyle = '#f1f5f9'; g.fillRect(14, 14, W - 28, H - 28);
-    g.font = '15px Tahoma, sans-serif'; g.fillStyle = '#b91c1c'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'bold 22px Tahoma, sans-serif'; g.fillStyle = '#b91c1c'; g.textAlign = 'center'; g.textBaseline = 'middle';
     try{ g.direction = 'rtl'; }catch(e){}
     g.fillText('💥 شیشه شکست!', W/2, H/2);
     if(G.shards){
@@ -9691,7 +9715,7 @@ function lgGlassDraw(){
 }
 
 /* ---- چراغ کلاس ---- */
-const LG_LIGHT = [['#ef4444', 'سکوت 🤫'], ['#f59e0b', 'آهسته صحبت کنید 🤏'], ['#22c55e', 'گفتگو آزاد 🗣']];
+const LG_LIGHT = [['#ef4444', 'سکوت'], ['#f59e0b', 'آهسته'], ['#22c55e', 'آزاد']];
 function lgLightInit(body){
   body.innerHTML = '<div class="lg-light">' + LG_LIGHT.map((l, i)=> '<button type="button" class="lg-lamp" data-l="' + i + '" style="--c:' + l[0] + '" title="' + l[1] + '"></button>').join('') + '</div><div class="lg-ltxt"></div>';
   body.querySelectorAll('[data-l]').forEach(b=> b.addEventListener('click', ()=>{ LG.st.set.light = +b.dataset.l; lgSave(); lgLightDraw(); lgSound('tick'); }));
@@ -9731,9 +9755,10 @@ function cropImageDialog(src, type){
       if(!R || !img.naturalWidth || !img.clientWidth) return curSrc;
       const sc = img.naturalWidth/img.clientWidth, NW = img.naturalWidth, NH = img.naturalHeight;
       if(R.x <= 1 && R.y <= 1 && R.w >= img.clientWidth - 1 && R.h >= img.clientHeight - 1) full = true;
+      // کل تصویر و کوچک: همان فایل؛ عکس‌های بزرگ گوشی کوچک می‌شوند تا ذخیره‌ی خودکار پر نشود
+      if(full && curSrc === src && Math.max(NW, NH) <= 2400 && src.length < 2500000) return src;
       const sx = full ? 0 : clamp(Math.round(R.x*sc), 0, NW - 1), sy = full ? 0 : clamp(Math.round(R.y*sc), 0, NH - 1);
       const sw = full ? NW : clamp(Math.round(R.w*sc), 1, NW - sx), sh = full ? NH : clamp(Math.round(R.h*sc), 1, NH - sy);
-      if(full && curSrc === src) return src;
       const k = Math.min(1, 2400/Math.max(sw, sh)), c = document.createElement('canvas');
       c.width = Math.max(1, Math.round(sw*k)); c.height = Math.max(1, Math.round(sh*k));
       const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
@@ -9940,6 +9965,8 @@ const TOOL_KEYS = { KeyV:'select', KeyH:'pan', KeyP:'pen', KeyB:'highlighter', K
 
 function bindShortcuts(){
   document.addEventListener('keydown', e=>{
+    // پنجره‌ای باز است (پرسش، قرعه، برش تصویر، تنظیمات، ذخیره‌ی فیلم): کلیدها به تخته نرسند (مثلاً Delete شیء را پاک نکند)
+    if(document.querySelector('.lg-ov, #recOverlay.open, #dialogOverlay.open')) return;
     const cmd = e.ctrlKey || e.metaKey;
     const a = document.activeElement;
     const tag = (a && a.tagName || '').toLowerCase();
