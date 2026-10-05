@@ -313,6 +313,50 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 }
 body.board-dark #credit{color:rgba(255,255,255,.55)}
 
+/* ===== ضبط فیلم ===== */
+.recdot{display:block;width:13px;height:13px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 2px #fff,0 0 0 3.5px #ef4444;transition:border-radius .15s}
+body.rec-on .rec-btn,body.rec-count .rec-btn{background:#fee2e2;border-color:#ef4444}
+body.rec-on .recdot{border-radius:3px;animation:recPulse 1.2s ease-in-out infinite}
+@keyframes recPulse{50%{opacity:.35}}
+#recBar{
+  position:absolute;left:60px;bottom:6px;z-index:65;display:flex;align-items:center;gap:6px;
+  background:rgba(15,23,42,.9);color:#fff;border-radius:22px;padding:4px 6px 4px 12px;
+  box-shadow:0 6px 20px rgba(15,23,42,.25);font-size:13px;direction:rtl;
+}
+#recBar .rb-dot{width:10px;height:10px;border-radius:50%;background:#ef4444;animation:recPulse 1.2s ease-in-out infinite}
+body.rec-paused #recBar .rb-dot{animation:none;background:#fbbf24}
+#recBar b{font-family:KidFont,Tahoma,sans-serif;font-size:16px;font-weight:400;min-width:44px;text-align:center;letter-spacing:.5px}
+#recBar .rb-mic{width:34px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;direction:ltr}
+#recBar .rb-mic i{display:block;height:100%;width:0;background:#4ade80;transition:width .08s}
+#recBar button{height:30px;min-width:30px;border-radius:15px;background:rgba(255,255,255,.14);color:#fff;font-size:13px;padding:0 9px;white-space:nowrap}
+#recBar button:hover{background:rgba(255,255,255,.26)}
+#recBar .rb-stop{background:#ef4444}
+#recBar .rb-stop:hover{background:#dc2626}
+body.rec-on #credit{visibility:hidden}
+#recCount{position:fixed;inset:0;z-index:99997;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;pointer-events:none}
+#recCount b{
+  width:120px;height:120px;border-radius:50%;background:rgba(239,68,68,.92);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:KidFont,Tahoma,sans-serif;font-size:64px;font-weight:400;
+  box-shadow:0 10px 40px rgba(239,68,68,.45)
+}
+#recCount b.pop{animation:recPop .8s ease-out}
+@keyframes recPop{0%{transform:scale(.55);opacity:0}25%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+#recCount span{background:rgba(15,23,42,.85);color:#fff;border-radius:10px;padding:6px 12px;font-size:12px}
+#recOverlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:100001}
+#recOverlay.open{display:flex}
+#recOverlay .dialogBox{width:440px}
+.rec-video{display:block;width:100%;max-height:46vh;border-radius:10px;background:#0f172a}
+.rec-info{margin-top:10px;font-size:12.5px;color:var(--muted);text-align:center}
+.rec-info b{color:var(--text)}
+.rec-msg{font-size:13px;line-height:1.9}
+.rec-note{margin-top:10px;font-size:12px;line-height:1.8;color:var(--muted);text-align:center;min-height:1em}
+.rec-note.ok{color:#15803d;font-weight:700}
+.rec-note.warn{color:#b91c1c;font-weight:700}
+@media(max-width:700px){
+  #recBar{left:50px;bottom:calc(var(--safe-b) + 40px)}
+  body.rec-on #trayPanel{bottom:calc(var(--safe-b) + 84px)}
+}
+
 /* انتخاب حالت در پنجره‌ی پارامترها */
 .seg{flex:1;display:flex;background:#f1f3f6;border-radius:10px;padding:3px;gap:3px}
 .dialogBox .row.col{flex-direction:column;align-items:stretch;gap:6px}
@@ -410,6 +454,7 @@ body.board-dark #credit{color:rgba(255,255,255,.55)}
     <div class="tb-group" id="sizes"></div>
     <div class="tb-sep"></div>
     <button class="ibtn" data-act="board" id="boardBtn" title="تخته سبز">🟩</button>
+    <button class="ibtn rec-btn" data-act="rec" id="recBtn" title="ضبط فیلم: تخته + صدای شما (یک بار بزنید شروع، دوباره بزنید پایان)"><i class="recdot"></i></button>
     <div class="tb-spacer"></div>
     <div class="tb-group tb-actions">
       <button class="ibtn" data-act="new" title="بوم جدید">🗑</button>
@@ -524,6 +569,13 @@ body.board-dark #credit{color:rgba(255,255,255,.55)}
 
     <div id="ctxBar"></div>
     <div id="credit">طراحی و توسعه (دیانتی - بهبهان)</div>
+    <div id="recBar" hidden>
+      <span class="rb-dot"></span><b id="recTime">۰۰:۰۰</b>
+      <span class="rb-mic" id="recMic" title="صدای میکروفون"><i id="recLevel"></i></span>
+      <button type="button" id="recPause" title="مکث / ادامه">⏸</button>
+      <button type="button" id="recStop" class="rb-stop" title="پایان ضبط و ذخیره">⏹ پایان</button>
+    </div>
+    <div id="recCount" hidden><b></b><span>ضبط شروع می‌شود… برای لغو دوباره ⏺ را بزنید</span></div>
     <div id="status">آماده</div>
     <div id="zoomCtl" title="بزرگ‌نمایی — اسکرول ماوس یا دو انگشت">
       <button id="zoomOut" title="کوچک‌نمایی">−</button>
@@ -547,6 +599,7 @@ body.board-dark #credit{color:rgba(255,255,255,.55)}
   <button class="menuitem" data-act="png">🖼 PNG</button>
   <button class="menuitem" data-act="fit">🎯 متناسب</button>
   <button class="menuitem" data-act="full">⛶ تمام‌صفحه</button>
+  <button class="menuitem" data-act="rec">⏺ ضبط فیلم (تخته + صدا)</button>
 </div>
 
 <div id="loading">در حال بارگذاری…</div>
@@ -1493,6 +1546,7 @@ function init(){
   resize();
   window.addEventListener('resize', debounce(resize, 120));
   initFullscreen();
+  initRecorder();
 
   loadSlots();
   S.color = slotsNow()[S.slotIdx];
@@ -1804,6 +1858,7 @@ function runAction(act){
   else if(act === 'png') exportPNG();
   else if(act === 'fit') fitContent();
   else if(act === 'full') fullscreen();
+  else if(act === 'rec') recToggle();
   else if(act === 'board') setBackground(S.dark ? S.lastLightBg : S.lastChalkBg, true);
 }
 
@@ -8199,25 +8254,28 @@ function paintExportBg(g, b, mult){
     g.fillStyle = g.createPattern(exportNoise, 'repeat');
     g.fillRect(0, 0, g.canvas.width, g.canvas.height);
   }
-  const e = def.exp;
-  if(e){
-    g.save();
-    g.scale(mult, mult);
-    g.translate(-b.x, -b.y);
-    g.fillStyle = e.c; g.strokeStyle = e.c; g.lineWidth = 1/mult;
-    const x0 = Math.floor(b.x/e.s)*e.s, y0 = Math.floor(b.y/e.s)*e.s;
-    if(e.kind === 'dots'){
-      for(let x=x0; x<=b.x + b.w + e.s; x+=e.s) for(let y=y0; y<=b.y + b.h + e.s; y+=e.s){
-        g.beginPath(); g.arc(x + e.s/2, y + e.s/2, e.r, 0, TAU); g.fill();
-      }
-    } else {
-      g.beginPath();
-      for(let y=y0; y<=b.y + b.h; y+=e.s){ g.moveTo(b.x, y); g.lineTo(b.x + b.w, y); }
-      if(e.kind === 'grid') for(let x=x0; x<=b.x + b.w; x+=e.s){ g.moveTo(x, b.y); g.lineTo(x, b.y + b.h); }
-      g.stroke();
+  if(def.exp) paintBgPattern(g, def.exp, b, mult);
+}
+// خطوط/نقطه‌های پس‌زمینه که با بزرگ‌نمایی و جابه‌جایی تخته همراه‌اند (مختصات جهانی)
+// px: برای فیلم، ضخامت خط و اندازه‌ی نقطه مثل صفحه ثابت می‌ماند (پیکسلِ خروجی به ازای هر پیکسلِ صفحه)
+function paintBgPattern(g, e, b, mult, px){
+  g.save();
+  g.scale(mult, mult);
+  g.translate(-b.x, -b.y);
+  const dotR = px ? e.r*px/mult : e.r;
+  g.fillStyle = e.c; g.strokeStyle = e.c; g.lineWidth = (px || 1)/mult;
+  const x0 = Math.floor(b.x/e.s)*e.s, y0 = Math.floor(b.y/e.s)*e.s;
+  if(e.kind === 'dots'){
+    for(let x=x0; x<=b.x + b.w + e.s; x+=e.s) for(let y=y0; y<=b.y + b.h + e.s; y+=e.s){
+      g.beginPath(); g.arc(x + e.s/2, y + e.s/2, dotR, 0, TAU); g.fill();
     }
-    g.restore();
+  } else {
+    g.beginPath();
+    for(let y=y0; y<=b.y + b.h; y+=e.s){ g.moveTo(b.x, y); g.lineTo(b.x + b.w, y); }
+    if(e.kind === 'grid') for(let x=x0; x<=b.x + b.w; x+=e.s){ g.moveTo(x, b.y); g.lineTo(x, b.y + b.h); }
+    g.stroke();
   }
+  g.restore();
 }
 function exportPNG(){
   const active = canvas.getActiveObject();
@@ -8253,6 +8311,355 @@ function downloadURL(url, name){
   a.href = url;
   a.download = name;
   a.click();
+}
+
+/* ============================================================
+   ضبط فیلم: همان چیزی که روی تخته دیده می‌شود + صدای میکروفون
+   · یک دکمه: ⏺ → شمارش ۳،۲،۱ → ضبط؛ دوباره ⏺ یا «پایان» → پنجره‌ی ذخیره
+   · خودِ تخته (پس‌زمینه، نوشته‌ها، پرگار و نقاله، لیزر) ضبط می‌شود، نه نوارهای ابزار
+   · خروجی MP4 (اگر مرورگر بتواند) وگرنه WebM؛ روی گوشی هم کار می‌کند
+   · روی سایت: صفحه باید https باشد؛ داخل iframe باید allow="microphone" داشته باشد
+============================================================ */
+const REC = { state:'idle', mr:null, chunks:[], mic:null, vs:null, out:null, g:null, raf:0, tick:0, last:0, t0:0, acc:0,
+  mime:'', ext:'webm', bg:null, bgKey:'', ptr:null, actx:null, an:null, buf:null, lvl:0, blob:null, url:'', saved:false, dur:0, countT:0, sure:false };
+const REC_FPS = 30, REC_MAX_PX = 1920*1080;
+const recEl = id => document.getElementById(id);
+const recPad = n => persDigits(String(n).padStart(2, '0'));
+function recClock(ms){
+  const t = Math.floor(ms/1000), h = Math.floor(t/3600), m = Math.floor(t/60) % 60, sec = t % 60;
+  return (h ? persDigits(String(h)) + ':' : '') + recPad(m) + ':' + recPad(sec);
+}
+const recElapsed = () => REC.acc + (REC.state === 'rec' ? performance.now() - REC.t0 : 0);
+function recSupported(){
+  return !!(window.MediaRecorder && window.MediaStream && HTMLCanvasElement.prototype.captureStream);
+}
+function recTypes(audio){
+  return audio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+}
+function recMicError(e){
+  const inFrame = window.top !== window.self, n = (e && e.name) || '';
+  if(!window.isSecureContext || n === 'Insecure') return 'برای ضبط صدا، صفحه باید با آدرس امن (<b dir="ltr">https://</b>) باز شود.';
+  if(n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError')
+    return inFrame ? 'مرورگر اجازه‌ی میکروفون نداد. وایت‌برد داخل صفحه‌ی دیگری (iframe) است؛ در کد آن باید <b dir="ltr">allow="microphone"</b> نوشته شود.'
+                   : 'اجازه‌ی میکروفون داده نشد. از نماد قفل یا تنظیمات کنار آدرس سایت، «میکروفون» را روی «اجازه» بگذارید و دوباره ⏺ را بزنید.';
+  if(n === 'NotFoundError' || n === 'OverconstrainedError' || n === 'DevicesNotFoundError') return 'میکروفونی به این دستگاه وصل نیست.';
+  if(n === 'NotReadableError' || n === 'AbortError') return 'میکروفون در دست برنامه‌ی دیگری است (مثلاً تماس یا برنامه‌ی ضبط دیگر).';
+  return 'میکروفون باز نشد' + (n ? ' (' + n + ')' : '') + '.';
+}
+async function recGetMic(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw { name:'Insecure' };
+  return navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }, video:false });
+}
+
+/* ---- پنجره‌ی کوچک (پرسش / ذخیره) ---- */
+function recOverlay(){
+  let o = recEl('recOverlay');
+  if(!o){
+    o = document.createElement('div'); o.id = 'recOverlay';
+    o.innerHTML = '<div class="dialogBox" role="dialog" aria-modal="true"></div>';
+    document.body.appendChild(o);
+  }
+  return o;
+}
+function recAsk(title, html, labels){
+  return new Promise(res=>{
+    const o = recOverlay(), box = o.firstChild;
+    box.innerHTML = '<div class="dialogTitle">' + title + '</div><div class="rec-msg">' + html + '</div><div class="dialogBtns">' +
+      labels.map((t, i)=> '<button type="button" data-i="' + i + '">' + t + '</button>').join('') + '</div>';
+    box.querySelectorAll('[data-i]').forEach(b=> b.addEventListener('click', ()=>{ o.classList.remove('open'); res(+b.dataset.i); }));
+    o.classList.add('open');
+  });
+}
+
+/* ---- پس‌زمینه‌ی تخته روی بوم فیلم (همان پس‌زمینه‌ی CSS) ---- */
+const recImgs = new Map();
+function recLayerImg(css){
+  const m = /^url\(["']?(.+?)["']?\)$/.exec(css);
+  if(!m) return null;
+  let im = recImgs.get(m[1]);
+  if(!im){ im = new Image(); im.src = m[1]; recImgs.set(m[1], im); }
+  return im.complete && im.naturalWidth ? im : null;
+}
+function recSplit(str){
+  const out = []; let d = 0, cur = '';
+  for(const ch of str){
+    if(ch === '(') d++; else if(ch === ')') d--;
+    if(ch === ',' && !d){ out.push(cur.trim()); cur = ''; } else cur += ch;
+  }
+  if(cur.trim()) out.push(cur.trim());
+  return out;
+}
+function recRadial(g, css, cw, ch){
+  const m = /^radial-gradient\(ellipse\s+([\d.]+)%\s+([\d.]+)%\s+at\s+([\d.]+)%\s+([\d.]+)%\s*,(.*)\)$/.exec(css.trim());
+  if(!m) return;
+  const rx = Math.max(1, +m[1]/100*cw), ry = Math.max(1, +m[2]/100*ch), cx = +m[3]/100*cw, cy = +m[4]/100*ch;
+  const stops = recSplit(m[5]).map(t=>{ const p = /\s([\d.]+)%$/.exec(t); return { c:p ? t.slice(0, p.index).trim() : t, at:p ? +p[1]/100 : null }; });
+  stops.forEach((st, i)=>{ if(st.at == null) st.at = stops.length < 2 ? 0 : i/(stops.length - 1); });
+  stops.forEach((st, i)=>{
+    if(st.c !== 'transparent') return;
+    const nb = stops[i + 1] && stops[i + 1].c !== 'transparent' ? stops[i + 1] : stops[i - 1];
+    const rgb = nb && /rgba?\(([^)]+)\)/.exec(nb.c);
+    st.c = rgb ? 'rgba(' + rgb[1].split(',').slice(0, 3).join(',') + ',0)' : 'rgba(0,0,0,0)';
+  });
+  g.save(); g.translate(cx, cy); g.scale(rx, ry);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1);
+  stops.forEach(st=>{ try{ gr.addColorStop(clamp(st.at, 0, 1), st.c); }catch(e){} });
+  g.fillStyle = gr; g.fillRect(-cx/rx, -cy/ry, cw/rx, ch/ry);
+  g.restore();
+}
+function recPaintBg(g, W, H, k){
+  const def = BG[S.bg] || BG.none, cw = g.canvas.width, ch = g.canvas.height;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = def.color; g.fillRect(0, 0, cw, ch);
+  for(let i = def.layers.length - 1; i >= 0; i--){
+    const l = def.layers[i];
+    if(l.follow) continue;
+    if(l.tile){
+      const im = recLayerImg(l.img);
+      if(!im) continue;
+      const t = document.createElement('canvas');
+      t.width = Math.max(1, Math.round(l.w*k)); t.height = Math.max(1, Math.round(l.h*k));
+      t.getContext('2d').drawImage(im, 0, 0, t.width, t.height);
+      g.fillStyle = g.createPattern(t, 'repeat'); g.fillRect(0, 0, cw, ch);
+    } else recRadial(g, l.img, cw, ch);
+  }
+  if(def.exp){ const v = canvas.viewportTransform, z = v[0]; paintBgPattern(g, def.exp, { x:-v[4]/z, y:-v[5]/z, w:W/z, h:H/z }, z*k, k); }
+}
+function recBg(W, H, k){
+  const tiles = (BG[S.bg] || BG.none).layers.every(l=> !l.tile || recLayerImg(l.img));
+  const key = [S.bg, canvas.viewportTransform.join(','), W, H, k.toFixed(4), tiles].join('|');
+  if(REC.bg && REC.bgKey === key) return REC.bg;
+  const c = REC.bg || document.createElement('canvas');
+  c.width = Math.max(1, Math.round(W*k)); c.height = Math.max(1, Math.round(H*k));
+  recPaintBg(c.getContext('2d'), W, H, k);
+  REC.bg = c; REC.bgKey = key;
+  return c;
+}
+
+/* ---- یک فریم: پس‌زمینه + لایه‌های تخته + جای انگشت/ماوس ---- */
+function recFrame(){
+  const g = REC.g, OW = REC.out.width, OH = REC.out.height, W = wrapRect.width, H = wrapRect.height;
+  if(!W || !H) return;
+  const k = Math.min(OW/W, OH/H), dw = W*k, dh = H*k, ox = (OW - dw)/2, oy = (OH - dh)/2;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  if(ox > 0.5 || oy > 0.5){ g.fillStyle = '#0f172a'; g.fillRect(0, 0, OW, OH); }
+  g.drawImage(recBg(W, H, k), ox, oy, dw, dh);
+  for(const el of [canvas.lowerCanvasEl, canvas.upperCanvasEl, els.inkCanvas, els.ovCanvas]) if(el && el.width) g.drawImage(el, ox, oy, dw, dh);
+  const p = REC.ptr;
+  if(p && !p.out && (p.down || (p.type === 'mouse' && performance.now() - p.t < 2500))){
+    g.beginPath(); g.arc(ox + p.x*k, oy + p.y*k, (p.down ? 10 : 7)*k, 0, TAU);
+    g.fillStyle = p.down ? 'rgba(239,68,68,.30)' : 'rgba(239,68,68,.20)'; g.fill();
+    g.lineWidth = 1.6*k; g.strokeStyle = 'rgba(239,68,68,.85)'; g.stroke();
+  }
+}
+function recLoop(now){
+  if(!REC.out) return;
+  if(now - REC.last >= 1000/REC_FPS - 2){ REC.last = now; recFrame(); }
+  if(REC.an){
+    REC.an.getByteTimeDomainData(REC.buf);
+    let pk = 0; for(let i = 0; i < REC.buf.length; i++) pk = Math.max(pk, Math.abs(REC.buf[i] - 128));
+    REC.lvl = Math.max(pk/128, REC.lvl*0.86);
+    recEl('recLevel').style.width = Math.round(Math.min(1, REC.lvl*1.6)*100) + '%';
+  }
+  REC.raf = requestAnimationFrame(recLoop);
+}
+// جای انگشت یا ماوس در فیلم (یک حلقه‌ی کم‌رنگ) تا بیننده بداند معلم کجا را نشان می‌دهد
+function recPointer(e){
+  if(REC.state !== 'rec' && REC.state !== 'paused') return;
+  const prev = REC.ptr, t = e.type, x = e.clientX - wrapRect.left, y = e.clientY - wrapRect.top;
+  const inside = x >= 0 && y >= 0 && x <= wrapRect.width && y <= wrapRect.height && e.target instanceof Node && els.canvasWrap.contains(e.target);
+  REC.ptr = { x, y, t:performance.now(), type:e.pointerType,
+    down:t === 'pointerdown' ? inside : (t === 'pointerup' || t === 'pointercancel') ? false : !!(prev && prev.down && e.buttons),
+    out:!inside && !(prev && prev.down && e.buttons) };
+}
+
+/* ---- شروع / مکث / پایان ---- */
+function recUi(){
+  const st = REC.state, on = st === 'rec' || st === 'paused';
+  document.body.classList.toggle('rec-on', on);
+  document.body.classList.toggle('rec-paused', st === 'paused');
+  document.body.classList.toggle('rec-count', st === 'count' || st === 'asking');
+  recEl('recBar').hidden = !on;
+  recEl('recPause').textContent = st === 'paused' ? '▶ ادامه' : '⏸';
+  $$('[data-act="rec"]').forEach(b=>{
+    if(b.classList.contains('menuitem')) b.textContent = on ? '⏹ پایان ضبط و ذخیره' : '⏺ ضبط فیلم (تخته + صدا)';
+    else b.title = on ? 'پایان ضبط و ذخیره' : 'ضبط فیلم: تخته + صدای شما (یک بار بزنید شروع، دوباره بزنید پایان)';
+  });
+}
+function recTickUi(){ recEl('recTime').textContent = recClock(recElapsed()); }
+async function recToggle(){
+  if(REC.state === 'rec' || REC.state === 'paused'){ recStop(); return; }
+  if(REC.state === 'count'){ recCancel(); toast('ضبط لغو شد'); return; }
+  if(REC.state === 'done'){ recShowDone(); return; }
+  if(REC.state !== 'idle') return;
+  if(!recSupported()){ toast('این مرورگر ضبط فیلم را پشتیبانی نمی‌کند؛ Chrome، Edge یا Firefox تازه را امتحان کنید', 5000); return; }
+  REC.state = 'asking'; recUi();
+  (BG[S.bg] || BG.none).layers.forEach(l=>{ if(l.tile) recLayerImg(l.img); });     // بافت تخته‌ی سبز از قبل آماده شود
+  let mic = null, why = '';
+  try{ mic = await recGetMic(); }catch(e){ why = recMicError(e); }
+  if(!mic){
+    const a = await recAsk('🎙 میکروفون در دسترس نیست', why + '<br>فیلم بدون صدا ضبط شود؟', ['🎬 ضبط بدون صدا', 'انصراف']);
+    if(a !== 0){ REC.state = 'idle'; recUi(); return; }
+  }
+  REC.mic = mic;
+  recCountdown();
+}
+function recCountdown(){
+  REC.state = 'count'; recUi();
+  const box = recEl('recCount'), b = box.querySelector('b');
+  let n = 3;
+  box.hidden = false;
+  const step = ()=>{
+    if(REC.state !== 'count') return;
+    if(!n){ box.hidden = true; recBegin(); return; }
+    b.textContent = faNum(n, 0); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+    n--; REC.countT = setTimeout(step, 800);
+  };
+  step();
+}
+function recCancel(){
+  clearTimeout(REC.countT);
+  recEl('recCount').hidden = true;
+  recRelease();
+  REC.state = 'idle'; recUi();
+}
+function recRelease(){
+  cancelAnimationFrame(REC.raf); REC.raf = 0;
+  clearInterval(REC.tick); REC.tick = 0;
+  if(REC.mic) REC.mic.getTracks().forEach(t=> t.stop());
+  if(REC.vs) REC.vs.getTracks().forEach(t=> t.stop());
+  if(REC.actx) REC.actx.close().catch(()=>{});
+  REC.mic = REC.vs = REC.actx = REC.an = null;
+  REC.out = REC.g = REC.bg = null; REC.bgKey = ''; REC.ptr = null;
+}
+function recBegin(){
+  const W = wrapRect.width, H = wrapRect.height;
+  const k = Math.min(S.dpr || 1, 2, 1920/Math.max(W, H), Math.sqrt(REC_MAX_PX/(W*H)));
+  REC.out = document.createElement('canvas');
+  REC.out.width = Math.max(2, Math.round(W*k/2)*2); REC.out.height = Math.max(2, Math.round(H*k/2)*2);
+  REC.g = REC.out.getContext('2d');
+  recFrame();
+  REC.vs = REC.out.captureStream(REC_FPS);
+  const stream = new MediaStream(REC.vs.getVideoTracks().concat(REC.mic ? REC.mic.getAudioTracks() : []));
+  const opts = { videoBitsPerSecond:1500000, audioBitsPerSecond:96000 };
+  let mr = null, err = null;
+  for(const t of recTypes(!!REC.mic).filter(t=>{ try{ return MediaRecorder.isTypeSupported(t); }catch(e){ return false; } }).concat([''])){
+    try{
+      mr = new MediaRecorder(stream, t ? Object.assign({ mimeType:t }, opts) : opts);
+      mr.start(1000);
+      break;
+    }catch(e){ err = e; mr = null; }
+  }
+  if(!mr){ recRelease(); REC.state = 'idle'; recUi(); toast('ضبط شروع نشد' + (err && err.message ? ': ' + err.message : ''), 4000); return; }
+  REC.mr = mr; REC.chunks = [];
+  REC.mime = mr.mimeType || 'video/webm'; REC.ext = /mp4/i.test(REC.mime) ? 'mp4' : 'webm';
+  mr.ondataavailable = e=>{ if(e.data && e.data.size) REC.chunks.push(e.data); };
+  mr.onstop = recFinish;
+  mr.onerror = e=>{ toast('خطا در ضبط' + (e.error && e.error.name ? ': ' + e.error.name : ''), 4000); recStop(); };
+  if(REC.mic){
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext, ac = new AC(), an = ac.createAnalyser();
+      an.fftSize = 512; ac.createMediaStreamSource(REC.mic).connect(an);
+      if(ac.resume) ac.resume().catch(()=>{});
+      REC.actx = ac; REC.an = an; REC.buf = new Uint8Array(an.fftSize);
+    }catch(e){ REC.an = null; }
+  }
+  recEl('recMic').hidden = !REC.mic;
+  recEl('recPause').hidden = typeof mr.pause !== 'function';
+  REC.state = 'rec'; REC.t0 = performance.now(); REC.acc = 0; REC.last = 0;
+  REC.tick = setInterval(recTickUi, 250); recTickUi();
+  REC.raf = requestAnimationFrame(recLoop);
+  keepAwake(true);
+  recUi();
+  status(REC.mic ? '⏺ در حال ضبط تخته و صدا' : '⏺ در حال ضبط تخته (بدون صدا)');
+}
+function recPauseToggle(){
+  if(!REC.mr) return;
+  try{
+    if(REC.state === 'rec'){ REC.mr.pause(); REC.acc += performance.now() - REC.t0; REC.state = 'paused'; }
+    else if(REC.state === 'paused'){ REC.mr.resume(); REC.t0 = performance.now(); REC.state = 'rec'; }
+  }catch(e){}
+  recTickUi(); recUi();
+}
+function recStop(){
+  if(!REC.mr || REC.state === 'stopping') return;
+  REC.dur = recElapsed();
+  REC.state = 'stopping';
+  recFrame();
+  try{ if(REC.mr.state !== 'inactive') REC.mr.stop(); else recFinish(); }catch(e){ recFinish(); }
+}
+function recFinish(){
+  if(REC.state !== 'stopping') REC.dur = recElapsed();
+  recRelease();
+  keepAwake(isFullNow());
+  const blob = new Blob(REC.chunks, { type:(REC.mime.split(';')[0] || 'video/webm') });
+  REC.chunks = []; REC.mr = null;
+  if(!blob.size){ REC.state = 'idle'; recUi(); toast('فیلمی ضبط نشد'); return; }
+  REC.blob = blob; REC.saved = false; REC.sure = false; REC.state = 'done';
+  recUi();
+  status('🎬 ضبط تمام شد');
+  recShowDone();
+}
+function recFileName(){
+  const d = new Date(), p = n=> String(n).padStart(2, '0');
+  return 'whiteboard-' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()) + '.' + REC.ext;
+}
+function recShowDone(){
+  if(!REC.blob) return;
+  const o = recOverlay(), box = o.firstChild, name = recFileName();
+  if(REC.url) URL.revokeObjectURL(REC.url);
+  REC.url = URL.createObjectURL(REC.blob);
+  let file = null, share = false;
+  try{ file = new File([REC.blob], name, { type:REC.blob.type }); share = !!(navigator.canShare && navigator.canShare({ files:[file] })); }catch(e){}
+  box.innerHTML = '<div class="dialogTitle">🎬 فیلم آماده است</div>' +
+    '<video class="rec-video" controls playsinline preload="metadata"></video>' +
+    '<div class="rec-info">مدت: <b>' + recClock(REC.dur) + '</b> · حجم: <b>' + faNum(Math.max(0.1, REC.blob.size/1048576), 1) + '</b> مگابایت · ' + REC.ext.toUpperCase() + '</div>' +
+    '<div class="dialogBtns"><button type="button" data-r="save">💾 ذخیره در دستگاه</button>' +
+    (share ? '<button type="button" data-r="share">📤 فرستادن / گالری</button>' : '') +
+    '<button type="button" data-r="close">✖ بستن</button></div><div class="rec-note"></div>';
+  box.querySelector('video').src = REC.url;
+  const note = box.querySelector('.rec-note'), closeB = box.querySelector('[data-r="close"]');
+  const setNote = (t, cls)=>{ note.innerHTML = t; note.className = 'rec-note' + (cls ? ' ' + cls : ''); };
+  box.querySelector('[data-r="save"]').onclick = ()=>{
+    const a = document.createElement('a'), u = URL.createObjectURL(REC.blob);
+    a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(u), 60000);
+    REC.saved = true; REC.sure = false; closeB.textContent = '✖ بستن';
+    setNote('✔ ذخیره شد: <span dir="ltr">' + name + '</span> (پوشه‌ی دانلودها)', 'ok');
+  };
+  const sh = box.querySelector('[data-r="share"]');
+  if(sh) sh.onclick = ()=>{
+    navigator.share({ files:[file], title:'فیلم وایت‌برد' })
+      .then(()=>{ REC.saved = true; REC.sure = false; closeB.textContent = '✖ بستن'; setNote('✔ فرستاده شد', 'ok'); })
+      .catch(e=>{ if(e && e.name !== 'AbortError') setNote('فرستادن ممکن نشد؛ «ذخیره در دستگاه» را بزنید', 'warn'); });
+  };
+  closeB.onclick = ()=>{
+    if(!REC.saved && !REC.sure){
+      REC.sure = true; closeB.textContent = '🗑 بله، پاک شود';
+      setNote('این فیلم هنوز ذخیره نشده است. اگر دوباره «پاک شود» را بزنید، فیلم از بین می‌رود.', 'warn');
+      return;
+    }
+    recDiscard();
+  };
+  o.classList.add('open');
+}
+function recDiscard(){
+  const o = recEl('recOverlay');
+  if(o){ const v = o.querySelector('video'); if(v){ v.pause(); v.removeAttribute('src'); v.load(); } o.classList.remove('open'); }
+  if(REC.url) URL.revokeObjectURL(REC.url);
+  REC.url = ''; REC.blob = null; REC.saved = false; REC.sure = false;
+  REC.state = 'idle'; recUi();
+}
+function initRecorder(){
+  recEl('recStop').addEventListener('click', recStop);
+  recEl('recPause').addEventListener('click', recPauseToggle);
+  ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'].forEach(t=> window.addEventListener(t, recPointer, true));
+  window.addEventListener('beforeunload', e=>{
+    if(REC.state === 'rec' || REC.state === 'paused' || REC.state === 'stopping' || (REC.blob && !REC.saved)){ e.preventDefault(); e.returnValue = ''; return ''; }
+  });
+  recUi();
 }
 
 /* ============================================================
