@@ -493,13 +493,14 @@ body.rec-on #credit{visibility:hidden}
 /* شیشه‌ی سکوت */
 .lg-gw canvas{display:block;width:240px;height:157px;margin:2px auto 0;border-radius:6px}
 .lg-card.cmp .lg-gw canvas{width:150px;height:98px}
-.lg-card.cmp .lg-meter{height:7px;margin:6px 2px 2px}
+.lg-card.cmp .lg-meter{height:8px;margin:9px 2px 4px}
 .lg-sens{display:flex;align-items:center;justify-content:center;gap:4px}
 .lg-sens .lg-chips{margin:3px 0}
 .lg-card.cmp .lg-gstat{font-size:10.5px;max-width:170px;margin:4px auto 0;line-height:1.6}
-.lg-meter{position:relative;height:10px;border-radius:5px;background:#e2e8f0;margin:8px 4px 2px;overflow:visible;direction:ltr}
+.lg-meter{position:relative;height:10px;border-radius:5px;background:#e2e8f0;margin:8px 4px 2px;overflow:visible;direction:ltr;cursor:ew-resize;touch-action:none}
+.lg-meter::before{content:'';position:absolute;inset:-9px 0}
 .lg-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:#22c55e;transition:width .08s}
-.lg-meter em{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#0f172a;border-radius:2px}
+.lg-meter em{position:absolute;top:-6px;bottom:-6px;width:4px;margin-left:-2px;background:#0f172a;border-radius:2px;box-shadow:0 0 0 2px #fff}
 .lg-gstat{text-align:center;font-size:12px;color:#334155;margin-top:6px;font-weight:700}
 .lg-card.lg-shake{animation:lgShake .4s}
 @keyframes lgShake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
@@ -8870,14 +8871,16 @@ const LG_TEAM = [['🦅', 'عقاب‌ها', '#ef4444'], ['🦁', 'شیرها', 
                  ['🦉', 'جغدها', '#8b5cf6'], ['🐆', 'یوزها', '#ec4899'], ['🦋', 'پروانه‌ها', '#14b8a6'], ['🐢', 'لاک‌پشت‌ها', '#f97316']];
 const LG_MAXG = 8;
 // حساسیت شیشه‌ی سکوت (دسی‌بل نسبت به بیشینه‌ی میکروفون)، sp = سرعتِ ترک برداشتن
-//   کم ≈ ‎−۴۲dB (گفتگوی معمولی)   متوسط ≈ ‎−۵۰dB (صحبتِ آرام)   زیاد ≈ ‎−۶۲dB (صدای کم: پچ‌پچ)
+//   بلند ≈ ‎−۳۲dB (فقط سر و صدای بلند)   معمولی ≈ ‎−۴۰dB (گفتگوی معمولیِ گروه‌ها)   کم ≈ ‎−۴۸dB (صحبتِ آرام)
+// معلم می‌تواند خطِ مشکیِ سنجه را هم بکشد و حد را دقیق خودش تعیین کند (set.gthr)
 // و همیشه دست‌کم ۵ دسی‌بل بالاتر از «صدای زمینه‌ی کلاس» که هنگام شروع سنجیده می‌شود (پنکه، کولر، خیابان)
-const LG_SENS = [{ t:'بلند', db:-42, sp:0.9 }, { t:'معمولی', db:-50, sp:1.1 }, { t:'کم', db:-62, sp:1.4 }];
+const LG_SENS = [{ t:'بلند', db:-32, sp:0.9 }, { t:'معمولی', db:-40, sp:1 }, { t:'کم', db:-48, sp:1.15 }];
 const LG_FLOOR_MARGIN = 5, LG_FLOOR_CAP = -50;      // صدای زمینه هیچ‌وقت بلندتر از ‎−۵۰dB فرض نمی‌شود (کلاسِ شلوغ هنگام شروع ≠ صدای زمینه)
 const lgLvl = db => clamp((db + 80)/70, 0, 1);                 // سنجه: ‎−۸۰dB = ۰ ، ‎−۱۰dB = ۱
+function lgGlassBase(){ const S2 = LG.st.set; return S2.gthr != null ? S2.gthr : lgLvl(LG_SENS[S2.sens].db); }
 function lgGlassThr(){
-  const G = LG.glass, SN = LG_SENS[LG.st.set.sens];
-  return Math.max(lgLvl(SN.db), G.floor != null ? lgLvl(G.floor + LG_FLOOR_MARGIN) : 0);
+  const G = LG.glass;
+  return Math.max(lgGlassBase(), G.floor != null ? lgLvl(G.floor + LG_FLOOR_MARGIN) : 0);
 }
 const LG = { st:null, el:null, saveT:0, timer:{ total:60000, left:60000, run:false, end:0, raf:0, done:false },
   hg:{ total:60000, left:60000, run:false, end:0, raf:0, flip:false }, glass:{ on:false, stream:null, ac:null, an:null, buf:null,
@@ -9569,11 +9572,22 @@ function lgHgDraw(){
 function lgGlassInit(body){
   const S2 = LG.st.set;
   body.innerHTML = '<div class="lg-gw"><canvas width="260" height="170"></canvas></div>' +
-    '<div class="lg-meter" title="صدای کلاس — خطِ مشکی: از این بلندتر، شیشه ترک برمی‌دارد"><i></i><em></em></div>' +
+    '<div class="lg-meter" title="صدای کلاس — خطِ مشکی حدِ صداست؛ آن را بکشید تا خودتان تعیین کنید از کجا شیشه ترک بردارد"><i></i><em></em></div>' +
     '<div class="lg-sens"><span class="lg-sublab">بشکند با صدای:</span>' + lgChips('sens', LG_SENS.map((s, i)=> [i, s.t]), S2.sens, 'sm') + '</div>' +
     '<div class="lg-trow"><button type="button" class="lg-btn xs pri" data-g="on">🎙 شروع</button><button type="button" class="lg-btn xs" data-g="new" title="شیشه‌ی نو">🔁 نو</button></div>' +
     '<div class="lg-gstat">برای شروع، «🎙 شروع» را بزنید</div>';
-  lgOnChips(body, 'sens', v=>{ S2.sens = +v; lgSave(); lgGlassUi(); lgGlassDraw(); });
+  lgOnChips(body, 'sens', v=>{ S2.sens = +v; delete S2.gthr; lgSave(); lgGlassUi(); lgGlassDraw(); });
+  if(S2.gthr != null) body.querySelectorAll('[data-sens]').forEach(b=> b.classList.remove('on'));
+  // خطِ مشکی را بکشید: حدِ صدا دقیقاً همان‌جا می‌شود
+  const meter = body.querySelector('.lg-meter');
+  meter.addEventListener('pointerdown', e=>{
+    e.preventDefault(); e.stopPropagation();
+    meter.setPointerCapture(e.pointerId);
+    const set = ev=>{ const r = meter.getBoundingClientRect(); S2.gthr = clamp((ev.clientX - r.left)/r.width, 0.15, 0.95); body.querySelectorAll('[data-sens]').forEach(b=> b.classList.remove('on')); lgGlassDraw(); };
+    set(e);
+    const mv = ev=> set(ev), up = ()=>{ meter.removeEventListener('pointermove', mv); meter.removeEventListener('pointerup', up); meter.removeEventListener('pointercancel', up); lgSave(); lgGlassUi(); };
+    meter.addEventListener('pointermove', mv); meter.addEventListener('pointerup', up); meter.addEventListener('pointercancel', up);
+  });
   body.querySelector('[data-g="on"]').addEventListener('click', ()=>{
     if(LG.glass.on || LG.glass.starting){ lgGlassStop(true); return; }
     lgGlassPrep(); lgGlassStart();
@@ -9659,7 +9673,7 @@ function lgGlassStatus(){
   const G = LG.glass, left = faNum(4 - G.stage, 0);
   if(G.broken) return '💥 شیشه شکست! برای ادامه «🔁 نو» را بزنید';
   if(G.starting) return '🎙 میکروفون روشن می‌شود… (اگر مرورگر پرسید، «اجازه» را بزنید)';
-  if(!G.on) return 'برای شروع، «🎙 شروع» را بزنید';
+  if(!G.on) return 'برای شروع، «🎙 شروع» را بزنید — خطِ مشکی را بکشید تا حد را خودتان تنظیم کنید';
   if(G.ac && G.ac.state !== 'running') return '👆 یک بار روی شیشه بزنید تا شنیدن شروع شود';
   if(G.muted || G.silent > 3) return '⚠️ صدایی از میکروفون نمی‌رسد؛ میکروفون خاموش است یا برنامه‌ی دیگری آن را گرفته';
   if(G.cal) return '🎧 چند لحظه… صدای زمینه‌ی کلاس سنجیده می‌شود';
@@ -9699,7 +9713,7 @@ function lgGlassLoop(){
     let s = 0; for(let i = 0; i < G.buf.length; i++) s += G.buf[i]*G.buf[i];
     const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = lgLvl(db);
     G.silent = db < -100 ? (G.silent || 0) + dt : 0;                // صفرِ کامل = میکروفون صدایی نمی‌فرستد
-    G.avg = G.avg*0.85 + lvl*0.15; G.disp = Math.max(lvl, G.disp*0.92);
+    G.avg += (lvl - G.avg)*(1 - Math.exp(-dt/0.5)); G.disp = Math.max(lvl, G.disp*0.92);    // برای ترک: میانگینِ نیم‌ثانیه (یک فریادِ کوتاه کم اثر دارد)
     const self = now < (LG.selfUntil || 0);                           // صدای خودِ برنامه پخش می‌شود
     if(G.cal){
       // ۱٫۵ ثانیه‌ی اول: صدای زمینه (میانه‌ی صداها) سنجیده می‌شود؛ شیشه ترک برنمی‌دارد
@@ -9709,12 +9723,12 @@ function lgGlassLoop(){
       // صدای زمینه: پایین آمدنش سریع، بالا رفتنش خیلی کند و هیچ‌وقت بالاتر از ‎−۵۰dB
       if(!self && G.silent === 0){ if(db < G.floor) G.floor += (db - G.floor)*Math.min(1, dt*2); else G.floor = Math.min(db, G.floor + 0.2*dt); }
       G.floor = Math.min(G.floor, LG_FLOOR_CAP);
-      const SN = LG_SENS[LG.st.set.sens], thr = lgGlassThr();
+      const S2g = LG.st.set, SN = LG_SENS[S2g.sens], thr = lgGlassThr();
       if(!self) G.over = !G.broken && G.avg > thr;                  // هنگام پخشِ صدای خودِ برنامه، وضعیت عوض نشود و آسیب هم جمع نشود
       // کلاس که آرام شد، پیشرفتِ نیمه‌کاره به سمت ترکِ بعدی کم‌کم برمی‌گردد (ترک‌های قبلی می‌مانند)؛ یک دست‌زدن تنها جمع نمی‌شود
       if(!G.broken && !G.over && !self) G.dmg = Math.max(G.stage*0.25, G.dmg - 0.03*dt);
       if(G.over && !self){
-        G.dmg += ((G.avg - thr)*1.0 + 0.15)*SN.sp*dt;     // سر و صدای مداوم: هر ترک حدود ۱ تا ۲ ثانیه، شکستن ۳ تا ۷ ثانیه
+        G.dmg += ((G.avg - thr)*1.0 + 0.08)*(S2g.gthr != null ? 1 : SN.sp)*dt;     // سر و صدای مداوم: هر ترک ۱٫۵ تا ۳ ثانیه، شکستن ۶ تا ۱۲ ثانیه
         const stage = G.dmg >= 1 ? 4 : Math.floor(G.dmg/0.25);
         if(stage > G.stage){
           G.stage = stage;
