@@ -8868,9 +8868,16 @@ const LG_KEY = 'mc-league-v1';
 const LG_TEAM = [['🦅', 'عقاب‌ها', '#ef4444'], ['🦁', 'شیرها', '#3b82f6'], ['🐬', 'دلفین‌ها', '#10b981'], ['🐝', 'زنبورها', '#f59e0b'],
                  ['🦉', 'جغدها', '#8b5cf6'], ['🐆', 'یوزها', '#ec4899'], ['🦋', 'پروانه‌ها', '#14b8a6'], ['🐢', 'لاک‌پشت‌ها', '#f97316']];
 const LG_MAXG = 8;
-// حساسیت شیشه‌ی سکوت: thr = آستانه روی سنجه (۰ = ‎−۷۰ دسی‌بل، ۱ = ‎−۱۰ دسی‌بل)، sp = سرعتِ ترک برداشتن
-//   کم ≈ ‎−۳۳dB (صحبتِ بلند)   متوسط ≈ ‎−۳۸dB (گفتگوی معمولیِ گروه‌ها)   زیاد ≈ ‎−۴۳dB (پچ‌پچ و همهمه)
-const LG_SENS = [{ t:'کم', thr:0.62, sp:0.8 }, { t:'متوسط', thr:0.53, sp:1 }, { t:'زیاد', thr:0.45, sp:1.35 }];
+// حساسیت شیشه‌ی سکوت (دسی‌بل نسبت به بیشینه‌ی میکروفون)، sp = سرعتِ ترک برداشتن
+//   کم ≈ ‎−۴۲dB (گفتگوی معمولی)   متوسط ≈ ‎−۵۰dB (صحبتِ آرام)   زیاد ≈ ‎−۶۲dB (صدای کم: پچ‌پچ)
+// و همیشه دست‌کم ۵ دسی‌بل بالاتر از «صدای زمینه‌ی کلاس» که هنگام شروع سنجیده می‌شود (پنکه، کولر، خیابان)
+const LG_SENS = [{ t:'کم', db:-42, sp:0.9 }, { t:'متوسط', db:-50, sp:1.1 }, { t:'زیاد', db:-62, sp:1.4 }];
+const LG_FLOOR_MARGIN = 5;
+const lgLvl = db => clamp((db + 80)/70, 0, 1);                 // سنجه: ‎−۸۰dB = ۰ ، ‎−۱۰dB = ۱
+function lgGlassThr(){
+  const G = LG.glass, SN = LG_SENS[LG.st.set.sens];
+  return Math.max(lgLvl(SN.db), G.floor != null ? lgLvl(G.floor + LG_FLOOR_MARGIN) : 0);
+}
 const LG = { st:null, el:null, saveT:0, timer:{ total:60000, left:60000, run:false, end:0, raf:0, done:false },
   hg:{ total:60000, left:60000, run:false, end:0, raf:0, flip:false }, glass:{ on:false, stream:null, ac:null, an:null, buf:null,
   avg:0, disp:0, dmg:0, stage:0, broken:false, cracks:[], shards:null, raf:0, last:0 }, modal:null, rolling:false };
@@ -9582,6 +9589,7 @@ async function lgGlassStart(){
   const an = ac.createAnalyser(); an.fftSize = 1024;
   G.src = ac.createMediaStreamSource(G.stream); G.src.connect(an);
   G.an = an; G.buf = new Float32Array(an.fftSize); G.on = true; G.last = performance.now();
+  G.floor = null; G.cal = performance.now() + 1500; G.calv = [];       // سنجیدنِ صدای زمینه
   lgGlassUi(); lgGlassLoop();
 }
 function lgGlassStop(user){
@@ -9596,6 +9604,7 @@ function lgGlassStop(user){
 function lgGlassNew(){
   const G = LG.glass;
   G.dmg = 0; G.stage = 0; G.broken = false; G.cracks = []; G.shards = null;
+  if(G.on){ G.cal = performance.now() + 1500; G.calv = []; }           // شیشه‌ی نو: صدای زمینه دوباره سنجیده شود
   const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]'); if(card) card.classList.remove('lg-done');
   lgGlassUi(); lgGlassDraw();
 }
@@ -9605,6 +9614,7 @@ function lgGlassUi(){
   card.querySelector('[data-g="on"]').textContent = G.on ? '⏸ توقف' : '🎙 شروع';
   card.querySelector('.lg-gstat').textContent = G.broken ? '💥 شیشه شکست! برای ادامه «🔁 شیشه‌ی نو» را بزنید'
     : !G.on ? 'برای شروع، «🎙 شروع» را بزنید'
+    : G.cal ? '🎧 چند لحظه آرام… صدای زمینه‌ی کلاس سنجیده می‌شود'
     : G.stage ? '⚠️ صدا زیاد است! ' + faNum(3 - G.stage + 1, 0) + ' فرصت مانده' : '😊 کلاس آرام است';
 }
 function lgCrack(W, H){
@@ -9630,9 +9640,17 @@ function lgGlassLoop(){
     const dt = Math.min(0.1, (now - G.last)/1000); G.last = now;
     G.an.getFloatTimeDomainData(G.buf);
     let s = 0; for(let i = 0; i < G.buf.length; i++) s += G.buf[i]*G.buf[i];
-    const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = clamp((db + 70)/60, 0, 1);
+    const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = lgLvl(db);
     G.avg = G.avg*0.85 + lvl*0.15; G.disp = Math.max(lvl, G.disp*0.92);
-    const SN = LG_SENS[LG.st.set.sens], thr = SN.thr;
+    if(G.cal){
+      // ۱٫۵ ثانیه‌ی اول: صدای زمینه (میانه‌ی صداها) سنجیده می‌شود؛ شیشه ترک برنمی‌دارد
+      G.calv.push(db);
+      if(now >= G.cal){ const v = G.calv.slice().sort((a, b)=> a - b); G.floor = clamp(v[Math.floor(v.length/2)] ?? -70, -90, -30); G.cal = 0; lgGlassUi(); }
+      lgGlassDraw(); G.raf = requestAnimationFrame(step); return;
+    }
+    // صدای زمینه آرام دنبال می‌شود: پایین آمدنش سریع، بالا رفتنش خیلی کند (سر و صدای کلاس آن را بالا نبرد)
+    if(db < G.floor) G.floor += (db - G.floor)*Math.min(1, dt*2); else G.floor = Math.min(db, G.floor + 0.2*dt);
+    const SN = LG_SENS[LG.st.set.sens], thr = lgGlassThr();
     // کلاس که آرام شد، پیشرفتِ نیمه‌کاره به سمت ترکِ بعدی کم‌کم برمی‌گردد (ترک‌های قبلی می‌مانند)؛ یک دست‌زدن تنها جمع نمی‌شود
     if(!G.broken && G.avg <= thr) G.dmg = Math.max(G.stage*0.25, G.dmg - 0.03*dt);
     if(!G.broken && G.avg > thr){
@@ -9712,7 +9730,7 @@ function lgGlassDraw(){
     }
   }
   // سنجه
-  const thr = LG_SENS[LG.st.set.sens].thr, m = card.querySelector('.lg-meter');
+  const thr = lgGlassThr(), m = card.querySelector('.lg-meter');
   m.querySelector('i').style.width = Math.round((G.on ? G.disp : 0)*100) + '%';
   m.querySelector('i').style.background = G.disp > thr ? '#ef4444' : G.disp > thr - 0.12 ? '#f59e0b' : '#22c55e';
   m.querySelector('em').style.left = Math.round(thr*100) + '%';
