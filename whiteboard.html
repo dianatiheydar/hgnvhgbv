@@ -8868,7 +8868,9 @@ const LG_KEY = 'mc-league-v1';
 const LG_TEAM = [['🦅', 'عقاب‌ها', '#ef4444'], ['🦁', 'شیرها', '#3b82f6'], ['🐬', 'دلفین‌ها', '#10b981'], ['🐝', 'زنبورها', '#f59e0b'],
                  ['🦉', 'جغدها', '#8b5cf6'], ['🐆', 'یوزها', '#ec4899'], ['🦋', 'پروانه‌ها', '#14b8a6'], ['🐢', 'لاک‌پشت‌ها', '#f97316']];
 const LG_MAXG = 8;
-const LG_SENS = [{ t:'کم', thr:0.74 }, { t:'متوسط', thr:0.62 }, { t:'زیاد', thr:0.50 }];
+// حساسیت شیشه‌ی سکوت: thr = آستانه روی سنجه (۰ = ‎−۷۰ دسی‌بل، ۱ = ‎−۱۰ دسی‌بل)، sp = سرعتِ ترک برداشتن
+//   کم ≈ ‎−۳۳dB (صحبتِ بلند)   متوسط ≈ ‎−۳۸dB (گفتگوی معمولیِ گروه‌ها)   زیاد ≈ ‎−۴۳dB (پچ‌پچ و همهمه)
+const LG_SENS = [{ t:'کم', thr:0.62, sp:0.8 }, { t:'متوسط', thr:0.53, sp:1 }, { t:'زیاد', thr:0.45, sp:1.35 }];
 const LG = { st:null, el:null, saveT:0, timer:{ total:60000, left:60000, run:false, end:0, raf:0, done:false },
   hg:{ total:60000, left:60000, run:false, end:0, raf:0, flip:false }, glass:{ on:false, stream:null, ac:null, an:null, buf:null,
   avg:0, disp:0, dmg:0, stage:0, broken:false, cracks:[], shards:null, raf:0, last:0 }, modal:null, rolling:false };
@@ -9628,11 +9630,13 @@ function lgGlassLoop(){
     const dt = Math.min(0.1, (now - G.last)/1000); G.last = now;
     G.an.getFloatTimeDomainData(G.buf);
     let s = 0; for(let i = 0; i < G.buf.length; i++) s += G.buf[i]*G.buf[i];
-    const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = clamp((db + 60)/50, 0, 1);
+    const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = clamp((db + 70)/60, 0, 1);
     G.avg = G.avg*0.85 + lvl*0.15; G.disp = Math.max(lvl, G.disp*0.92);
-    const thr = LG_SENS[LG.st.set.sens].thr;
+    const SN = LG_SENS[LG.st.set.sens], thr = SN.thr;
+    // کلاس که آرام شد، پیشرفتِ نیمه‌کاره به سمت ترکِ بعدی کم‌کم برمی‌گردد (ترک‌های قبلی می‌مانند)؛ یک دست‌زدن تنها جمع نمی‌شود
+    if(!G.broken && G.avg <= thr) G.dmg = Math.max(G.stage*0.25, G.dmg - 0.03*dt);
     if(!G.broken && G.avg > thr){
-      G.dmg += ((G.avg - thr)*0.6 + 0.04)*dt;           // سر و صدای مداوم: هر ترک ۱ تا ۳ ثانیه، شکستن ۵ تا ۱۰ ثانیه
+      G.dmg += ((G.avg - thr)*1.0 + 0.15)*SN.sp*dt;     // سر و صدای مداوم: هر ترک حدود ۱ تا ۲ ثانیه، شکستن ۳ تا ۷ ثانیه
       const stage = G.dmg >= 1 ? 4 : Math.floor(G.dmg/0.25);
       if(stage > G.stage){
         G.stage = stage;
