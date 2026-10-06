@@ -8870,11 +8870,14 @@ const LG_KEY = 'mc-league-v1';
 const LG_TEAM = [['🦅', 'عقاب‌ها', '#ef4444'], ['🦁', 'شیرها', '#3b82f6'], ['🐬', 'دلفین‌ها', '#10b981'], ['🐝', 'زنبورها', '#f59e0b'],
                  ['🦉', 'جغدها', '#8b5cf6'], ['🐆', 'یوزها', '#ec4899'], ['🦋', 'پروانه‌ها', '#14b8a6'], ['🐢', 'لاک‌پشت‌ها', '#f97316']];
 const LG_MAXG = 8;
-// حساسیت شیشه‌ی سکوت (دسی‌بل نسبت به بیشینه‌ی میکروفون)، sp = سرعتِ ترک برداشتن
-//   بلند ≈ ‎−۳۲dB (فقط سر و صدای بلند)   معمولی ≈ ‎−۴۰dB (گفتگوی معمولیِ گروه‌ها)   کم ≈ ‎−۴۸dB (صحبتِ آرام)
+// حساسیت شیشه‌ی سکوت (دسی‌بل نسبت به بیشینه‌ی میکروفون)
+//   بلند ≈ ‎−۲۸dB (فقط سر و صدای بلند)   معمولی ≈ ‎−۳۶dB (گفتگوی بلندِ گروه‌ها)   کم ≈ ‎−۴۴dB (صحبتِ معمولی)
 // معلم می‌تواند خطِ مشکیِ سنجه را هم بکشد و حد را دقیق خودش تعیین کند (set.gthr)
 // و همیشه دست‌کم ۵ دسی‌بل بالاتر از «صدای زمینه‌ی کلاس» که هنگام شروع سنجیده می‌شود (پنکه، کولر، خیابان)
-const LG_SENS = [{ t:'بلند', db:-32, sp:0.9 }, { t:'معمولی', db:-40, sp:1 }, { t:'کم', db:-48, sp:1.15 }];
+const LG_SENS = [{ t:'بلند', db:-28 }, { t:'معمولی', db:-36 }, { t:'کم', db:-44 }];
+// هر بار که صدا از خط بالا برود همان لحظه یک فرصت کم می‌شود؛ بارِ بعد فقط وقتی حساب است که صدا اول زیرِ خط برگشته باشد
+// (LG_HYST) و دست‌کم LG_COOL میلی‌ثانیه از ترکِ قبلی گذشته باشد. سر و صدای یکسره هر LG_HOLD ثانیه یک فرصتِ دیگر می‌گیرد.
+const LG_HYST = 0.04, LG_COOL = 2000, LG_HOLD = 4, LG_SENS_V = 2;
 const LG_FLOOR_MARGIN = 5, LG_FLOOR_CAP = -50;      // صدای زمینه هیچ‌وقت بلندتر از ‎−۵۰dB فرض نمی‌شود (کلاسِ شلوغ هنگام شروع ≠ صدای زمینه)
 const lgLvl = db => clamp((db + 80)/70, 0, 1);                 // سنجه: ‎−۸۰dB = ۰ ، ‎−۱۰dB = ۱
 function lgGlassBase(){ const S2 = LG.st.set; return S2.gthr != null ? S2.gthr : lgLvl(LG_SENS[S2.sens].db); }
@@ -8884,7 +8887,7 @@ function lgGlassThr(){
 }
 const LG = { st:null, el:null, saveT:0, timer:{ total:60000, left:60000, run:false, end:0, raf:0, done:false },
   hg:{ total:60000, left:60000, run:false, end:0, raf:0, flip:false }, glass:{ on:false, stream:null, ac:null, an:null, buf:null,
-  avg:0, disp:0, dmg:0, stage:0, broken:false, cracks:[], shards:null, raf:0, last:0 }, modal:null, rolling:false };
+  lv:0, armed:true, hold:0, cool:0, stage:0, broken:false, cracks:[], shards:null, raf:0, last:0 }, modal:null, rolling:false };
 const lgEsc = t => String(t).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
 const lgHasEmoji = t => { try{ return /^\p{Extended_Pictographic}/u.test(t); }catch(e){ return false; } };
 const lgTeam = i => LG_TEAM[i % LG_TEAM.length];
@@ -8894,14 +8897,19 @@ const lgShuffle = a => { for(let i = a.length - 1; i > 0; i--){ const j = Math.f
 const lgNum = s => { const d = normDigits(String(s)).trim(); return /^\d+$/.test(d) ? +d : NaN; };
 function lgDefault(){
   return { on:false, students:[], groups:LG_TEAM.slice(0, 4).map(t=> ({ name:t[1], score:0 })), used:[], turn:0, stars:{},
-    set:{ timer:60, hg:60, sens:1, noRep:1, pts:1, sound:1, qt:30, qmode:'turn', light:2, src:-1, kind:'s' }, cards:{} };
+    set:{ timer:60, hg:60, sens:1, gv:LG_SENS_V, noRep:1, pts:1, sound:1, qt:30, qmode:'turn', light:2, src:-1, kind:'s' }, cards:{} };
 }
 function lgLoad(){
   let st = null;
   try{ st = JSON.parse(localStorage.getItem(LG_KEY) || 'null'); }catch(e){}
   const d = lgDefault();
   if(!st || typeof st !== 'object') return d;
+  const gv = st.set && st.set.gv;
   st.set = Object.assign(d.set, st.set || {});
+  if(!(gv >= LG_SENS_V)){                       // حساسیت‌ها ۴ دسی‌بل کمتر شد؛ خطی که معلم قبلاً کشیده هم همان‌قدر بالا برود
+    if(st.set.gthr != null) st.set.gthr = clamp(+st.set.gthr + 4/70, 0.15, 0.95);
+    st.set.gv = LG_SENS_V;
+  }
   if(!Array.isArray(st.groups) || !st.groups.length) st.groups = d.groups;
   st.groups = st.groups.slice(0, LG_MAXG).map(g=> ({ name:String(g.name || '').slice(0, 30) || 'گروه', score:+g.score || 0 }));
   st.students = (Array.isArray(st.students) ? st.students : []).filter(s=> s && s.n).map(s=> ({ n:String(s.n).slice(0, 40), g:(+s.g >= 0 && +s.g < st.groups.length) ? +s.g : -1 }));
@@ -9576,14 +9584,14 @@ function lgGlassInit(body){
     '<div class="lg-sens"><span class="lg-sublab">بشکند با صدای:</span>' + lgChips('sens', LG_SENS.map((s, i)=> [i, s.t]), S2.sens, 'sm') + '</div>' +
     '<div class="lg-trow"><button type="button" class="lg-btn xs pri" data-g="on">🎙 شروع</button><button type="button" class="lg-btn xs" data-g="new" title="شیشه‌ی نو">🔁 نو</button></div>' +
     '<div class="lg-gstat">برای شروع، «🎙 شروع» را بزنید</div>';
-  lgOnChips(body, 'sens', v=>{ S2.sens = +v; delete S2.gthr; lgSave(); lgGlassUi(); lgGlassDraw(); });
+  lgOnChips(body, 'sens', v=>{ S2.sens = +v; delete S2.gthr; lgGlassDisarm(); lgSave(); lgGlassUi(); lgGlassDraw(); });
   if(S2.gthr != null) body.querySelectorAll('[data-sens]').forEach(b=> b.classList.remove('on'));
   // خطِ مشکی را بکشید: حدِ صدا دقیقاً همان‌جا می‌شود
   const meter = body.querySelector('.lg-meter');
   meter.addEventListener('pointerdown', e=>{
     e.preventDefault(); e.stopPropagation();
     meter.setPointerCapture(e.pointerId);
-    const set = ev=>{ const r = meter.getBoundingClientRect(); S2.gthr = clamp((ev.clientX - r.left)/r.width, 0.15, 0.95); body.querySelectorAll('[data-sens]').forEach(b=> b.classList.remove('on')); lgGlassDraw(); };
+    const set = ev=>{ const r = meter.getBoundingClientRect(); S2.gthr = clamp((ev.clientX - r.left)/r.width, 0.15, 0.95); lgGlassDisarm(); body.querySelectorAll('[data-sens]').forEach(b=> b.classList.remove('on')); lgGlassDraw(); };
     set(e);
     const mv = ev=> set(ev), up = ()=>{ meter.removeEventListener('pointermove', mv); meter.removeEventListener('pointerup', up); meter.removeEventListener('pointercancel', up); lgSave(); lgGlassUi(); };
     meter.addEventListener('pointermove', mv); meter.addEventListener('pointerup', up); meter.addEventListener('pointercancel', up);
@@ -9646,7 +9654,7 @@ async function lgGlassStart(){
     tr.onmute = ()=>{ G.muted = true; lgGlassUi(); };
     tr.onunmute = ()=>{ G.muted = false; lgGlassUi(); };
   }
-  G.starting = false; G.on = true; G.muted = false; G.last = performance.now(); G.silent = 0; G.over = false; G.avg = 0; G.disp = 0;
+  G.starting = false; G.on = true; G.muted = false; G.last = performance.now(); G.silent = 0; G.over = false; G.lv = 0; G.armed = true; G.hold = 0; G.cool = 0;
   G.floor = null; G.cal = performance.now() + 1500; G.calv = [];       // سنجیدنِ صدای زمینه
   lgGlassUi(); lgGlassLoop();
 }
@@ -9664,7 +9672,7 @@ function lgGlassStop(user){
 }
 function lgGlassNew(){
   const G = LG.glass;
-  G.dmg = 0; G.stage = 0; G.broken = false; G.cracks = []; G.shards = null; G.over = false;
+  G.stage = 0; G.broken = false; G.cracks = []; G.shards = null; G.over = false; G.armed = true; G.hold = 0; G.cool = 0;
   if(G.on){ G.cal = performance.now() + 1500; G.calv = []; }           // شیشه‌ی نو: صدای زمینه دوباره سنجیده شود
   const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]'); if(card) card.classList.remove('lg-done');
   lgGlassUi(); lgGlassDraw();
@@ -9713,8 +9721,10 @@ function lgGlassLoop(){
     let s = 0; for(let i = 0; i < G.buf.length; i++) s += G.buf[i]*G.buf[i];
     const rms = Math.sqrt(s/G.buf.length), db = 20*Math.log10(rms + 1e-9), lvl = lgLvl(db);
     G.silent = db < -100 ? (G.silent || 0) + dt : 0;                // صفرِ کامل = میکروفون صدایی نمی‌فرستد
-    G.avg += (lvl - G.avg)*(1 - Math.exp(-dt/0.5)); G.disp = Math.max(lvl, G.disp*0.92);    // برای ترک: میانگینِ نیم‌ثانیه (یک فریادِ کوتاه کم اثر دارد)
     const self = now < (LG.selfUntil || 0);                           // صدای خودِ برنامه پخش می‌شود
+    // سطحِ صدا با میانگینِ کوتاه (۰٫۱۵ ثانیه): همان چیزی که روی سنجه دیده می‌شود و با خط مقایسه می‌شود.
+    // هنگامِ پخشِ صدای خودِ برنامه ثابت می‌ماند تا صدای ترک/زنگ، خودش شیشه را نشکند
+    if(!self) G.lv += (lvl - G.lv)*(1 - Math.exp(-dt/0.15));
     if(G.cal){
       // ۱٫۵ ثانیه‌ی اول: صدای زمینه (میانه‌ی صداها) سنجیده می‌شود؛ شیشه ترک برنمی‌دارد
       if(!self && G.silent === 0) G.calv.push(db);
@@ -9723,18 +9733,14 @@ function lgGlassLoop(){
       // صدای زمینه: پایین آمدنش سریع، بالا رفتنش خیلی کند و هیچ‌وقت بالاتر از ‎−۵۰dB
       if(!self && G.silent === 0){ if(db < G.floor) G.floor += (db - G.floor)*Math.min(1, dt*2); else G.floor = Math.min(db, G.floor + 0.2*dt); }
       G.floor = Math.min(G.floor, LG_FLOOR_CAP);
-      const S2g = LG.st.set, SN = LG_SENS[S2g.sens], thr = lgGlassThr();
-      if(!self) G.over = !G.broken && G.avg > thr;                  // هنگام پخشِ صدای خودِ برنامه، وضعیت عوض نشود و آسیب هم جمع نشود
-      // کلاس که آرام شد، پیشرفتِ نیمه‌کاره به سمت ترکِ بعدی کم‌کم برمی‌گردد (ترک‌های قبلی می‌مانند)؛ یک دست‌زدن تنها جمع نمی‌شود
-      if(!G.broken && !G.over && !self) G.dmg = Math.max(G.stage*0.25, G.dmg - 0.03*dt);
-      if(G.over && !self){
-        G.dmg += ((G.avg - thr)*1.0 + 0.08)*(S2g.gthr != null ? 1 : SN.sp)*dt;     // سر و صدای مداوم: هر ترک ۱٫۵ تا ۳ ثانیه، شکستن ۶ تا ۱۲ ثانیه
-        const stage = G.dmg >= 1 ? 4 : Math.floor(G.dmg/0.25);
-        if(stage > G.stage){
-          G.stage = stage;
-          const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]');
-          if(stage >= 4) lgGlassBreak();
-          else { G.cracks.push(lgCrack(260, 170)); lgSound('crack'); if(card){ card.classList.remove('lg-shake'); void card.offsetWidth; card.classList.add('lg-shake'); } }
+      const thr = lgGlassThr(), up = G.lv > thr;
+      if(!self && !G.broken){
+        G.over = up;
+        if(G.lv < thr - LG_HYST){ G.armed = true; G.hold = 0; }        // صدا زیرِ خط برگشت: بالا رفتنِ بعدی دوباره حساب می‌شود
+        if(up){
+          G.hold += dt;
+          // همین که صدا از خط رد شد یک فرصت کم می‌شود؛ صدای یکسره هم هر LG_HOLD ثانیه یک فرصت
+          if((G.armed && now >= G.cool) || G.hold >= LG_HOLD) lgGlassHit(now);
         }
       }
     }
@@ -9744,6 +9750,17 @@ function lgGlassLoop(){
   };
   G.raf = requestAnimationFrame(step);
 }
+function lgGlassHit(now){
+  const G = LG.glass;
+  G.armed = false; G.hold = 0; G.cool = now + LG_COOL;
+  G.stage = Math.min(4, G.stage + 1);
+  if(G.stage >= 4){ G.over = false; lgGlassBreak(); return; }
+  G.cracks.push(lgCrack(260, 170)); lgSound('crack');
+  const card = LG.el && LG.el.querySelector('.lg-card[data-k="glass"]');
+  if(card){ card.classList.remove('lg-shake'); void card.offsetWidth; card.classList.add('lg-shake'); }
+}
+// معلم حد را عوض کرد: اگر همین حالا صدا بالای خطِ تازه است، تا پایین نیاید فرصتی کم نشود
+function lgGlassDisarm(){ const G = LG.glass; G.armed = false; G.hold = 0; }
 function lgGlassBreak(){
   const G = LG.glass, W = 260, H = 170;
   G.broken = true; lgSound('shatter');
@@ -9787,7 +9804,7 @@ function lgGlassDraw(){
     G.cracks.forEach(c=> c.forEach(L=>{ g.beginPath(); L.forEach(([x, y], i)=> i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); }));
     g.restore();
     if(G.on && G.over){                                                // همین حالا صدا از حد گذشته: شیشه سرخ می‌شود
-      g.fillStyle = 'rgba(239,68,68,' + Math.min(0.4, 0.12 + (G.avg - lgGlassThr())*2).toFixed(3) + ')'; g.fillRect(14, 14, W - 28, H - 28);
+      g.fillStyle = 'rgba(239,68,68,' + Math.min(0.4, 0.12 + (G.lv - lgGlassThr())*2).toFixed(3) + ')'; g.fillRect(14, 14, W - 28, H - 28);
     }
     g.font = '40px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillText(G.on && G.over ? '😠' : G.stage >= 2 ? '😟' : G.stage ? '😐' : '🤫', W/2, H/2);
@@ -9809,8 +9826,9 @@ function lgGlassDraw(){
   }
   // سنجه
   const thr = lgGlassThr(), m = card.querySelector('.lg-meter');
-  m.querySelector('i').style.width = Math.round((G.on ? G.disp : 0)*100) + '%';
-  m.querySelector('i').style.background = G.disp > thr ? '#ef4444' : G.disp > thr - 0.12 ? '#f59e0b' : '#22c55e';
+  const lv = G.on ? G.lv : 0;
+  m.querySelector('i').style.width = Math.round(lv*100) + '%';
+  m.querySelector('i').style.background = lv > thr ? '#ef4444' : lv > thr - 0.12 ? '#f59e0b' : '#22c55e';
   m.querySelector('em').style.left = Math.round(thr*100) + '%';
 }
 
