@@ -725,7 +725,7 @@ body.rec-on #credit{visibility:hidden}
       </div>
       <div class="seg tray-tabs" id="trayTabs"></div>
       <div id="trayBody"></div>
-      <p class="tray-hint">بزنید تا روی تخته بیاید، یا بکشید و هر جا خواستید رها کنید. قطعه‌ها به هم می‌چسبند · دوبار زدن روی قطعه = کارِ مخصوصش (باز کردن بلوک، ریختن تاس، چرخاندن)</p>
+      <p class="tray-hint">بزنید تا روی تخته بیاید، یا بکشید و هر جا خواستید رها کنید. قطعه‌ها به هم می‌چسبند · دوبار زدن روی قطعه = کارِ مخصوصش (باز کردن بلوک و ژتون، خرد کردن پول، برگرداندن شمارنده، ریختن تاس، چرخاندن)</p>
     </section>
 
     <section class="panel" id="props">
@@ -4921,6 +4921,9 @@ function pieceSize(o){
     case 'coin': return { w:72, h:72 };
     case 'spin': return { w:2*SPIN_R + 12, h:2*SPIN_R + 12 };
     case 'frame': return o.v > 10 ? { w:5*FR_C, h:4*FR_C + FR_GAP } : { w:5*FR_C, h:2*FR_C };
+    case 'money': { const M = MONEY[o.v]; return M.coin ? { w:2*M.r + 6, h:2*M.r + 6 } : { w:MONEY_W + 6, h:MONEY_H + 8 }; }
+    case 'pvd': return { w:2*PVD_R + 5, h:2*PVD_R + 5 };
+    case 'cube': return { w:NBAR_U, h:NBAR_U };
   }
   return { w:40, h:40 };
 }
@@ -4928,7 +4931,7 @@ function pieceSize(o){
 function pieceLocalPts(o){
   const d = pieceSize(o), r = (w, h, x = -w/2, y = -h/2)=> [{ x, y }, { x:x + w, y }, { x:x + w, y:y + h }, { x, y:y + h }];
   if(o.fam === 'b10'){ const b = b10Dims(o.v); return r(b.fw, b.fh, -b.w/2, -b.h/2 + b.D); }
-  if(o.fam === 'nbar' || o.fam === 'fbar' || o.fam === 'frame') return r(d.w, d.h);
+  if(o.fam === 'nbar' || o.fam === 'fbar' || o.fam === 'frame' || o.fam === 'cube') return r(d.w, d.h);
   if(o.fam === 'pat') return patPts(o.v);
   return [];
 }
@@ -4943,6 +4946,9 @@ function pieceNormalize(o){
   else if(f === 'dice') o.v = clamp(iv(o.v) || 1, 1, 6);
   else if(f === 'coin') o.v = +o.v === 2 ? 2 : 1;
   else if(f === 'spin'){ o.n = clamp(iv(o.n) || 4, 2, 12); o.a = +o.a || 0; }
+  else if(f === 'money') o.v = MONEY[+o.v] ? +o.v : 1000;
+  else if(f === 'pvd') o.v = pvdKey(+o.v) || 1;
+  else if(f === 'cube') o.v = CUBE[o.v] ? o.v : 'r';
   else if(f === 'frame'){
     o.v = +o.v === 20 ? 20 : 10;
     const c = Array.isArray(o.cells) ? o.cells : [];
@@ -4956,6 +4962,9 @@ function pieceLabel(fam, v){
   if(fam === 'pat') return PAT[v].name;
   if(fam === 'frame') return 'قاب ' + faNum(v, 0) + 'تایی';
   if(fam === 'chip') return CHIP_NAME[v];
+  if(fam === 'money') return faGroup(+v);
+  if(fam === 'pvd') return pvdLabel(pvdKey(+v) || 1);
+  if(fam === 'cube') return CUBE_NAME[v];
   return { dice:'تاس', coin:'سکه', spin:'چرخونه' }[fam] || '';
 }
 
@@ -5108,7 +5117,131 @@ function drawChip(ctx, o){
   if(o.v === 'p') kidText(ctx, '+', 0, -1, 26, '#7c5a00');
   else if(o.v === 'n') kidText(ctx, '−', 0, -1, 26, '#ffffff');
 }
-const PIECE_DRAW = { chip:drawChip, b10:drawB10, nbar:drawNbar, fbar:drawFbar, fcirc:drawFcirc, pat:drawPat, dice:drawDice, coin:drawCoin, spin:drawSpin, frame:drawFrame };
+// پول: سکه‌ها و اسکناس‌های تومانی (طرحِ ساده و آموزشی، شبیهِ پولِ واقعی نیست)
+const MONEY = {
+  100:{ coin:1, r:22, col:'#cbd5e1' }, 200:{ coin:1, r:25, col:'#d9a54a' }, 500:{ coin:1, r:28, col:'#e8b931', ring:'#cbd5e1' },
+  1000:{ col:'#16a34a' }, 2000:{ col:'#7c3aed' }, 5000:{ col:'#0284c7' }, 10000:{ col:'#ea580c' }, 50000:{ col:'#db2777' }, 100000:{ col:'#0f766e' }
+};
+const MONEY_ORDER = [100, 200, 500, 1000, 2000, 5000, 10000, 50000, 100000];
+const MONEY_W = 156, MONEY_H = 76;
+// خرد کردن: هر پول به چند پولِ کوچک‌تر
+const MONEY_BREAK = { 200:[100, 100], 500:[200, 200, 100], 1000:[500, 500], 2000:[1000, 1000], 5000:[1000, 1000, 1000, 1000, 1000],
+  10000:[5000, 5000], 50000:[10000, 10000, 10000, 10000, 10000], 100000:[50000, 50000] };
+const faGroup = n => persDigits(groupInt(String(Math.round(n))));
+function moneyText(ctx, txt, x, y, fs, col, bold, align){
+  ctx.font = (bold ? 'bold ' : '') + fs + 'px ' + KID_FONT; ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+  try{ ctx.direction = 'rtl'; }catch(e){}
+  ctx.fillStyle = col; ctx.fillText(txt, x, y);
+}
+function drawRosette(ctx, cx, cy, R, col){
+  ctx.beginPath();
+  for(let i = 0; i < 16; i++){ const a = i*Math.PI/8 - Math.PI/2, r = i % 2 ? R*0.56 : R; ctx.lineTo(cx + Math.cos(a)*r, cy + Math.sin(a)*r); }
+  ctx.closePath(); ctx.fillStyle = mixHex(col, .55); ctx.fill();
+  ctx.lineWidth = 1.2; ctx.strokeStyle = col; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, R*0.3, 0, TAU); ctx.fillStyle = col; ctx.fill();
+}
+function drawMoney(ctx, o){
+  const M = MONEY[o.v];
+  if(M.coin){
+    const R = M.r, ink = '#3b2a0a';
+    ctx.beginPath(); ctx.arc(1.5, 2.5, R, 0, TAU); ctx.fillStyle = 'rgba(15,23,42,.2)'; ctx.fill();
+    const g = ctx.createRadialGradient(-R*0.35, -R*0.4, R*0.1, 0, 0, R);
+    const outer = M.ring || M.col;
+    g.addColorStop(0, mixHex(outer, .6)); g.addColorStop(0.6, outer); g.addColorStop(1, mixHex(outer, -.3));
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fillStyle = g; ctx.fill();
+    ctx.lineWidth = 1.6; ctx.strokeStyle = mixHex(outer, -.45); ctx.stroke();
+    if(M.ring){
+      const gi = ctx.createRadialGradient(-R*0.25, -R*0.3, 1, 0, 0, R*0.72);
+      gi.addColorStop(0, mixHex(M.col, .55)); gi.addColorStop(1, mixHex(M.col, -.15));
+      ctx.beginPath(); ctx.arc(0, 0, R*0.72, 0, TAU); ctx.fillStyle = gi; ctx.fill();
+      ctx.lineWidth = 1; ctx.strokeStyle = mixHex(M.col, -.4); ctx.stroke();
+    } else { ctx.beginPath(); ctx.arc(0, 0, R - 4, 0, TAU); ctx.lineWidth = 1; ctx.strokeStyle = mixHex(M.col, -.3); ctx.stroke(); }
+    kidText(ctx, faNum(o.v, 0), 0, -R*0.14, R*0.66, ink);
+    moneyText(ctx, 'تومان', 0, R*0.48, Math.round(R*0.32), ink);
+    return;
+  }
+  const w = MONEY_W, h = MONEY_H, x0 = -w/2, y0 = -h/2, c = M.col, ink = mixHex(c, -.55), val = faGroup(o.v);
+  roundRect(ctx, x0 + 2, y0 + 3, w, h, 7); ctx.fillStyle = 'rgba(15,23,42,.2)'; ctx.fill();
+  const g = ctx.createLinearGradient(x0, y0, x0 + w, y0 + h);
+  g.addColorStop(0, mixHex(c, .82)); g.addColorStop(1, mixHex(c, .6));
+  roundRect(ctx, x0, y0, w, h, 7); ctx.fillStyle = g; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = c; ctx.stroke();
+  roundRect(ctx, x0 + 5, y0 + 5, w - 10, h - 10, 5); ctx.lineWidth = 1; ctx.strokeStyle = mixHex(c, .25); ctx.stroke();
+  // نقش و مبلغِ گوشه‌ها (وقتی اسکناس‌ها روی هم‌اند هم مبلغ دیده شود)
+  drawRosette(ctx, x0 + 30, 4, 17, c);
+  moneyText(ctx, val, x0 + w - 11, y0 + 15, 13, ink, true, 'right');
+  kidText(ctx, val, 16, -6, val.length > 6 ? 24 : 27, ink);
+  moneyText(ctx, 'تومان', 16, 22, 14, ink, true);
+}
+const moneySorted = L => L.slice().sort((a, b)=> b.v - a.v);
+// کمترین تعداد سکه و اسکناس برای یک مبلغ
+function moneyGreedy(amt){
+  const out = [];
+  for(const v of MONEY_ORDER.slice().reverse()){ while(amt >= v){ out.push(v); amt -= v; } }
+  return out;
+}
+
+// ژتون‌های ارزش مکانی (برای عددهای بزرگ و اعشاری)؛ رنگ‌ها مثل بلوک‌های ده‌دهی
+const PVD = { 10000:'#ef4444', 1000:'#8b5cf6', 100:'#22c55e', 10:'#3b82f6', 1:'#f59e0b', 0.1:'#ec4899', 0.01:'#0d9488' };
+const PVD_ORDER = [10000, 1000, 100, 10, 1, 0.1, 0.01];
+const PVD_R = 25;
+const pvdKey = v => PVD_ORDER.find(x=> Math.abs(x - v) < x*1e-6);
+const pvdLabel = v => v >= 1 ? faGroup(v) : faNum(v, 2);
+// عدد با ممیزِ «/» و جداکننده‌ی هزارگان
+function faDec(n){
+  const s = (Math.round(n*100)/100).toFixed(2).replace(/\.?0+$/, ''), [i, d] = s.split('.');
+  return persDigits(groupInt(i)) + (d ? '/' + persDigits(d) : '');
+}
+function drawPvd(ctx, o){
+  const R = PVD_R, col = PVD[o.v], lb = pvdLabel(o.v);
+  ctx.beginPath(); ctx.arc(1.2, 2.2, R, 0, TAU); ctx.fillStyle = 'rgba(15,23,42,.2)'; ctx.fill();
+  const g = ctx.createRadialGradient(-R*0.35, -R*0.4, 2, 0, 0, R);
+  g.addColorStop(0, mixHex(col, .45)); g.addColorStop(1, col);
+  ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fillStyle = g; ctx.fill();
+  ctx.lineWidth = 1.6; ctx.strokeStyle = mixHex(col, -.4); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, R - 4, 0, TAU); ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(255,255,255,.65)'; ctx.stroke();
+  kidText(ctx, lb, 0, 0, lb.length >= 6 ? 14 : lb.length >= 4 ? 16 : lb.length === 3 ? 18 : 22, inkOn(col));
+}
+
+// مکعب‌های رنگی (هم‌اندازه‌ی یک خانه‌ی نوار عددی تا با نوارها مقایسه شوند)
+const CUBE = { r:'#ef4444', o:'#f97316', y:'#facc15', g:'#22c55e', b:'#3b82f6', p:'#a855f7' };
+const CUBE_NAME = { r:'قرمز', o:'نارنجی', y:'زرد', g:'سبز', b:'آبی', p:'بنفش' };
+function drawCube(ctx, o){
+  const u = NBAR_U, col = CUBE[o.v], x0 = -u/2 + .5, y0 = -u/2 + .5, s = u - 1, b = 5;
+  ctx.fillStyle = col; ctx.fillRect(x0, y0, s, s);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + s, y0); ctx.lineTo(x0 + s - b, y0 + b); ctx.lineTo(x0 + b, y0 + b); ctx.lineTo(x0 + b, y0 + s - b); ctx.lineTo(x0, y0 + s); ctx.closePath();
+  ctx.fillStyle = mixHex(col, .35); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x0 + s, y0); ctx.lineTo(x0 + s, y0 + s); ctx.lineTo(x0, y0 + s); ctx.lineTo(x0 + b, y0 + s - b); ctx.lineTo(x0 + s - b, y0 + s - b); ctx.lineTo(x0 + s - b, y0 + b); ctx.closePath();
+  ctx.fillStyle = mixHex(col, -.22); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, u*0.19, 0, TAU); ctx.fillStyle = mixHex(col, .12); ctx.fill();
+  ctx.lineWidth = 1; ctx.strokeStyle = mixHex(col, -.3); ctx.stroke();
+  ctx.lineWidth = 1.2; ctx.strokeStyle = mixHex(col, -.48); ctx.strokeRect(x0, y0, s, s);
+}
+// مکعب‌های انتخاب‌شده روی یک شبکه؟ ← خانه‌ها، مساحت، محیط و پیوسته بودن
+function cubeShape(L){
+  const sc = L[0].scaleX || 1, u = NBAR_U*sc;
+  if(L.some(x=> Math.abs((x.scaleX || 1) - sc) > 1e-3)) return null;
+  const ox = L[0].left, oy = L[0].top, cells = new Map();
+  for(const x of L){
+    const fx = (x.left - ox)/u, fy = (x.top - oy)/u, i = Math.round(fx), j = Math.round(fy);
+    if(Math.abs(fx - i) > 0.12 || Math.abs(fy - j) > 0.12) return null;
+    const k = i + ',' + j;
+    if(cells.has(k)) return null;
+    cells.set(k, [i, j]);
+  }
+  const has = (i, j)=> cells.has(i + ',' + j);
+  let per = 0;
+  cells.forEach(([i, j])=>{ per += [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([a, b])=> !has(i + a, j + b)).length; });
+  const first = cells.keys().next().value, seen = new Set([first]), q = [first];
+  while(q.length){
+    const [i, j] = cells.get(q.pop());
+    for(const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const k = (i + a) + ',' + (j + b); if(cells.has(k) && !seen.has(k)){ seen.add(k); q.push(k); } }
+  }
+  const xs = [...cells.values()].map(c=> c[0]), ys = [...cells.values()].map(c=> c[1]);
+  return { n:cells.size, per, conn:seen.size === cells.size, w:Math.max(...xs) - Math.min(...xs) + 1, h:Math.max(...ys) - Math.min(...ys) + 1 };
+}
+const PIECE_DRAW = { chip:drawChip, b10:drawB10, nbar:drawNbar, fbar:drawFbar, fcirc:drawFcirc, pat:drawPat, dice:drawDice, coin:drawCoin, spin:drawSpin, frame:drawFrame,
+  money:drawMoney, pvd:drawPvd, cube:drawCube };
 
 function defineManipClass(){
   fabric.WbPiece = fabric.util.createClass(fabric.Object, {
@@ -5144,7 +5277,7 @@ function defineManipClass(){
 
 /* ---- سینیِ مبحث‌های ریاضی: زدن = اضافه شدن، کشیدن = گذاشتن در همان نقطه ---- */
 const TOOL_LABEL = {
-  place:'ارزش مکانی', hund:'جدول ۱۰۰', arr:'آرایه‌ی ضرب', am:'ضرب مساحتی', fm:'ماشین', clock:'ساعت',
+  place:'ارزش مکانی', hund:'جدول ۱۰۰', rek:'چرتکه', gb:'ژئوبرد', arr:'آرایه‌ی ضرب', am:'ضرب مساحتی', fm:'ماشین', clock:'ساعت',
   fline:'کسر روی محور', fmul:'ضرب کسرها', fscale:'ترازوی کسرها', vol:'حجم (مکعب واحد)',
   csym:'تقارن مرکزی و دوران', coord:'مختصات و تقارن', vang:'زاویه‌های متقابل به رأس',
   'ustair:len':'پله‌کان طول', 'ustair:area':'پله‌کان سطح', 'ustair:vol':'پله‌کان حجم',
@@ -5163,20 +5296,27 @@ const SOLID_ORDER = ['cube', 'box', 'cyl', 'cone', 'pyr', 'sph'];
 const TRAY = [
   { id:'b10', t:'ارزش مکانی', groups:[
       { items:[1, 10, 100, 1000].map(v=> ['b10', v]) },
-      { h:'جدول ارزش مکانی (خالی؛ خودتان پر می‌کنید)', items:[['tool', 'place']] }],
-    acts:[['b10num', '🔢 ساختنِ عدد با بلوک‌ها']] },
+      { h:'جدول ارزش مکانی (خالی؛ خودتان پر می‌کنید)', items:[['tool', 'place']] },
+      { h:'ژتون‌های ارزش مکانی (عددهای بزرگ و اعشاری)', items:PVD_ORDER.map(v=> ['pvd', v]) }],
+    acts:[['b10num', '🔢 ساختنِ عدد با بلوک‌ها'], ['pvdnum', '🔵 ساختنِ عدد با ژتون‌ها']] },
   { id:'num', t:'عدد و ضرب', groups:[
       { h:'نوارهای عددی', items:[1,2,3,4,5,6,7,8,9,10].map(v=> ['nbar', v]) },
-      { h:'قاب و جدول', items:[['frame', 10], ['frame', 20], ['tool', 'hund']] },
+      { h:'قاب، چرتکه و جدول', items:[['frame', 10], ['frame', 20], ['tool', 'rek'], ['tool', 'hund']] },
+      { h:'مکعب‌های رنگی (شمارش، مقایسه، مساحت و محیط)', items:Object.keys(CUBE).map(k=> ['cube', k]) },
       { h:'ضرب و الگو', items:[['tool', 'arr'], ['tool', 'am'], ['tool', 'fm']] },
       { h:'شمارنده‌ها (عدد صحیح، نسبت، تقسیم)', items:CHIPS }],
     acts:[['nstairs', '📶 پله‌ای ۱ تا ۱۰'], ['nbonds', '🔟 ترکیب‌های ۱۰']] },
+  { id:'money', t:'پول', groups:[
+      { h:'سکه‌ها (تومان)', items:MONEY_ORDER.filter(v=> MONEY[v].coin).map(v=> ['money', v]) },
+      { h:'اسکناس‌ها (تومان) — چند تا را انتخاب کنید تا جمعشان نوشته شود', items:MONEY_ORDER.filter(v=> !MONEY[v].coin).map(v=> ['money', v]) }],
+    acts:[['mbuild', '💰 ساختنِ مبلغ']] },
   { id:'frac', t:'کسر', groups:[
       { h:'نوار کسری', items:[1,2,3,4,5,6,7,8,9,10,11,12].map(v=> ['fbar', v]) },
       { h:'دایره‌ی کسری', items:[1,2,3,4,5,6,7,8,9,10,11,12].map(v=> ['fcirc', v]) },
       { h:'محور، ضرب و مقایسه', items:[['tool', 'fline'], ['tool', 'fmul'], ['tool', 'fscale']] }],
     acts:[['fwall', '🧱 دیوار کسرها'], ['fcircles', '⭕ دایره‌های کامل']] },
   { id:'geo', t:'هندسه', groups:[
+      { h:'ژئوبرد: روی میخ‌ها بزنید تا شکل بسازید', items:[['tool', 'gb']] },
       { h:'محیط و مساحت (سانتی‌متر روی شبکه؛ دایره: اثبات ۳/۱۴)', items:GEO_ORDER.map(k=> ['tool', 'geo:' + k]) },
       { h:'حجم، مساحت جانبی و مساحت کل', items:[['tool', 'vol']].concat(SOLID_ORDER.map(k=> ['tool', 'solid:' + k])) },
       { h:'زاویه', items:[['tool', 'vang']] }], acts:[] },
@@ -5291,6 +5431,8 @@ function bindTray(){
 }
 function trayAction(a){
   if(a === 'b10num') openB10NumberDialog();
+  else if(a === 'pvdnum') openPvdDialog();
+  else if(a === 'mbuild') openMoneyDialog();
   else if(a === 'nstairs') addNumberStairs();
   else if(a === 'nbonds') addNumberBonds();
   else if(a === 'fwall') addFracWall();
@@ -5506,6 +5648,9 @@ function pieceAction(o, w){
   else if(o.fam === 'dice' || o.fam === 'coin') pieceRoll([o]);
   else if(o.fam === 'spin') spinStart(o);
   else if(o.fam === 'frame'){ const i = frameCellAt(o, w); if(i >= 0) frameToggle(o, i); }
+  else if(o.fam === 'money') moneyBreak(o);
+  else if(o.fam === 'pvd') pvdBreak(o);
+  else if(o.fam === 'chip') chipFlip([o]);
 }
 function animatePieces(moves, ms, done){
   const t0 = performance.now();
@@ -5712,6 +5857,168 @@ function chipGroup(L, k){
   });
 }
 
+/* ---- پول: خرد کردن، درشت کردن و ساختنِ مبلغ ---- */
+// قطعه‌های تازه از مرکزِ یک نقطه باز می‌شوند و همه انتخاب می‌شوند
+function piecesBurst(specs, cx, cy, like, msg){
+  const kids = [], moves = [];
+  specs.forEach(s=>{
+    const k = new fabric.WbPiece({ fam:s.fam, v:s.v, left:cx, top:cy, scaleX:like.scaleX, scaleY:like.scaleY, opacity:like.opacity });
+    canvas.add(k); kids.push(k);
+    moves.push({ o:k, fx:cx, fy:cy, tx:cx + s.x*(like.scaleX || 1), ty:cy + s.y*(like.scaleY || 1) });
+  });
+  animatePieces(moves, 320, ()=>{
+    canvas.setActiveObject(kids.length === 1 ? kids[0] : new fabric.ActiveSelection(kids, { canvas }));
+    canvas.requestRenderAll();
+    saveHistory();
+    updateCtxBar();
+    if(msg) status(msg);
+  });
+}
+// چیدنِ پول‌ها دورِ (۰،۰): هر نوع اسکناس یک ستون (کمی روی هم تا مبلغِ گوشه‌ی همه پیدا باشد)، سکه‌ها زیرشان
+function moneyLayout(vals){
+  const kinds = [...new Set(vals)].sort((a, b)=> b - a).map(v=> ({ v, k:vals.filter(x=> x === v).length }));
+  const out = [], colW = MONEY_W + 18, step = 22;
+  let y = 0, rowH = 0, c = 0;
+  kinds.filter(g=> !MONEY[g.v].coin).forEach(g=>{
+    if(c === 3){ y += rowH + 18; rowH = 0; c = 0; }
+    for(let i = 0; i < g.k; i++) out.push({ fam:'money', v:g.v, x:c*colW + MONEY_W/2 + i*4, y:y + MONEY_H/2 + i*step });
+    rowH = Math.max(rowH, MONEY_H + (g.k - 1)*step); c++;
+  });
+  if(out.length) y += rowH + 16;
+  let x = 0;
+  kinds.filter(g=> MONEY[g.v].coin).forEach(g=>{
+    const r = MONEY[g.v].r;
+    for(let i = 0; i < g.k; i++){ out.push({ fam:'money', v:g.v, x:x + r, y:y + 28 }); x += 2*r + 6; }
+    x += 12;
+  });
+  const xs = out.map(q=> q.x), ys = out.map(q=> q.y), mx = (Math.min(...xs) + Math.max(...xs))/2, my = (Math.min(...ys) + Math.max(...ys))/2;
+  return out.map(q=> ({ fam:q.fam, v:q.v, x:q.x - mx, y:q.y - my }));
+}
+function moneyBreak(o){
+  if(pieceBusy || !isPiece(o) || o.fam !== 'money' || !MONEY_BREAK[o.v]) return;
+  flushHistory();
+  canvas.discardActiveObject();
+  const parts = MONEY_BREAK[o.v], c = o.getCenterPoint();
+  canvas.remove(o);
+  const kinds = [...new Set(parts)].map(v=> faNum(parts.filter(x=> x === v).length, 0) + ' تا ' + faGroup(v) + (MONEY[v].coin ? ' (سکه)' : ''));
+  piecesBurst(moneyLayout(parts), c.x, c.y, o, '💱 ' + faGroup(o.v) + ' تومان = ' + kinds.join(' و '));
+}
+function moneyCanMerge(L){
+  if(L.length < 2 || !L.every(x=> x.fam === 'money')) return false;
+  return moneyGreedy(L.reduce((s, x)=> s + x.v, 0)).length < L.length;
+}
+// همان مبلغ با کمترین تعداد سکه و اسکناس
+function moneyMerge(L){
+  if(pieceBusy || !moneyCanMerge(L)) return;
+  flushHistory();
+  canvas.discardActiveObject();
+  const tot = L.reduce((s, x)=> s + x.v, 0), cx = L.reduce((s, x)=> s + x.getCenterPoint().x, 0)/L.length, cy = L.reduce((s, x)=> s + x.getCenterPoint().y, 0)/L.length;
+  const like = L[0];
+  animatePieces(L.map(x=>{ const c = x.getCenterPoint(); return { o:x, fx:c.x, fy:c.y, tx:cx, ty:cy }; }), 260, ()=>{
+    L.forEach(x=> canvas.remove(x));
+    piecesBurst(moneyLayout(moneyGreedy(tot)), cx, cy, like, '🔄 ' + faGroup(tot) + ' تومان با ' + faNum(moneyGreedy(tot).length, 0) + ' سکه و اسکناس');
+  });
+}
+function openMoneyDialog(){
+  promptDialog('💰 ساختنِ مبلغ با سکه و اسکناس', [
+    { key:'n', label:'مبلغ به تومان (۱۰۰ تا ۵۰۰٬۰۰۰)', min:100, max:500000, int:true, value:17500 }
+  ]).then(v=>{
+    if(!v) return;
+    const amt = Math.max(100, Math.round(v.n/100)*100);
+    addPieceLayout(moneyLayout(moneyGreedy(amt)), '💰 ' + faGroup(amt) + ' تومان' + (amt !== v.n ? ' (به ۱۰۰ تومان گرد شد)' : '') + ' — روی هر اسکناس دوبار بزنید تا خرد شود');
+  });
+}
+
+/* ---- ژتون‌های ارزش مکانی: باز کردن (۱ ← ۱۰ تا) و یکی کردن (۱۰ تا ← ۱) ---- */
+function pvdBreak(o){
+  if(pieceBusy || !isPiece(o) || o.fam !== 'pvd' || o.v <= 0.01) return;
+  flushHistory();
+  canvas.discardActiveObject();
+  const c = o.getCenterPoint(), nv = pvdKey(o.v/10), d = 2*PVD_R + 6, specs = [];
+  for(let i = 0; i < 10; i++) specs.push({ fam:'pvd', v:nv, x:(i % 5 - 2)*d, y:(Math.floor(i/5) - 0.5)*d });
+  canvas.remove(o);
+  piecesBurst(specs, c.x, c.y, o, '✂️ یک ژتون ' + pvdLabel(o.v) + ' = ۱۰ ژتون ' + pvdLabel(nv));
+}
+function pvdGroupReady(L){
+  const c = {};
+  L.forEach(o=>{ if(o.fam === 'pvd' && o.v < 10000) c[o.v] = (c[o.v] || 0) + 1; });
+  return Object.keys(c).some(v=> c[v] >= 10);
+}
+function pvdGroup(L){
+  if(pieceBusy || !pvdGroupReady(L)) return;
+  flushHistory();
+  canvas.discardActiveObject();
+  const merges = [], moves = [];
+  for(const v of PVD_ORDER.slice(1).reverse()){
+    const pool = L.filter(o=> o.fam === 'pvd' && o.v === v).sort((a, b)=> (a.top - b.top) || (a.left - b.left));
+    while(pool.length >= 10) merges.push({ v, ten:pool.splice(0, 10) });
+  }
+  merges.forEach(g=>{
+    const cs = g.ten.map(o=> o.getCenterPoint()), cx = cs.reduce((s, c)=> s + c.x, 0)/10, cy = cs.reduce((s, c)=> s + c.y, 0)/10;
+    g.big = { cx, cy, like:g.ten[0] };
+    g.ten.forEach((o, i)=> moves.push({ o, fx:cs[i].x, fy:cs[i].y, tx:cx, ty:cy }));
+  });
+  // ژتون‌ها جدا از گروهِ انتخاب جابه‌جا می‌شوند (مختصاتِ صفحه)
+  animatePieces(moves.map(m=> Object.assign(m, { abs:1 })), 360, ()=>{
+    const bigs = merges.map(g=>{
+      g.ten.forEach(o=> canvas.remove(o));
+      const b = new fabric.WbPiece({ fam:'pvd', v:pvdKey(g.v*10), left:g.big.cx, top:g.big.cy, scaleX:g.big.like.scaleX, scaleY:g.big.like.scaleY });
+      canvas.add(b); return b;
+    });
+    const keep = L.filter(o=> o.canvas).concat(bigs);
+    canvas.setActiveObject(keep.length === 1 ? keep[0] : new fabric.ActiveSelection(keep, { canvas }));
+    canvas.requestRenderAll();
+    saveHistory();
+    updateCtxBar();
+    status('🔗 هر ۱۰ ژتون یک ژتونِ ده برابر شد');
+  });
+}
+function openPvdDialog(){
+  promptDialog('🔵 ساختنِ عدد با ژتون‌های ارزش مکانی', [
+    { key:'n', label:'عدد (تا ۹۹۹۹۹ و دو رقم اعشار، مثلاً ۳۴۵/۲۷)', min:0.01, max:99999.99, value:'345/27' }
+  ]).then(v=>{ if(v) pvdBuild(v.n); });
+}
+// عدد با ژتون‌ها، از ده‌هزارتایی تا صدم، از چپ به راست (مثل نوشتنِ رقم‌ها)
+function pvdBuild(num){
+  const cents = Math.round(num*100), specs = [], d = 2*PVD_R + 6;
+  let gx = 0;
+  PVD_ORDER.forEach(v=>{
+    const c = Math.floor(cents/Math.round(v*100)) % 10;
+    if(!c) return;
+    for(let i = 0; i < c; i++) specs.push({ fam:'pvd', v, x:gx + (i % 2)*d, y:Math.floor(i/2)*d });
+    gx += (c > 1 ? 2 : 1)*d + 22;
+  });
+  if(!specs.length) return;
+  addPieceLayout(specs, '🔵 عدد ' + faDec(cents/100) + ' ساخته شد — روی هر ژتون دوبار بزنید تا به ۱۰ ژتونِ کوچک‌تر باز شود');
+}
+
+/* ---- مکعب‌های رنگی: قطار کردن ---- */
+function cubeTrain(L){
+  const cs = L.filter(o=> o.fam === 'cube');
+  if(pieceBusy || cs.length < 2) return;
+  flushHistory();
+  canvas.discardActiveObject();
+  const pts = cs.map(o=> ({ o, c:o.getCenterPoint() })).sort((a, b)=> (a.c.x - b.c.x) || (a.c.y - b.c.y));
+  const u = NBAR_U*(cs[0].scaleX || 1), x0 = pts[0].c.x, y0 = pts[0].c.y;
+  animatePieces(pts.map((p, i)=> ({ o:p.o, fx:p.c.x, fy:p.c.y, tx:x0 + i*u, ty:y0, abs:1 })), 320, ()=>{
+    canvas.setActiveObject(new fabric.ActiveSelection(cs, { canvas }));
+    canvas.requestRenderAll();
+    saveHistory();
+    updateCtxBar();
+    status('🚂 قطارِ ' + faNum(cs.length, 0) + ' مکعب');
+  });
+}
+// شمارنده‌ها: دوبار زدن = برگرداندن (+۱ ↔ −۱ ، قرمز ↔ زرد ، آبی ↔ سبز)
+const CHIP_FLIP = { p:'n', n:'p', r:'y', y:'r', b:'g', g:'b' };
+function chipFlip(L){
+  const cs = L.filter(o=> isPiece(o) && o.fam === 'chip');
+  if(!cs.length) return;
+  flushHistory();
+  cs.forEach(o=> o.set('v', CHIP_FLIP[o.v] || o.v));
+  canvas.requestRenderAll();
+  saveHistory();
+}
+
 /* ---- نوار پایین برای قطعه‌ها: مقدار/جمع و دکمه‌ها ---- */
 const gcd = (a, b)=>{ a = Math.abs(a); b = Math.abs(b); while(b){ [a, b] = [b, a % b]; } return a || 1; };
 function fracSum(list){
@@ -5753,6 +6060,30 @@ function pieceSummary(L){
     return 'مقدار: ' + kid(L.reduce((s, x)=> s + x.v, 0)) + (parts.length > 1 || cnt[1] > 1 || cnt[10] > 1 || cnt[100] > 1 || cnt[1000] > 1 ? ' <span class="muted">(' + parts.join('، ') + ')</span>' : '');
   }
   if(o.fam === 'nbar') return one ? '' : 'روی هم: ' + kid(L.reduce((s, x)=> s + x.v, 0));
+  if(o.fam === 'money'){
+    const tot = L.reduce((s, x)=> s + x.v, 0), cnt = {};
+    L.forEach(x=>{ cnt[x.v] = (cnt[x.v] || 0) + 1; });
+    const parts = MONEY_ORDER.slice().reverse().filter(v=> cnt[v]).map(v=> faNum(cnt[v], 0) + ' تا ' + faGroup(v));
+    return (one ? '' : 'جمع: ') + '<span class="kidnum">' + faGroup(tot) + '</span> تومان <span class="muted">(' + intWords(String(tot)) + ' تومان' + (one ? '' : '؛ ' + parts.join('، ')) + ')</span>';
+  }
+  if(o.fam === 'pvd'){
+    const cents = L.reduce((s, x)=> s + Math.round(x.v*100), 0), cnt = {};
+    L.forEach(x=>{ cnt[x.v] = (cnt[x.v] || 0) + 1; });
+    const parts = PVD_ORDER.filter(v=> cnt[v]).map(v=> faNum(cnt[v], 0) + ' تا ' + pvdLabel(v));
+    return 'مقدار: <span class="kidnum">' + faDec(cents/100) + '</span>' + (one ? '' : ' <span class="muted">(' + parts.join('، ') + ')</span>');
+  }
+  if(o.fam === 'cube'){
+    if(one) return 'مکعب ' + CUBE_NAME[o.v];
+    const cnt = {}, cols = Object.keys(CUBE).filter(c=> L.some(x=> x.v === c));
+    L.forEach(x=>{ cnt[x.v] = (cnt[x.v] || 0) + 1; });
+    let h = kid(L.length) + ' مکعب' + (cols.length > 1 ? ' <span class="muted">(' + cols.map(c=> faNum(cnt[c], 0) + ' ' + CUBE_NAME[c]).join(' + ') + ')</span>' : '');
+    const sh = cubeShape(L);
+    if(sh && sh.conn){
+      if(sh.w === 1 || sh.h === 1) h += ' · قطارِ ' + kid(sh.n) + 'تایی';
+      else h += ' · مساحت: ' + kid(sh.n) + ' <span class="muted">مربع</span> · محیط: ' + kid(sh.per) + ' <span class="muted">واحد</span>';
+    }
+    return h;
+  }
   if(o.fam === 'dice') return one ? 'عدد: ' + kid(o.v) : 'جمع: ' + kid(L.reduce((s, x)=> s + x.v, 0));
   if(o.fam === 'coin'){ const h = L.filter(x=> x.v === 1).length; return 'شیر: ' + kid(h) + ' · خط: ' + kid(L.length - h); }
   if(o.fam === 'spin') return one ? 'نتیجه: ' + kid(spinResult(o)) : '';
@@ -5764,10 +6095,10 @@ function pieceSummary(L){
   }
   return '';
 }
-const PIECE_TITLE = { chip:'🔴 شمارنده', b10:'🧊 بلوک ده‌دهی', nbar:'📏 نوار عددی', fbar:'🍫 نوار کسری', fcirc:'🥧 دایره‌ی کسری', pat:'🔷 قطعه‌ی الگو', dice:'🎲 تاس', coin:'🪙 سکه', spin:'🎡 چرخونه', frame:'🔟 قاب ده‌تایی' };
+const PIECE_TITLE = { money:'💵 پول', pvd:'🔵 ژتون ارزش مکانی', cube:'🟥 مکعب رنگی', chip:'🔴 شمارنده', b10:'🧊 بلوک ده‌دهی', nbar:'📏 نوار عددی', fbar:'🍫 نوار کسری', fcirc:'🥧 دایره‌ی کسری', pat:'🔷 قطعه‌ی الگو', dice:'🎲 تاس', coin:'🪙 سکه', spin:'🎡 چرخونه', frame:'🔟 قاب ده‌تایی' };
 function pieceSig(L){
   const o = L[0];
-  return 'piece|' + L.length + '|' + [...new Set(L.map(x=> x.fam))].sort().join() + '|' + (L.length === 1 ? o.fam + o.v : '') + '|' + b10GroupReady(L) + '|' + chipPN(L);
+  return 'piece|' + L.length + '|' + [...new Set(L.map(x=> x.fam))].sort().join() + '|' + (L.length === 1 ? o.fam + o.v : '') + '|' + b10GroupReady(L) + '|' + chipPN(L) + '|' + pvdGroupReady(L) + '|' + moneyCanMerge(L);
 }
 function pieceCtxHtml(){
   const L = pieceList();
@@ -5780,9 +6111,15 @@ function pieceCtxHtml(){
   if(one && o.fam === 'frame') h += '<button class="cb-btn" data-a="pfm" title="یکی کمتر">−</button><button class="cb-btn" data-a="pfp" title="یکی بیشتر">+</button><button class="cb-btn" data-a="pfc" title="خالی کردن">🧹</button>';
   if(one && o.fam === 'b10' && o.v > 1) h += '<button class="cb-btn" data-a="pbreak" title="یا دوبار روی بلوک بزنید">✂️ باز کن به ۱۰ تا ' + B10.name[o.v/10] + '</button>';
   if(b10GroupReady(L)) h += '<button class="cb-btn" data-a="pgroup">🔗 هر ۱۰ تا را یکی کن</button>';
+  if(one && o.fam === 'money' && MONEY_BREAK[o.v]) h += '<button class="cb-btn" data-a="mbreak" title="یا دوبار روی آن بزنید">💱 خرد کن</button>';
+  if(moneyCanMerge(L)) h += '<button class="cb-btn" data-a="mmerge" title="همین مبلغ با کمترین تعداد سکه و اسکناس">🔄 درشت کن</button>';
+  if(one && o.fam === 'pvd' && o.v > 0.01) h += '<button class="cb-btn" data-a="pvbreak" title="یا دوبار روی ژتون بزنید">✂️ باز کن به ۱۰ تا ' + pvdLabel(pvdKey(o.v/10)) + '</button>';
+  if(pvdGroupReady(L)) h += '<button class="cb-btn" data-a="pvgroup">🔗 هر ۱۰ تا را یکی کن</button>';
+  if(fams.size === 1 && o.fam === 'cube' && L.length > 1) h += '<button class="cb-btn" data-a="ctrain" title="مکعب‌ها پشتِ هم به هم وصل شوند">🚂 قطار کن</button>';
   if(fams.size === 1 && o.fam === 'chip'){
     if(chipPN(L)) h += '<button class="cb-btn" data-a="pcancel" title="هر +۱ با یک −۱ جمع می‌شود و صفر می‌شود">➕➖ حذف زوج‌های صفر</button>';
     h += '<button class="cb-btn" data-a="pgrp" title="شمارنده‌ها را دسته‌دسته می‌چیند (تقسیم)">🔢 دسته‌بندی</button>';
+    h += '<button class="cb-btn" data-a="pflip" title="برگرداندنِ شمارنده (+۱ ↔ −۱ ، قرمز ↔ زرد ، آبی ↔ سبز) — یا دوبار روی آن بزنید">🔄 برگردان</button>';
   }
   return h;
 }
@@ -5809,6 +6146,12 @@ function pieceCtxClick(a){
   else if(a === 'pgroup') b10Group(L);
   else if(a === 'pcancel') chipCancel(L);
   else if(a === 'pgrp') chipGroupDialog(L);
+  else if(a === 'mbreak') moneyBreak(o);
+  else if(a === 'mmerge') moneyMerge(L);
+  else if(a === 'pvbreak') pvdBreak(o);
+  else if(a === 'pvgroup') pvdGroup(L);
+  else if(a === 'ctrain') cubeTrain(L);
+  else if(a === 'pflip') chipFlip(L);
   fillCtx();
 }
 
@@ -7136,6 +7479,275 @@ TOOLS.clock = {
   sum(o){
     const h = ((Math.floor(o.p.t/60) + 11) % 12) + 1, m = o.p.t % 60;
     return '<span class="kidnum" dir="ltr">' + persDigits(String(h).padStart(2, '0')) + ':' + persDigits(String(m).padStart(2, '0')) + '</span> — ' + timeWords(o.p.t);
+  }
+};
+
+
+/* ============================================================
+   چرتکه‌ی شمارش (ریکنرک): ردیف‌های ۱۰ یا ۲۰ مهره، هر ۵ مهره یک رنگ
+   روی هر مهره بزنید: خودش و مهره‌های پشتش به چپ می‌روند (یا به راست برمی‌گردند)
+============================================================ */
+const REK_D = 30, REK_F = 14, REK_RH = 40, REK_MS = 220;
+function rekGeom(o){
+  const n = o.p.n, rodL = (n + (n > 10 ? 7 : 5))*REK_D, badge = o.p.nums ? 46 : 0;
+  const w = rodL + 2*REK_F + badge, h = o.p.rows*REK_RH + 2*REK_F;
+  const x0 = -w/2 + REK_F, x1 = x0 + rodL, y0 = -h/2 + REK_F;
+  return { w, h, x0, x1, y0, badge, rodL };
+}
+// جای مهره‌ها (مرکز) در هر ردیف
+function rekTargets(o, G){
+  const n = o.p.n, D = REK_D;
+  return o.st.c.map(c=> Array.from({ length:n }, (_, j)=> j < c ? G.x0 + 2 + j*D + D/2 : G.x1 - 2 - (n - j)*D + D/2));
+}
+function rekShown(o, G){
+  const T = rekTargets(o, G), A = o._anim;
+  if(!A || A.rows !== o.p.rows || A.n !== o.p.n) return T;
+  const u = clamp((performance.now() - A.t0)/REK_MS, 0, 1), e = easeInOut(u);
+  return T.map((row, r)=> row.map((x, j)=> A.from[r][j] + (x - A.from[r][j])*e));
+}
+function rekKick(o){
+  const step = ()=>{
+    if(!o.canvas || !o._anim) return;
+    o.dirty = true; canvas.requestRenderAll();
+    if(performance.now() - o._anim.t0 < REK_MS + 20) requestAnimationFrame(step);
+    else { o._anim = null; o.dirty = true; canvas.requestRenderAll(); }
+  };
+  requestAnimationFrame(step);
+}
+TOOLS.rek = {
+  title:()=> '🧮 چرتکه‌ی شمارش',
+  def:()=> ({ p:{ rows:2, n:10, nums:1 }, st:{ c:[0, 0] } }),
+  norm(o){
+    o.p.rows = [1, 2, 5, 10].includes(+o.p.rows) ? +o.p.rows : 2;
+    o.p.n = +o.p.n === 20 ? 20 : 10;
+    o.p.nums = o.p.nums ? 1 : 0;
+    const c = Array.isArray(o.st.c) ? o.st.c : [];
+    o.st.c = Array.from({ length:o.p.rows }, (_, i)=> clamp(Math.round(+c[i] || 0), 0, o.p.n));
+  },
+  size(o){ const G = rekGeom(o); return { w:G.w, h:G.h }; },
+  params:()=> [],
+  draw(ctx, o){
+    const G = rekGeom(o), col = toolCol(o), wood = '#b45309', X = -G.w/2, Y = -G.h/2, fw = G.rodL + 2*REK_F;
+    roundRect(ctx, X, Y, fw, G.h, 10); ctx.fillStyle = wood; ctx.fill();
+    roundRect(ctx, X + REK_F, Y + REK_F, G.rodL, G.h - 2*REK_F, 4); ctx.fillStyle = S.dark ? '#f8fafc' : '#fffbeb'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = mixHex(wood, -.35); roundRect(ctx, X, Y, fw, G.h, 10); ctx.stroke();
+    const P = rekShown(o, G);
+    for(let r = 0; r < o.p.rows; r++){
+      const cy = G.y0 + r*REK_RH + REK_RH/2;
+      ctx.beginPath(); ctx.moveTo(X + 6, cy); ctx.lineTo(X + fw - 6, cy); ctx.lineWidth = 4; ctx.strokeStyle = '#94a3b8'; ctx.stroke();
+      P[r].forEach((x, j)=>{
+        const red = Math.floor(j/5) % 2 === 0, base = red ? '#ef4444' : '#f8fafc', R = REK_D/2 - 1;
+        const g = ctx.createRadialGradient(x - 5, cy - 6, 2, x, cy, R);
+        g.addColorStop(0, red ? '#fca5a5' : '#ffffff'); g.addColorStop(1, red ? '#dc2626' : '#cbd5e1');
+        ctx.beginPath(); ctx.ellipse(x, cy, R, R*1.08, 0, 0, TAU); ctx.fillStyle = g; ctx.fill();
+        ctx.lineWidth = 1.2; ctx.strokeStyle = red ? '#991b1b' : '#64748b'; ctx.stroke();
+      });
+      if(o.p.nums) kidText(ctx, faNum(o.st.c[r], 0), X + fw + G.badge/2, cy, 24, col);
+    }
+  },
+  tap(o, lx, ly){
+    const G = rekGeom(o), r = Math.floor((ly - G.y0)/REK_RH);
+    if(r < 0 || r >= o.p.rows) return false;
+    const cy = G.y0 + r*REK_RH + REK_RH/2;
+    if(Math.abs(ly - cy) > REK_RH/2) return false;
+    const cur = rekShown(o, G), row = rekTargets(o, G)[r];
+    let j = -1, best = REK_D/2 + 3;
+    row.forEach((x, k)=>{ const d = Math.abs(lx - x); if(d < best){ best = d; j = k; } });
+    if(j < 0) return false;
+    const c = o.st.c[r], nc = j < c ? j : j + 1;
+    if(nc === c) return false;
+    o._anim = { t0:performance.now(), from:cur, rows:o.p.rows, n:o.p.n };
+    o.st.c[r] = nc;
+    rekKick(o);
+    return true;
+  },
+  ctxx:()=>
+    selectHtml('rr', [[1, '۱ ردیف'], [2, '۲ ردیف'], [5, '۵ ردیف'], [10, '۱۰ ردیف']]) +
+    selectHtml('rn', [[10, '۱۰ مهره'], [20, '۲۰ مهره']]) +
+    '<button class="cb-btn" data-a="rknum" title="نوشتنِ تعدادِ هر ردیف">۱۲۳</button>' +
+    '<button class="cb-btn" data-a="rkz" title="همه‌ی مهره‌ها به راست برگردند">↺ از نو</button>',
+  select(o, k, v){
+    if(k === 'rr') o.p.rows = +v;
+    else if(k === 'rn') o.p.n = +v;
+    o._anim = null;
+  },
+  act(o, a){
+    if(a === 'rknum') o.p.nums = o.p.nums ? 0 : 1;
+    else if(a === 'rkz'){ const G = rekGeom(o); o._anim = { t0:performance.now(), from:rekShown(o, G), rows:o.p.rows, n:o.p.n }; o.st.c = o.st.c.map(()=> 0); rekKick(o); }
+  },
+  fill(o, api){
+    const a = api.q('[data-k="rr"]'), b = api.q('[data-k="rn"]');
+    if(a) a.value = String(o.p.rows); if(b) b.value = String(o.p.n);
+    api.on('rknum', o.p.nums);
+  },
+  sum(o){
+    const c = o.st.c, tot = c.reduce((s, x)=> s + x, 0);
+    if(!tot) return '<span class="muted">روی مهره‌ها بزنید تا به چپ بروند؛ دوباره بزنید تا برگردند</span>';
+    if(c.length === 1) return kn(tot);
+    if(c.length <= 4) return '<span dir="ltr">' + c.map(kn).join(' + ') + ' = ' + kn(tot) + '</span>';
+    return 'روی هم: ' + kn(tot);
+  }
+};
+
+/* ============================================================
+   ژئوبرد (تخته‌ی میخی): روی میخ‌ها بزنید تا کش دورشان بیفتد؛ روی میخِ اول بزنید تا شکل بسته شود
+   نامِ شکل، مساحت (با شمردنِ خانه‌ها) و محیط (اگر ضلع‌ها افقی/عمودی باشند)
+============================================================ */
+const GB_COLS = ['#ef4444', '#2563eb', '#16a34a', '#f59e0b', '#9333ea', '#db2777', '#0d9488', '#ea580c'];
+const GB_M = 26, GB_MAXB = 12;
+const gbGap = o => ({ 5:64, 7:54, 9:46, 11:40 })[o.p.n];
+function gbPeg(o, i, j){ const g = gbGap(o), S0 = (o.p.n - 1)*g/2; return { x:-S0 + i*g, y:-S0 + j*g }; }
+// رأس‌های واقعی (میخ‌های وسطِ یک ضلعِ صاف حذف می‌شوند)
+function gbCorners(pts){
+  const P = pts.slice(), out = [];
+  for(let k = 0; k < P.length; k++){
+    const a = P[(k - 1 + P.length) % P.length], b = P[k], c = P[(k + 1) % P.length];
+    if((b[0] - a[0])*(c[1] - b[1]) - (b[1] - a[1])*(c[0] - b[0]) !== 0) out.push(b);
+  }
+  return out;
+}
+const gbArea = P => Math.abs(P.reduce((s, p, k)=>{ const q = P[(k + 1) % P.length]; return s + p[0]*q[1] - q[0]*p[1]; }, 0))/2;
+function gbName(P){
+  const m = P.length;
+  if(m < 3) return 'پاره‌خط';
+  const E = P.map((p, k)=>{ const q = P[(k + 1) % m]; return [q[0] - p[0], q[1] - p[1]]; });
+  const L2 = E.map(e=> e[0]*e[0] + e[1]*e[1]), cross = (a, b)=> a[0]*b[1] - a[1]*b[0], dot = (a, b)=> a[0]*b[0] + a[1]*b[1];
+  const right = E.map((e, k)=> dot(e, E[(k + 1) % m]) === 0);
+  if(m === 3){
+    const iso = L2[0] === L2[1] || L2[1] === L2[2] || L2[0] === L2[2];
+    return 'مثلث' + (right.some(Boolean) ? ' قائم‌الزاویه' : '') + (iso ? ' متساوی‌الساقین' : '');
+  }
+  if(m === 4){
+    const p02 = cross(E[0], E[2]) === 0, p13 = cross(E[1], E[3]) === 0, eq = L2.every(x=> x === L2[0]), allR = right.every(Boolean);
+    if(p02 && p13) return eq && allR ? 'مربع' : allR ? 'مستطیل' : eq ? 'لوزی' : 'متوازی‌الاضلاع';
+    if(p02 || p13){
+      const legs = p02 ? [L2[1], L2[3]] : [L2[0], L2[2]];
+      return 'ذوزنقه' + (right.some(Boolean) ? ' قائم‌الزاویه' : legs[0] === legs[1] ? ' متساوی‌الساقین' : '');
+    }
+    return 'چهارضلعی';
+  }
+  return NET_POLY[m] || faNum(m, 0) + 'ضلعی';
+}
+TOOLS.gb = {
+  title:()=> '📌 ژئوبرد',
+  def:()=> ({ p:{ n:5, area:1, grid:0 }, st:{ b:[], cur:-1, last:-1 } }),
+  norm(o){
+    o.p.n = [5, 7, 9, 11].includes(+o.p.n) ? +o.p.n : 5;
+    o.p.area = o.p.area ? 1 : 0; o.p.grid = o.p.grid ? 1 : 0;
+    const n = o.p.n, B = Array.isArray(o.st.b) ? o.st.b : [], map = new Map(), out = [];
+    B.forEach((b, k)=>{
+      const pts = (b && Array.isArray(b.pts) ? b.pts : []).map(q=> [q[0] | 0, q[1] | 0]).filter(q=> q[0] >= 0 && q[1] >= 0 && q[0] < n && q[1] < n);
+      if(!pts.length || out.length >= GB_MAXB) return;
+      map.set(k, out.length);
+      out.push({ c:Math.abs(b.c | 0) % GB_COLS.length, cl:b.cl && pts.length >= 3 ? 1 : 0, pts });
+    });
+    o.st.b = out;
+    o.st.cur = map.has(o.st.cur) ? map.get(o.st.cur) : -1;
+    if(o.st.cur >= 0 && out[o.st.cur].cl) o.st.cur = -1;
+    o.st.last = map.has(o.st.last) ? map.get(o.st.last) : out.length - 1;
+  },
+  size(o){ const s = (o.p.n - 1)*gbGap(o) + 2*GB_M; return { w:s, h:s }; },
+  params:()=> [],
+  draw(ctx, o){
+    const col = toolCol(o), n = o.p.n, g = gbGap(o), S0 = (n - 1)*g/2, half = S0 + GB_M;
+    roundRect(ctx, -half, -half, 2*half, 2*half, 14); ctx.fillStyle = S.dark ? '#f1f5f9' : '#f8fafc'; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = col; ctx.stroke();
+    if(o.p.grid){
+      ctx.beginPath();
+      for(let k = 0; k < n; k++){ const t = -S0 + k*g; ctx.moveTo(t, -S0); ctx.lineTo(t, S0); ctx.moveTo(-S0, t); ctx.lineTo(S0, t); }
+      ctx.lineWidth = 1; ctx.strokeStyle = '#cbd5e1'; ctx.stroke();
+    }
+    const B = o.st.b, pt = q=> gbPeg(o, q[0], q[1]);
+    B.forEach((b, bi)=>{
+      const c = GB_COLS[b.c], P = b.pts.map(pt);
+      ctx.beginPath(); P.forEach((p, k)=> k ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      if(b.cl){ ctx.closePath(); ctx.fillStyle = hexToRgba(c, .2); ctx.fill(); }
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.lineWidth = 5; ctx.strokeStyle = c; ctx.stroke();
+      if(P.length === 1){ ctx.beginPath(); ctx.arc(P[0].x, P[0].y, 9, 0, TAU); ctx.lineWidth = 4; ctx.strokeStyle = c; ctx.stroke(); }
+      if(bi === o.st.cur && P.length >= 3){       // میخِ اول: اینجا بزنید تا بسته شود
+        ctx.save(); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(P[0].x, P[0].y, 13, 0, TAU); ctx.lineWidth = 2.5; ctx.strokeStyle = c; ctx.stroke(); ctx.restore();
+      }
+    });
+    for(let i = 0; i < n; i++) for(let j = 0; j < n; j++){
+      const p = gbPeg(o, i, j);
+      ctx.beginPath(); ctx.arc(p.x + 1, p.y + 1.5, 5.5, 0, TAU); ctx.fillStyle = 'rgba(15,23,42,.2)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, TAU); ctx.fillStyle = '#475569'; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x - 1.5, p.y - 1.5, 2, 0, TAU); ctx.fillStyle = '#cbd5e1'; ctx.fill();
+    }
+    if(o.p.area) B.forEach(b=>{
+      if(!b.cl) return;
+      const C = gbCorners(b.pts), A = gbArea(b.pts);
+      if(C.length < 3 || !A) return;
+      let cx = 0, cy = 0, a2 = 0;
+      C.forEach((p, k)=>{ const q = C[(k + 1) % C.length], f = p[0]*q[1] - q[0]*p[1]; a2 += f; cx += (p[0] + q[0])*f; cy += (p[1] + q[1])*f; });
+      const m = gbPeg(o, cx/(3*a2), cy/(3*a2)), txt = faNum(A, 1), fs = 20;
+      ctx.font = fs + 'px ' + KID_FONT; const tw = ctx.measureText(txt).width + 14;
+      roundRect(ctx, m.x - tw/2, m.y - 14, tw, 28, 8); ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = GB_COLS[b.c]; ctx.stroke();
+      kidText(ctx, txt, m.x, m.y, fs, mixHex(GB_COLS[b.c], -.35));
+    });
+  },
+  tap(o, lx, ly){
+    const g = gbGap(o), S0 = (o.p.n - 1)*g/2, i = Math.round((lx + S0)/g), j = Math.round((ly + S0)/g);
+    if(i < 0 || j < 0 || i >= o.p.n || j >= o.p.n) return false;
+    const p = gbPeg(o, i, j);
+    if(Math.hypot(lx - p.x, ly - p.y) > g*0.45) return false;
+    const B = o.st.b, cur = o.st.cur >= 0 ? B[o.st.cur] : null;
+    if(cur){
+      const k = cur.pts.findIndex(q=> q[0] === i && q[1] === j);
+      if(k === 0 && cur.pts.length >= 3){ cur.cl = 1; o.st.last = o.st.cur; o.st.cur = -1; return true; }
+      if(k >= 0) return false;
+      cur.pts.push([i, j]); o.st.last = o.st.cur;
+      return true;
+    }
+    if(B.length >= GB_MAXB){ toast('حداکثر ' + faNum(GB_MAXB, 0) + ' کش؛ با 🧹 کش‌ها را بردارید', 2600); return false; }
+    const used = new Set(B.map(b=> b.c)), c = [...GB_COLS.keys()].find(k=> !used.has(k));
+    B.push({ c:c == null ? B.length % GB_COLS.length : c, cl:0, pts:[[i, j]] });
+    o.st.cur = o.st.last = B.length - 1;
+    return true;
+  },
+  ctxx:()=>
+    selectHtml('gn', [[5, '۵×۵'], [7, '۷×۷'], [9, '۹×۹'], [11, '۱۱×۱۱']]) +
+    '<button class="cb-btn" data-a="gbc" title="بستنِ شکل (یا روی میخِ اول بزنید)">✔ بستن</button>' +
+    '<button class="cb-btn" data-a="gbn" title="کشِ بعدی با رنگِ دیگر">➕ کش تازه</button>' +
+    '<button class="cb-btn" data-a="gbu" title="برداشتنِ آخرین میخ">↶</button>' +
+    '<button class="cb-btn" data-a="gba" title="نوشتنِ مساحت داخلِ هر شکل">مساحت</button>' +
+    '<button class="cb-btn" data-a="gbg" title="خانه‌های واحد برای شمردنِ مساحت">▦ خانه‌ها</button>' +
+    '<button class="cb-btn" data-a="gbx" title="برداشتنِ همه‌ی کش‌ها">🧹</button>',
+  select(o, k, v){ if(k === 'gn') o.p.n = +v; },
+  act(o, a){
+    const B = o.st.b, cur = o.st.cur >= 0 ? B[o.st.cur] : null;
+    if(a === 'gbc'){ if(cur && cur.pts.length >= 3){ cur.cl = 1; o.st.last = o.st.cur; o.st.cur = -1; } }
+    else if(a === 'gbn'){ if(cur){ if(cur.pts.length < 2) B.splice(o.st.cur, 1); o.st.cur = -1; o.st.last = B.length - 1; } }
+    else if(a === 'gbu'){
+      if(cur){ cur.pts.pop(); if(!cur.pts.length){ B.splice(o.st.cur, 1); o.st.cur = -1; } }
+      else if(B.length){ const b = B[B.length - 1]; if(b.cl) b.cl = 0; else b.pts.pop(); if(b.pts.length){ o.st.cur = B.length - 1; } else B.pop(); }
+      o.st.last = o.st.cur >= 0 ? o.st.cur : B.length - 1;
+    }
+    else if(a === 'gba') o.p.area = o.p.area ? 0 : 1;
+    else if(a === 'gbg') o.p.grid = o.p.grid ? 0 : 1;
+    else if(a === 'gbx'){ o.st.b = []; o.st.cur = o.st.last = -1; }
+  },
+  fill(o, api){ const s = api.q('[data-k="gn"]'); if(s) s.value = String(o.p.n); api.on('gba', o.p.area); api.on('gbg', o.p.grid); },
+  sum(o){
+    const B = o.st.b, b = B[o.st.cur >= 0 ? o.st.cur : o.st.last];
+    if(!b) return '<span class="muted">روی میخ‌ها بزنید تا کش دورشان بیفتد؛ برای بستنِ شکل روی میخِ اول بزنید</span>';
+    const dot = '<span class="dot" style="background:' + GB_COLS[b.c] + '"></span>';
+    if(!b.cl){
+      if(b.pts.length === 1) return dot + '<span class="muted">میخِ بعدی را بزنید</span>';
+      if(b.pts.length === 2){
+        const [p, q] = b.pts, ax = p[0] === q[0] || p[1] === q[1];
+        return dot + 'پاره‌خط' + (ax ? ' · طول: ' + kn(Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1])) + ' واحد' : '') + ' <span class="muted">— میخِ بعدی را بزنید</span>';
+      }
+      return dot + faNum(b.pts.length, 0) + ' میخ <span class="muted">— برای بستن روی میخِ اول بزنید یا «✔ بستن»</span>';
+    }
+    const C = gbCorners(b.pts), A = gbArea(b.pts);
+    if(C.length < 3 || !A) return dot + '<span class="muted">این شکل مساحت ندارد (همه‌ی میخ‌ها روی یک خط‌اند)</span>';
+    const E = b.pts.map((p, k)=>{ const q = b.pts[(k + 1) % b.pts.length]; return [q[0] - p[0], q[1] - p[1]]; });
+    const ax = E.every(e=> e[0] === 0 || e[1] === 0), P = E.reduce((s, e)=> s + Math.abs(e[0]) + Math.abs(e[1]), 0);
+    return dot + '<b>' + gbName(C) + '</b> · مساحت: ' + kv(A) + ' <span class="muted">واحد مربع</span>' +
+      (ax ? ' · محیط: ' + kn(P) + ' <span class="muted">واحد</span>' : '') +
+      (B.filter(x=> x.cl).length > 1 ? ' <span class="muted">(' + faNum(B.filter(x=> x.cl).length, 0) + ' شکل)</span>' : '');
   }
 };
 
