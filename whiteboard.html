@@ -731,10 +731,10 @@ body.rec-on #credit{visibility:hidden}
     <section class="panel" id="props">
       <h3>⚙️ تنظیمات</h3>
       <div class="row"><label>رنگ</label><input id="color" type="color" value="#111111"></div>
-      <div class="row"><label>ضخامت</label><input id="width" type="range" min="1" max="40" value="4"><span class="val" id="widthVal">4</span></div>
-      <div class="row"><label>شفافیت</label><input id="opacity" type="range" min="10" max="100" value="100"><span class="val" id="opacityVal">100%</span></div>
+      <div class="row"><label>ضخامت</label><input id="width" type="range" min="1" max="40" value="4"><span class="val" id="widthVal">۴</span></div>
+      <div class="row"><label>شفافیت</label><input id="opacity" type="range" min="10" max="100" value="100"><span class="val" id="opacityVal">۱۰۰٪</span></div>
       <div class="row"><label>فونت</label><select id="font"><option value="KidFont, Tahoma">فونت کودک</option><option>Tahoma</option><option>Arial</option><option>Vazirmatn</option><option>Times New Roman</option></select></div>
-      <div class="row"><label>اندازه</label><input id="fontSize" type="range" min="12" max="80" value="28"><span class="val" id="fontSizeVal">28</span></div>
+      <div class="row"><label>اندازه</label><input id="fontSize" type="range" min="12" max="80" value="28"><span class="val" id="fontSizeVal">۲۸</span></div>
       <div class="propgrid">
         <button class="menuitem" data-prop="front">⬆️ جلو</button>
         <button class="menuitem" data-prop="back">⬇️ عقب</button>
@@ -822,6 +822,8 @@ function faNum(n, dec=1){
   // ممیز اعشار در کتاب‌های درسی ایران «/» است، نه نقطه
   return String(v).replace(/\d/g, d=>FA_DIGITS[d]).replace('.', '/').replace('-', '−');
 }
+// نوشتنِ عدد در جعبه‌ی ورودی با رقم‌های فارسی (ممیز «/»)؛ خواندنش با parseNum/normDigits است
+const faInput = v => String(v == null ? '' : v).replace(/\d/g, d=> FA_DIGITS[d]).replace(/\./g, '/');
 // عدد از ورودی کاربر — ارقام فارسی/عربی و ممیز فارسی هم پذیرفته می‌شوند
 function parseNum(str){
   const s = String(str == null ? '' : str).trim()
@@ -1928,7 +1930,7 @@ function setColor(c){
 function setWidth(w){
   S.width = clamp(Math.round(w), 1, 40);
   els.width.value = S.width;
-  els.widthVal.textContent = S.width;
+  els.widthVal.textContent = faNum(S.width, 0);
   refreshQuickBar();
   if(!styleSelection({ width:S.width }) && !DRAW_TOOLS.has(S.tool) && S.tool !== 'shape') setTool('pen');
   else applyCursor();
@@ -2297,13 +2299,13 @@ function bindProps(){
   els.width.addEventListener('input', e=> setWidth(+e.target.value));
   els.opacity.addEventListener('input', e=>{
     S.opacity = +e.target.value / 100;
-    els.opacityVal.textContent = e.target.value + '%';
+    els.opacityVal.textContent = faNum(+e.target.value, 0) + '٪';
     styleSelection({ opacity:S.opacity });
   });
   els.font.addEventListener('change', e=>{ S.font = e.target.value; styleSelection({ font:S.font }); });
   els.fontSize.addEventListener('input', e=>{
     S.fontSize = +e.target.value;
-    els.fontSizeVal.textContent = e.target.value;
+    els.fontSizeVal.textContent = faNum(+e.target.value, 0);
     styleSelection({ fontSize:S.fontSize });
   });
 
@@ -2352,15 +2354,15 @@ function syncProps(){
   if(typeof col === 'string') els.color.value = toHex(col);
   if(src.strokeWidth){
     const wv = clamp(Math.round(src.strokeWidth), 1, 40);
-    els.width.value = wv; els.widthVal.textContent = wv;
+    els.width.value = wv; els.widthVal.textContent = faNum(wv, 0);
   }
   if(o.opacity != null){
     const ov2 = clamp(Math.round(o.opacity*100), 10, 100);
-    els.opacity.value = ov2; els.opacityVal.textContent = ov2 + '%';
+    els.opacity.value = ov2; els.opacityVal.textContent = faNum(ov2, 0) + '٪';
   }
   if(src.fontSize){
     const fv = clamp(Math.round(src.fontSize), 12, 80);
-    els.fontSize.value = fv; els.fontSizeVal.textContent = fv;
+    els.fontSize.value = fv; els.fontSizeVal.textContent = faNum(fv, 0);
   }
   if(src.fontFamily) setFontSelect(src.fontFamily);
 }
@@ -3928,7 +3930,7 @@ function fillCtx(){
   const o = canvas.getActiveObject();
   const setV = (k, v)=>{
     const inp = els.ctxBar.querySelector(`[data-k="${k}"]`);
-    if(inp && document.activeElement !== inp) inp.value = v;
+    if(inp && document.activeElement !== inp) inp.value = faInput(v);
   };
   const on = (a, v)=>{ const b = els.ctxBar.querySelector(`[data-a="${a}"]`); if(b) b.classList.toggle('on', !!v); };
   if(cb.mode === 'compass'){
@@ -4195,7 +4197,7 @@ function promptDialog(title, fields){
         const inp = document.createElement('input');
         inp.type = 'text'; inp.inputMode = f.type === 'text' ? 'text' : 'decimal'; inp.autocomplete = 'off';
         if(f.type === 'text') inp.className = 'txt';
-        inp.value = f.value;
+        inp.value = f.type === 'text' ? f.value : faInput(f.value);
         inp.addEventListener('input', ()=>{ inp.dataset.touched = '1'; });
         row.appendChild(inp);
         // صفحه‌کلیدِ عددیِ گوشی علامت منفی ندارد؛ این دکمه علامت را برمی‌گرداند
@@ -4264,7 +4266,7 @@ function openPlaceDialog(){
   promptDialog('🔢 جدول ارزش مکانی', [
     { key:'mode', type:'choice', label:'نوع جدول', value:'int',
       options:[{ v:'int', t:'بدون اعشار' }, { v:'dec', t:'با اعشار' }],
-      onPick:(v, inp)=>{ const i = inp.ints; if(i && !i.dataset.touched) i.value = v === 'dec' ? 3 : 5; } },
+      onPick:(v, inp)=>{ const i = inp.ints; if(i && !i.dataset.touched) i.value = v === 'dec' ? '۳' : '۵'; } },
     { key:'ints', label:'رقم‌های صحیح', min:1, max:12, int:true, value:5 },
     { key:'decs', label:'رقم‌های اعشار', min:1, max:6, int:true, value:3, showIf:c => c.mode === 'dec' }
   ]).then(v=>{
@@ -4920,7 +4922,7 @@ function pieceSize(o){
     case 'dice': return { w:64, h:64 };
     case 'coin': return { w:72, h:72 };
     case 'spin': return { w:2*SPIN_R + 12, h:2*SPIN_R + 12 };
-    case 'frame': return o.v > 10 ? { w:5*FR_C, h:4*FR_C + FR_GAP } : { w:5*FR_C, h:2*FR_C };
+    case 'frame': return o.v > 10 ? { w:5*FR_C, h:4*FR_C + FR_GAP } : { w:5*FR_C, h:(o.v === 5 ? 1 : 2)*FR_C };
     case 'money': { const M = MONEY[o.v]; return M.coin ? { w:2*M.r + 6, h:2*M.r + 6 } : { w:MONEY_W + 6, h:MONEY_H + 8 }; }
     case 'pvd': return { w:2*PVD_R + 5, h:2*PVD_R + 5 };
     case 'cube': return { w:NBAR_U, h:NBAR_U };
@@ -4950,7 +4952,7 @@ function pieceNormalize(o){
   else if(f === 'pvd') o.v = pvdKey(+o.v) || 1;
   else if(f === 'cube') o.v = CUBE[o.v] ? o.v : 'r';
   else if(f === 'frame'){
-    o.v = +o.v === 20 ? 20 : 10;
+    o.v = +o.v === 20 ? 20 : +o.v === 5 ? 5 : 10;
     const c = Array.isArray(o.cells) ? o.cells : [];
     o.cells = Array.from({ length:o.v }, (_, i)=> c[i] ? 1 : 0);
   }
@@ -5085,15 +5087,15 @@ function drawSpin(ctx, o){
   ctx.lineWidth = 2.5; ctx.strokeStyle = '#0f172a'; ctx.stroke();
 }
 function drawFrame(ctx, o){
-  const c = FR_C, d = pieceSize(o), x0 = -d.w/2, y0 = -d.h/2, blocks = o.v > 10 ? 2 : 1;
+  const c = FR_C, d = pieceSize(o), x0 = -d.w/2, y0 = -d.h/2, blocks = o.v > 10 ? 2 : 1, rows = o.v === 5 ? 1 : 2;
   for(let b=0; b<blocks; b++){
     const by = y0 + b*(2*c + FR_GAP);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(x0, by, 5*c, 2*c);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x0, by, 5*c, rows*c);
     ctx.beginPath();
-    for(let i=1; i<5; i++){ ctx.moveTo(x0 + i*c, by); ctx.lineTo(x0 + i*c, by + 2*c); }
-    ctx.moveTo(x0, by + c); ctx.lineTo(x0 + 5*c, by + c);
+    for(let i=1; i<5; i++){ ctx.moveTo(x0 + i*c, by); ctx.lineTo(x0 + i*c, by + rows*c); }
+    if(rows === 2){ ctx.moveTo(x0, by + c); ctx.lineTo(x0 + 5*c, by + c); }
     ctx.lineWidth = 1.5; ctx.strokeStyle = '#64748b'; ctx.stroke();
-    ctx.lineWidth = 2.5; ctx.strokeStyle = '#334155'; ctx.strokeRect(x0 + 1, by + 1, 5*c - 2, 2*c - 2);
+    ctx.lineWidth = 2.5; ctx.strokeStyle = '#334155'; ctx.strokeRect(x0 + 1, by + 1, 5*c - 2, rows*c - 2);
   }
   (o.cells || []).forEach((on, i)=>{
     if(!on) return;
@@ -5301,7 +5303,7 @@ const TRAY = [
     acts:[['b10num', '🔢 ساختنِ عدد با بلوک‌ها'], ['pvdnum', '🔵 ساختنِ عدد با ژتون‌ها']] },
   { id:'num', t:'عدد و ضرب', groups:[
       { h:'نوارهای عددی', items:[1,2,3,4,5,6,7,8,9,10].map(v=> ['nbar', v]) },
-      { h:'قاب، چرتکه و جدول', items:[['frame', 10], ['frame', 20], ['tool', 'rek'], ['tool', 'hund']] },
+      { h:'قاب، چرتکه و جدول', items:[['frame', 5], ['frame', 10], ['frame', 20], ['tool', 'rek'], ['tool', 'hund']] },
       { h:'مکعب‌های رنگی (شمارش، مقایسه، مساحت و محیط)', items:Object.keys(CUBE).map(k=> ['cube', k]) },
       { h:'ضرب و الگو', items:[['tool', 'arr'], ['tool', 'am'], ['tool', 'fm']] },
       { h:'شمارنده‌ها (عدد صحیح، نسبت، تقسیم)', items:CHIPS }],
@@ -6391,7 +6393,7 @@ function toolFill(){
   const o = toolOne();
   if(!o) return;
   const T = TOOLS[o.kind], bar = els.ctxBar;
-  const setV = (k, v)=>{ const i = bar.querySelector('[data-k="' + k + '"]'); if(i && document.activeElement !== i) i.value = v; };
+  const setV = (k, v)=>{ const i = bar.querySelector('[data-k="' + k + '"]'); if(i && document.activeElement !== i) i.value = faInput(v); };
   const on = (a, v)=>{ const b = bar.querySelector('[data-a="' + a + '"]'); if(b) b.classList.toggle('on', !!v); };
   T.params(o).forEach(sp=> setV(sp.k, numStr(toolGet(sp, o), 2)));
   T.fill && T.fill(o, { setV, on, q:s=> bar.querySelector(s) });
@@ -6596,11 +6598,13 @@ const HUND_COL = ['#f97316', '#3b82f6', '#22c55e', '#a855f7'];
 const isPrime = n => { if(n < 2) return false; for(let i = 2; i*i <= n; i++) if(n % i === 0) return false; return true; };
 TOOLS.hund = {
   title:()=> '🔢 جدول اعداد ۱ تا ۱۰۰',
-  def:()=> ({ p:{ n:6 }, st:{ m:Array(100).fill(0), cur:0 } }),
+  // st.h = عددهای پوشیده؛ cur = ۴ یعنی «حالت پوشاندن»
+  def:()=> ({ p:{ n:6 }, st:{ m:Array(100).fill(0), cur:0, h:Array(100).fill(0) } }),
   norm(o){
-    const m = Array.isArray(o.st.m) ? o.st.m : [];
+    const m = Array.isArray(o.st.m) ? o.st.m : [], h = Array.isArray(o.st.h) ? o.st.h : [];
     o.st.m = Array.from({ length:100 }, (_, i)=> (m[i] | 0) & 15);
-    o.st.cur = clamp(o.st.cur | 0, 0, 3);
+    o.st.h = Array.from({ length:100 }, (_, i)=> h[i] ? 1 : 0);
+    o.st.cur = clamp(o.st.cur | 0, 0, 4);
     o.p.n = clamp(Math.round(o.p.n) || 1, 1, 100);
   },
   size:()=> ({ w:344, h:344 }),          // ۲ پیکسل جا برای ضخامتِ قابِ بیرونی
@@ -6615,7 +6619,11 @@ TOOLS.hund = {
         const ls = [0, 1, 2, 3].filter(l=> mk & (1 << l)), hh = c/ls.length;
         ls.forEach((l, j)=>{ ctx.fillStyle = HUND_COL[l]; ctx.fillRect(x, y + j*hh, c, hh + 0.5); });
       }
-      kidText(ctx, faNum(i + 1, 0), x + c/2, y + c/2, 16, mk ? '#ffffff' : col);
+      if(o.st.h[i]){                     // پوشیده: کارتِ «؟» جای عدد
+        roundRect(ctx, x + 2.5, y + 2.5, c - 5, c - 5, 5); ctx.fillStyle = '#6366f1'; ctx.fill();
+        ctx.lineWidth = 1; ctx.strokeStyle = '#4338ca'; ctx.stroke();
+        kidText(ctx, '؟', x + c/2, y + c/2, 18, '#ffffff');
+      } else kidText(ctx, faNum(i + 1, 0), x + c/2, y + c/2, 16, mk ? '#ffffff' : col);
     }
     ctx.beginPath();
     for(let i = 0; i <= 10; i++){ ctx.moveTo(-170 + i*c, -170); ctx.lineTo(-170 + i*c, 170); ctx.moveTo(-170, -170 + i*c); ctx.lineTo(170, -170 + i*c); }
@@ -6625,7 +6633,10 @@ TOOLS.hund = {
   tap(o, lx, ly){
     const x = lx + 170, y = ly + 170;
     if(x < 0 || y < 0 || x >= 340 || y >= 340) return false;
-    o.st.m[Math.floor(y/34)*10 + Math.floor(x/34)] ^= (1 << o.st.cur);
+    const i = Math.floor(y/34)*10 + Math.floor(x/34);
+    if(o.st.cur === 4) o.st.h[i] ^= 1;                 // حالت پوشاندن
+    else if(o.st.h[i]) o.st.h[i] = 0;                  // عددِ پوشیده با یک زدن پیدا می‌شود
+    else o.st.m[i] ^= (1 << o.st.cur);
     return true;
   },
   ctxx:()=>
@@ -6634,9 +6645,23 @@ TOOLS.hund = {
     '<button class="cb-btn" data-a="hdiv" title="شمارنده‌های این عدد را علامت بزن">شمارنده‌ها</button>' +
     '<button class="cb-btn" data-a="hprime" title="عددهای اول">اول</button>' +
     '<button class="cb-btn" data-a="hclr" title="پاک کردن لایه‌ی فعلی">🧹</button>' +
-    '<button class="cb-btn" data-a="hall" title="پاک کردن همه">همه</button>',
+    '<button class="cb-btn" data-a="hall" title="پاک کردن همه">همه</button>' +
+    '<span class="cb-sep"></span>' +
+    '<button class="cb-btn" data-a="hcov" title="حالتِ پوشاندن: روی هر عدد بزنید تا پوشیده شود (مضرب‌ها و شمارنده‌ها و اول را هم می‌پوشاند)">🙈 پوشاندن</button>' +
+    '<button class="cb-btn" data-a="hrnd" title="۱۰ عددِ تصادفی پوشیده شود؛ بچه‌ها حدس بزنند، بعد با یک زدن پیدا شود">🎲 ۱۰ عدد</button>' +
+    '<button class="cb-btn" data-a="hshow" title="همه‌ی عددهای پوشیده پیدا شوند">👁 همه پیدا</button>',
   act(o, a){
-    const L = 1 << o.st.cur, setLayer = fn=>{ o.st.m = o.st.m.map((v, i)=> (v & ~L) | (fn(i + 1) ? L : 0)); };
+    const cov = o.st.cur === 4, L = 1 << o.st.cur;
+    // در حالتِ پوشاندن، مضرب‌ها/شمارنده‌ها/اول پوشیده می‌شوند
+    const setLayer = fn=>{ if(cov) o.st.h = o.st.h.map((_, i)=> fn(i + 1) ? 1 : 0); else o.st.m = o.st.m.map((v, i)=> (v & ~L) | (fn(i + 1) ? L : 0)); };
+    if(a === 'hcov'){ o.st.cur = cov ? 0 : 4; return; }
+    if(a === 'hshow'){ o.st.h = o.st.h.map(()=> 0); return; }
+    if(a === 'hrnd'){
+      const free = []; o.st.h.forEach((v, i)=>{ if(!v) free.push(i); });
+      for(let k = 0; k < 10 && free.length; k++) o.st.h[free.splice(Math.floor(Math.random()*free.length), 1)[0]] = 1;
+      if(cov) o.st.cur = 0;
+      return;
+    }
     if(/^hl\d$/.test(a)) o.st.cur = +a[2];
     else if(a === 'hmult') setLayer(x=> x % o.p.n === 0);
     else if(a === 'hdiv') setLayer(x=> o.p.n % x === 0);
@@ -6644,10 +6669,13 @@ TOOLS.hund = {
     else if(a === 'hclr') setLayer(()=> false);
     else if(a === 'hall') o.st.m = o.st.m.map(()=> 0);
   },
-  fill(o, api){ HUND_COL.forEach((_, i)=> api.on('hl' + i, o.st.cur === i)); },
+  fill(o, api){ HUND_COL.forEach((_, i)=> api.on('hl' + i, o.st.cur === i)); api.on('hcov', o.st.cur === 4); },
   sum(o){
+    const hid = o.st.h.reduce((s, v)=> s + v, 0);
+    if(o.st.cur === 4) return '🙈 روی عددها بزنید تا پوشیده شوند' + (hid ? ' · پوشیده: ' + kn(hid) : '');
+    const hs = hid ? '🙈 پوشیده: ' + kn(hid) + ' <span class="muted">— حدس بزنید، بعد روی هر کدام بزنید تا پیدا شود</span>' : '';
     const m = o.st.m, used = [0, 1, 2, 3].filter(l=> m.some(v=> v & (1 << l)));
-    if(!used.length) return '<span class="muted">روی عددها بزنید، یا مضرب‌ها را علامت بزنید</span>';
+    if(!used.length) return hs || '<span class="muted">روی عددها بزنید، یا مضرب‌ها را علامت بزنید</span>';
     let h = used.map(l=> '<span class="dot" style="background:' + HUND_COL[l] + '"></span>' + kn(m.filter(v=> v & (1 << l)).length)).join(' ');
     if(used.length > 1){
       const mask = used.reduce((s, l)=> s | (1 << l), 0), com = [];
@@ -6656,7 +6684,7 @@ TOOLS.hund = {
         ? ' · مشترک: ' + com.slice(0, 8).map(kn).join('، ') + (com.length > 8 ? '…' : '') + ' <span class="muted">(کم‌ترین ' + kn(com[0]) + ' · بیشترین ' + kn(com[com.length - 1]) + ')</span>'
         : ' · <span class="muted">مشترکی نیست</span>';
     }
-    return h;
+    return hs ? hs + ' · ' + h : h;
   }
 };
 
@@ -7420,11 +7448,21 @@ function fmInputs(o){
    ۱۱) ساعت — زدن روی حلقه‌ی بیرونی دقیقه، روی حلقه‌ی داخلی ساعت را تنظیم می‌کند
 ============================================================ */
 const CK_R = 100;
+const ckElapsed = o => ((o.p.t - o.p.t0) % 720 + 720) % 720;
+function ckDurWords(d){
+  if(!d) return 'هنوز زمانی نگذشته';
+  const h = Math.floor(d/60), m = d % 60;
+  return [h ? faNum(h, 0) + ' ساعت' : '', m ? faNum(m, 0) + ' دقیقه' : ''].filter(Boolean).join(' و ');
+}
 TOOLS.clock = {
   title:()=> '🕒 ساعت',
-  def:()=> ({ p:{ t:3*60 + 45, digital:1, nums:1 }, st:{} }),
-  norm(o){ o.p.t = ((Math.round(o.p.t) || 0) % 720 + 720) % 720; },
-  size(o){ return { w:2*CK_R + 30, h:CK_R*2 + 28 + (o.p.digital ? 58 : 0) }; },
+  // el = «چقدر گذشته؟» روشن؛ t0 = زمانِ شروع (دقیقه)
+  def:()=> ({ p:{ t:3*60 + 45, digital:1, nums:1, el:0, t0:3*60 + 45 }, st:{} }),
+  norm(o){
+    const w = x=> ((Math.round(x) || 0) % 720 + 720) % 720;
+    o.p.t = w(o.p.t); o.p.t0 = w(o.p.t0); o.p.el = o.p.el ? 1 : 0;
+  },
+  size(o){ return { w:2*CK_R + 30, h:CK_R*2 + 28 + (o.p.digital ? 58 : 0) + (o.p.el ? 46 : 0) }; },
   params:()=> [
     { k:'hh', label:'ساعت', min:1, max:12, int:true,
       get:o=> ((Math.floor(o.p.t/60) + 11) % 12) + 1, set:(o, v)=>{ o.p.t = (v % 12)*60 + o.p.t % 60; } },
@@ -7451,10 +7489,29 @@ TOOLS.clock = {
       ctx.beginPath(); ctx.moveTo(0, 12); ctx.lineTo(0, -len); ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.strokeStyle = c; ctx.stroke();
       ctx.restore();
     };
+    if(o.p.el){
+      // دقیقه‌هایی که گذشته: قطاعِ سبز از عقربه‌ی شروع تا عقربه‌ی الان، و عقربه‌های کم‌رنگِ زمانِ شروع
+      const d = ckElapsed(o), m0 = o.p.t0 % 60, h0 = Math.floor(o.p.t0/60) % 12;
+      if(d % 60){
+        const a0 = (m0*6 - 90)*D2R, a1 = a0 + (d % 60)*6*D2R;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, CK_R - 15, a0, a1); ctx.closePath();
+        ctx.fillStyle = 'rgba(34,197,94,.22)'; ctx.fill();
+      }
+      ctx.save(); ctx.globalAlpha = 0.45; ctx.setLineDash([6, 5]);
+      hand(h0*30 + m0*0.5, CK_R*0.5, 6, '#16a34a');
+      hand(m0*6, CK_R*0.78, 3.5, '#16a34a');
+      ctx.restore();
+    }
     hand(h*30 + m*0.5, CK_R*0.5, 8, '#1e293b');
     hand(m*6, CK_R*0.78, 4.5, '#2563eb');
     ctx.beginPath(); ctx.arc(cx, cy, 7, 0, TAU); ctx.fillStyle = '#ef4444'; ctx.fill();
     if(o.p.digital) kidText(ctx, String(persDigits(String(Math.floor(o.p.t/60) % 12 || 12).padStart(2, '0'))) + ':' + persDigits(String(m).padStart(2, '0')), cx, cy + CK_R + 38, 38, col);
+    if(o.p.el){
+      const y = cy + CK_R + (o.p.digital ? 38 + 50 : 34);
+      ctx.font = 'bold 22px ' + KID_FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      try{ ctx.direction = 'rtl'; }catch(e){}
+      ctx.fillStyle = '#16a34a'; ctx.fillText('⏱ ' + ckDurWords(ckElapsed(o)), cx, y);
+    }
   },
   tap(o, lx, ly){
     const z = TOOLS.clock.size(o), cy = -z.h/2 + 14 + CK_R, dx = lx, dy = ly - cy, r = Math.hypot(dx, dy);
@@ -7465,19 +7522,26 @@ TOOLS.clock = {
     return true;
   },
   ctxx:()=>
+    '<button class="cb-btn" data-a="ckm5" title="پنج دقیقه عقب ببر">−۵ دقیقه</button>' +
     '<button class="cb-btn" data-a="ck5" title="پنج دقیقه جلو ببر">+۵ دقیقه</button>' +
     '<button class="cb-btn" data-a="ck60" title="یک ساعت جلو ببر">+۱ ساعت</button>' +
     '<button class="cb-btn" data-a="ckdig" title="نمایش ساعت دیجیتال زیر ساعت">۰۳:۴۵</button>' +
-    '<button class="cb-btn" data-a="cknum" title="نمایش عددهای ساعت">۱۲</button>',
+    '<button class="cb-btn" data-a="cknum" title="نمایش عددهای ساعت">۱۲</button>' +
+    '<button class="cb-btn" data-a="ckel" title="ساعتِ الان «شروع» می‌شود؛ بعد عقربه‌ها را جلو ببرید تا ببینید چقدر گذشته">⏱ چقدر گذشته؟</button>',
   act(o, a){
     if(a === 'ck5') o.p.t += 5;
+    else if(a === 'ckm5') o.p.t -= 5;
+    else if(a === 'ckel'){ o.p.el = o.p.el ? 0 : 1; o.p.t0 = o.p.t; }
     else if(a === 'ck60') o.p.t += 60;
     else if(a === 'ckdig') o.p.digital = o.p.digital ? 0 : 1;
     else if(a === 'cknum') o.p.nums = o.p.nums ? 0 : 1;
   },
-  fill(o, api){ api.on('ckdig', o.p.digital); api.on('cknum', o.p.nums); },
+  fill(o, api){ api.on('ckdig', o.p.digital); api.on('cknum', o.p.nums); api.on('ckel', o.p.el); },
   sum(o){
     const h = ((Math.floor(o.p.t/60) + 11) % 12) + 1, m = o.p.t % 60;
+    const hm = t=> '<span class="kidnum" dir="ltr">' + persDigits(String(((Math.floor(t/60) + 11) % 12) + 1).padStart(2, '0')) + ':' + persDigits(String(t % 60).padStart(2, '0')) + '</span>';
+    if(o.p.el) return 'از ' + hm(o.p.t0) + ' تا ' + hm(o.p.t) + ' ← <b>' + ckDurWords(ckElapsed(o)) + '</b>' + (ckElapsed(o) ? ' گذشته' : '') +
+      ' <span class="muted">(عقربه‌ها را جلو ببرید)</span>';
     return '<span class="kidnum" dir="ltr">' + persDigits(String(h).padStart(2, '0')) + ':' + persDigits(String(m).padStart(2, '0')) + '</span> — ' + timeWords(o.p.t);
   }
 };
