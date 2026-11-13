@@ -1031,6 +1031,70 @@ function markAllDirty(){
 }
 
 /* ============================================================
+   انبارِ تصویر — هر تصویر (عکس، صفحه‌ی PDF، رنگ‌آمیزیِ سطل) فقط یک بار نگه داشته می‌شود.
+   در تاریخچه، ذخیره‌ی خودکار و فایلِ پروژه به‌جای خودِ تصویر نشانی‌اش (wb-asset:ID) می‌آید؛
+   پس نوشتن روی صفحه‌های PDF هر بار چند مگابایت را دوباره نمی‌سازد و نمی‌نویسد.
+============================================================ */
+const ASSETS = new Map(), ASSET_BY_SRC = new Map(), ASSET_PRE = 'wb-asset:';
+const ASSET_MISSING = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+let assetSeq = 0;
+function assetFor(src){
+  let id = ASSET_BY_SRC.get(src);
+  if(!id){
+    id = 'a' + Date.now().toString(36) + (assetSeq++).toString(36) + Math.random().toString(36).slice(2, 5);
+    ASSETS.set(id, src); ASSET_BY_SRC.set(src, id);
+    assetSaveSoon();                                  // تصویرِ تازه زود به حافظه‌ی ماندگار برود
+  }
+  return id;
+}
+function assetAdd(id, src){
+  if(typeof src !== 'string' || typeof id !== 'string' || !/^[\w-]+$/.test(id) || !src.startsWith('data:')) return;
+  ASSETS.set(id, src);
+  if(!ASSET_BY_SRC.has(src)) ASSET_BY_SRC.set(src, id);
+}
+const assetSaveSoon = debounce(()=>{ if(canvas && !S.restoring) autoSave(); }, 700);
+const ASSET_RE = /"wb-asset:([\w-]+)"/g;
+function assetIdsIn(str, set){
+  if(!str) return set;
+  ASSET_RE.lastIndex = 0;
+  let m;
+  while((m = ASSET_RE.exec(str))) set.add(m[1]);
+  return set;
+}
+function installAssetPatches(){
+  const P = fabric.Image.prototype, toObj = P.toObject, fromObj = fabric.Image.fromObject;
+  P.toObject = function(props){
+    const el = this._originalElement || this._element;
+    if(this._wbAsset && this._wbAssetEl === el && ASSETS.has(this._wbAsset)){
+      const id = this._wbAsset;
+      this.getSrc = ()=> ASSET_PRE + id;          // بدون ساختنِ دوباره‌ی data URL (برای بومِ رنگ‌آمیزی هر بار یک PNG تازه بود)
+      try{ return toObj.call(this, props); } finally { delete this.getSrc; }
+    }
+    const o = toObj.call(this, props);
+    if(typeof o.src === 'string' && o.src.length > 512 && o.src.startsWith('data:')){
+      this._wbAsset = assetFor(o.src); this._wbAssetEl = el;
+      o.src = ASSET_PRE + this._wbAsset;
+    }
+    return o;
+  };
+  fabric.Image.fromObject = function(object, callback){
+    let id = null;
+    const src = object && object.src;
+    if(typeof src === 'string'){
+      if(src.startsWith(ASSET_PRE)){
+        id = src.slice(ASSET_PRE.length);
+        if(!ASSETS.has(id)) id = null;
+        object = Object.assign({}, object, { src:id ? ASSETS.get(id) : ASSET_MISSING });
+      } else if(src.length > 512 && src.startsWith('data:')) id = assetFor(src);
+    }
+    return fromObj.call(this, object, (img, err)=>{
+      if(img && id){ img._wbAsset = id; img._wbAssetEl = img._originalElement || img._element; }
+      if(callback) callback(img, err);
+    });
+  };
+}
+
+/* ============================================================
    FABRIC — ظاهر پیش‌فرض، گچ، و اشیای هوشمند (کمان و زاویه)
 ============================================================ */
 function installFabricPatches(){
@@ -1721,6 +1785,7 @@ function status(msg){ els.status.textContent = bidiMath(msg); }
 function init(){
   cacheDom();
   installFabricPatches();
+  installAssetPatches();
   moveMenusToBody();
 
   canvas = new fabric.Canvas('mainCanvas', {
@@ -1767,6 +1832,7 @@ function init(){
   bindTray();
 
   setBackground('none', false);
+  DOC.pages = [blankPage('none')]; DOC.cur = 0;
   resetHistory();
   setTool('pen');
   updateZoom();
@@ -2055,7 +2121,8 @@ function bindTopbar(){
 
 function runAction(act){
   closeAllMenus();
-  if(act === 'new') newProject();
+  if(act === 'new') clearPage();
+  else if(act === 'newdoc') newDoc();
   else if(act === 'undo') undo();
   else if(act === 'redo') redo();
   else if(act === 'save') saveProject();
@@ -2067,8 +2134,10 @@ function runAction(act){
   else if(act === 'board') setBackground(S.dark ? S.lastLightBg : S.lastChalkBg, true);
 }
 
-function newProject(){
-  if(!confirm('همه محتوای وایت‌برد پاک شود؟')) return;
+// پاک کردنِ صفحه‌ی فعال (با «برگشت» برمی‌گردد)
+function clearPage(){
+  if(docLocked()) return;
+  if(canvas.getObjects().length && !confirm(DOC.pages.length > 1 ? 'همه‌ی نوشته‌های این صفحه پاک شود؟' : 'همه محتوای وایت‌برد پاک شود؟')) return;
   flushHistory();
   cancelInstAnim();
   canvas.discardActiveObject();
@@ -2080,7 +2149,17 @@ function newProject(){
   setBackground(S.bg, false);
   saveHistory();
   updateZoom(); updateCtxBar(); ovRender();
-  toast('بوم جدید ساخته شد');
+  toast(DOC.pages.length > 1 ? '🧹 این صفحه پاک شد (با ↩ برمی‌گردد)' : 'بوم جدید ساخته شد');
+}
+// پروژه‌ی تازه: همه‌ی صفحه‌ها کنار می‌روند
+function newDoc(){
+  if(docLocked()) return;
+  if(!confirm('همه‌ی صفحه‌ها پاک شود و پروژه‌ی تازه شروع شود؟')) return;
+  flushHistory();
+  cancelInstAnim();
+  INST.compass.on = false; INST.prot.on = false; INST.focus = null;
+  refreshInstButtons();
+  docApply([{ bg:S.bg, j:'' }], 0).then(()=>{ autoSaveDebounced(); toast('پروژه‌ی تازه ساخته شد'); });
 }
 
 function resetZoom(){
@@ -9342,10 +9421,11 @@ function toggleLock(){
 ============================================================ */
 const hist = { dirty:false, timer:0 };
 const saveHistoryDebounced = debounce(()=>saveHistory(), 400);
+// ذخیره‌ی خودکار سبک است (فقط صفحه‌ی عوض‌شده نوشته می‌شود)، پس زود انجام می‌شود
 const autoSaveDebounced = debounce(()=>{
-  if(window.requestIdleCallback) requestIdleCallback(()=>autoSave(), { timeout:4000 });
+  if(window.requestIdleCallback) requestIdleCallback(()=>autoSave(), { timeout:1500 });
   else autoSave();
-}, 2500);
+}, 1500);
 
 function markHistoryDirty(){
   hist.dirty = true;
@@ -9454,18 +9534,226 @@ function idbGet(k){
     q.onerror = ()=>{ db.close(); rej(q.error); };
   }));
 }
-const IDB_MARK = '{"__idb":1}';
+const IDB_MARK = '{"__idb":1}', IDB_DOC = '{"__idb":2}';
+
+/* ============================================================
+   سندِ چندصفحه‌ای
+   صفحه‌ی فعال در خودِ بوم و S.history زندگی می‌کند؛ صفحه‌های دیگر به صورتِ رشته‌ی JSON (با تاریخچه‌ی کوتاه،
+   جای دید و تصویرِ کوچک) در DOC.pages می‌مانند.
+============================================================ */
+const DOC = { pages:[], cur:0, busy:false };
+const pageId = ()=> 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const blankPage = bg => ({ id:pageId(), json:'', bg:BG[bg] ? bg : 'none', hist:null, hIdx:0, vpt:null, thumb:'', ok:1 });
+const pageJson = i => i === DOC.cur ? (S.history[S.hIndex] || '') : (DOC.pages[i].json || '');
+const pageBg = i => i === DOC.cur ? S.bg : (DOC.pages[i].bg || 'none');
+const pageHasContent = i => /"objects":\[\{/.test(pageJson(i));
+
+// تصویرِ کوچکِ صفحه‌ی فعال: همان چیزی که الان روی تخته دیده می‌شود
+const THUMB_W = 240, THUMB_H = 150;
+function pageThumb(){
+  try{
+    const W = canvas.getWidth(), H = canvas.getHeight(), v = canvas.viewportTransform, z = v[0];
+    const k = Math.min(THUMB_W/W, THUMB_H/H), dw = W*k, dh = H*k, ox = (THUMB_W - dw)/2, oy = (THUMB_H - dh)/2;
+    const c = document.createElement('canvas'); c.width = THUMB_W; c.height = THUMB_H;
+    const g = c.getContext('2d');
+    paintExportBg(g, { x:(-v[4] - ox/k)/z, y:(-v[5] - oy/k)/z, w:THUMB_W/(k*z), h:THUMB_H/(k*z) }, k*z);
+    g.drawImage(canvas.lowerCanvasEl, ox, oy, dw, dh);
+    return c.toDataURL('image/jpeg', 0.72);
+  }catch(e){ return ''; }
+}
+// صفحه‌ی فعال کنار گذاشته می‌شود (پیش از رفتن به صفحه‌ی دیگر)
+function pageStash(){
+  const p = DOC.pages[DOC.cur];
+  if(!p) return;
+  if(canvas.getActiveObject()) canvas.discardActiveObject();           // ویرایشِ متن هم همین‌جا تمام و ثبت می‌شود
+  canvas.getObjects().filter(o=> isTextObj(o) && !String(o.text || '').trim()).forEach(o=> canvas.remove(o));
+  canvas.renderAll();
+  saveHistory();
+  const from = Math.max(0, S.hIndex - 14);
+  p.hist = S.history.slice(from, S.hIndex + 6); p.hIdx = S.hIndex - from;
+  p.json = S.history[S.hIndex] || ''; p.bg = S.bg; p.vpt = canvas.viewportTransform.slice();
+  p.thumb = pageThumb();
+}
+// صفحه‌ی i روی بوم می‌آید
+function pageShow(i){
+  const p = DOC.pages[i];
+  DOC.cur = i;
+  cancelInstAnim();
+  if(G.mode) cancelGesture();
+  S.restoring = true;
+  canvas.discardActiveObject();
+  let data = null;
+  try{ data = p.json ? JSON.parse(p.json) : null; }catch(e){ data = null; }
+  if(!data || !Array.isArray(data.objects)) data = { version:fabric.version, objects:[] };
+  const lt = setTimeout(()=> els.loading.classList.add('show'), 300);
+  return new Promise(res=>{
+    const done = ()=>{
+      clearTimeout(lt); els.loading.classList.remove('show');
+      S.restoring = false;
+      if(!p.ok){ migrateLegacy(); p.ok = 1; }
+      setBackground(BG[data.__bg] ? data.__bg : (p.bg || 'none'), false);
+      canvas.setViewportTransform(p.vpt ? p.vpt.slice() : [1, 0, 0, 1, 0, 0]);
+      hist.dirty = false; clearTimeout(hist.timer);
+      if(p.hist && p.hist.length && p.hist[p.hIdx] === p.json){ S.history = p.hist; S.hIndex = p.hIdx; }
+      else resetHistory();
+      p.hist = null;
+      ov.pts = []; ov.guides = []; S.snapMark = null; trayFlow.last = null;
+      canvas.requestRenderAll();
+      updateUndo(); updateZoom(); updateCtxBar(); ovRender(); pagesUi();
+      res();
+    };
+    try{ canvas.loadFromJSON(data, done); }catch(e){ console.warn(e); done(); }
+  });
+}
+const docLocked = ()=> DOC.busy || S.restoring || pieceBusy;
+function pagesUi(){ /*PAGES_UI*/ }
+async function gotoPage(i){
+  i = clamp(Math.round(i), 0, DOC.pages.length - 1);
+  if(i === DOC.cur || docLocked()) return false;
+  DOC.busy = true;
+  try{ flushHistory(); pageStash(); await pageShow(i); }
+  finally{ DOC.busy = false; }
+  autoSaveDebounced();
+  status('صفحه‌ی ' + faNum(DOC.cur + 1, 0) + ' از ' + faNum(DOC.pages.length, 0));
+  return true;
+}
+const PAGE_MAX = 60;
+// صفحه‌ی تازه بعد از صفحه‌ی فعال (با همان پس‌زمینه)؛ json = محتوای آماده (مثلاً کپیِ صفحه)
+async function addPage(src){
+  if(docLocked()) return false;
+  if(DOC.pages.length >= PAGE_MAX){ toast('حداکثر ' + faNum(PAGE_MAX, 0) + ' صفحه', 2600); return false; }
+  DOC.busy = true;
+  try{
+    flushHistory(); pageStash();
+    const p = blankPage(S.bg);
+    if(src){ p.json = src.json || ''; p.bg = src.bg || p.bg; p.vpt = src.vpt ? src.vpt.slice() : null; p.thumb = src.thumb || ''; p.ok = 0; }
+    DOC.pages.splice(DOC.cur + 1, 0, p);
+    await pageShow(DOC.cur + 1);
+  } finally{ DOC.busy = false; }
+  autoSaveDebounced();
+  return true;
+}
+async function dupPage(){
+  if(docLocked()) return false;
+  flushHistory(); saveHistory();
+  const ok = await addPage({ json:pageJson(DOC.cur), bg:S.bg, vpt:canvas.viewportTransform });
+  if(ok) toast('📄 صفحه کپی شد — صفحه‌ی ' + faNum(DOC.cur + 1, 0));
+  return ok;
+}
+async function delPage(i){
+  if(docLocked()) return false;
+  if(i == null) i = DOC.cur;
+  if(DOC.pages.length <= 1){ clearPage(); return true; }
+  if(pageHasContent(i) && !confirm('صفحه‌ی ' + faNum(i + 1, 0) + ' با همه‌ی نوشته‌هایش حذف شود؟')) return false;
+  DOC.busy = true;
+  try{
+    if(i === DOC.cur){
+      flushHistory();
+      DOC.pages.splice(i, 1);
+      await pageShow(Math.min(i, DOC.pages.length - 1));
+    } else {
+      DOC.pages.splice(i, 1);
+      if(i < DOC.cur) DOC.cur--;
+      pagesUi();
+    }
+  } finally{ DOC.busy = false; }
+  autoSaveDebounced();
+  return true;
+}
+// جابه‌جا کردنِ صفحه در ترتیب (d = −۱ جلوتر، +۱ عقب‌تر)
+function movePage(i, d){
+  const j = i + d;
+  if(docLocked() || j < 0 || j >= DOC.pages.length) return false;
+  if(i === DOC.cur || j === DOC.cur){ flushHistory(); saveHistory(); }
+  const curId = DOC.pages[DOC.cur].id, P = DOC.pages;
+  [P[i], P[j]] = [P[j], P[i]];
+  DOC.cur = P.findIndex(p=> p.id === curId);
+  pagesUi(); autoSaveDebounced();
+  return true;
+}
+// جایگزینیِ کلِ سند (بازیابی، باز کردنِ پروژه، پروژه‌ی تازه)
+function docApply(list, cur){
+  const seen = new Set();
+  DOC.pages = list.slice(0, PAGE_MAX).map(p=>{
+    let id = typeof p.id === 'string' && /^[\w-]+$/.test(p.id) && !seen.has(p.id) ? p.id : pageId();
+    seen.add(id);
+    return { id, json:typeof p.j === 'string' ? p.j : '', bg:BG[p.bg] ? p.bg : 'none', hist:null, hIdx:0,
+      vpt:Array.isArray(p.vpt) && p.vpt.length === 6 && p.vpt.every(x=> typeof x === 'number' && isFinite(x)) && p.vpt[0] > 0 ? p.vpt.slice() : null,
+      thumb:typeof p.thumb === 'string' && p.thumb.startsWith('data:image/') ? p.thumb : '', ok:0 };
+  });
+  if(!DOC.pages.length) DOC.pages = [blankPage('none')];
+  DOC.busy = true;
+  return pageShow(clamp(cur | 0, 0, DOC.pages.length - 1)).then(()=>{ DOC.busy = false; }, ()=>{ DOC.busy = false; });
+}
+
+/* ---- ذخیره‌ی خودکار ----
+   سندِ سبک (بدون تصویر) → localStorage (همزمان و مطمئن هنگام بستنِ صفحه)
+   سندِ دارای تصویر یا بزرگ → IndexedDB: هر صفحه و هر تصویر جدا، و فقط آنچه عوض شده نوشته می‌شود */
+const SAVED = { pages:new Map(), assets:new Set(), ready:false };
+// «دنباله»: هنگام بستن یا پنهان شدنِ صفحه، نوشتن در IndexedDB شاید تمام نشود؛ پس صفحه‌ی فعال (که بدون تصویرها کوچک است)
+// همان لحظه در localStorage هم نوشته می‌شود و دفعه‌ی بعد روی سند گذاشته می‌شود
+const TAIL_KEY = AUTOSAVE_KEY + '-tail';
+function tailWrite(){
+  try{
+    const j = S.history[S.hIndex] || '';
+    if(j.length < 1500000) localStorage.setItem(TAIL_KEY, JSON.stringify({ id:DOC.pages[DOC.cur].id, cur:DOC.cur, bg:S.bg, j }));
+  }catch(e){}
+}
+function tailClear(){ try{ localStorage.removeItem(TAIL_KEY); }catch(e){} }
+function docParts(){
+  return DOC.pages.map((p, i)=> ({ id:p.id, bg:pageBg(i), vpt:i === DOC.cur ? canvas.viewportTransform.slice() : p.vpt, thumb:p.thumb || '', j:pageJson(i) }));
+}
 function autoSave(force){
   if(G.mode && !force){ autoSaveDebounced(); return; }   // وسط نوشتن، کار سنگین نکن
-  const s = S.history[S.hIndex];
-  if(!s) return;
-  if(s.length < 2400000){ try{ localStorage.setItem(AUTOSAVE_KEY, s); return; }catch(e){ /* جا نشد */ } }
-  try{ localStorage.setItem(AUTOSAVE_KEY, IDB_MARK); }catch(e){}
-  idbSet(AUTOSAVE_KEY, s).catch(()=>{
+  if(DOC.busy || S.restoring){ if(!force) autoSaveDebounced(); return; }
+  const cur = S.history[S.hIndex];
+  if(!cur) return;
+  const parts = docParts(), heavy = parts.some(p=> p.j.indexOf('"' + ASSET_PRE) >= 0);
+  const total = parts.reduce((s, p)=> s + p.j.length + p.thumb.length, 0);
+  if(!heavy && total < 2400000){
+    try{ localStorage.setItem(AUTOSAVE_KEY, parts.length === 1 ? cur : JSON.stringify({ __doc:4, cur:DOC.cur, pages:parts })); tailClear(); return; }
+    catch(e){ /* جا نشد */ }
+  }
+  try{ localStorage.setItem(AUTOSAVE_KEY, IDB_DOC); }catch(e){}
+  if(force) tailWrite();
+  idbSaveDoc(parts, DOC.cur).then(()=>{ if(S.history[S.hIndex] === cur) tailClear(); }, ()=>{
     if(S.bigWarned) return;
     S.bigWarned = true;
     toast('⚠️ تخته بزرگ است و ذخیره‌ی خودکار ممکن نشد؛ با 💾 «ذخیره» از کارتان نسخه بگیرید', 5000);
   });
+}
+function idbSaveDoc(parts, cur){
+  const used = new Set();
+  parts.forEach(p=> assetIdsIn(p.j, used));
+  return idbOpen().then(db=> new Promise((res, rej)=>{
+    const t = db.transaction('kv', 'readwrite'), st = t.objectStore('kv');
+    const fresh = !SAVED.ready;
+    if(fresh) st.clear();                               // اولین ذخیره‌ی این نشست: از نو (چیزِ کهنه‌ای نماند)
+    st.put({ v:4, cur, pages:parts.map(p=> ({ id:p.id, bg:p.bg, vpt:p.vpt || null, thumb:p.thumb })) }, 'doc');
+    const ids = new Set(parts.map(p=> p.id));
+    parts.forEach(p=>{ if(fresh || SAVED.pages.get(p.id) !== p.j) st.put(p.j, 'pg:' + p.id); });
+    used.forEach(id=>{ if((fresh || !SAVED.assets.has(id)) && ASSETS.has(id)) st.put(ASSETS.get(id), 'as:' + id); });
+    if(!fresh){
+      SAVED.pages.forEach((_, id)=>{ if(!ids.has(id)) st.delete('pg:' + id); });
+      SAVED.assets.forEach(id=>{ if(!used.has(id)) st.delete('as:' + id); });
+    }
+    t.oncomplete = ()=>{
+      SAVED.pages = new Map(parts.map(p=> [p.id, p.j])); SAVED.assets = used; SAVED.ready = true;
+      db.close(); res();
+    };
+    t.onerror = t.onabort = ()=>{ db.close(); rej(t.error); };
+  }));
+}
+function idbLoadAll(){
+  return idbOpen().then(db=> new Promise((res, rej)=>{
+    const t = db.transaction('kv', 'readonly'), st = t.objectStore('kv'), kq = st.getAllKeys(), vq = st.getAll();
+    t.oncomplete = ()=>{
+      const out = {}, keys = kq.result || [], vals = vq.result || [];
+      keys.forEach((k, i)=>{ out[k] = vals[i]; });
+      db.close(); res(out);
+    };
+    t.onerror = t.onabort = ()=>{ db.close(); rej(t.error); };
+  }));
 }
 // حذف گیره‌های نامرئیِ پرگارِ نسخه‌ی قبلی از پروژه‌های قدیمی
 function migrateLegacy(){
@@ -9478,9 +9766,31 @@ function migrateLegacy(){
 function tryAutoLoad(){
   let raw = null;
   try{ raw = localStorage.getItem(AUTOSAVE_KEY) || localStorage.getItem(LEGACY_KEY); }catch(e){}
-  if(raw === IDB_MARK){
+  if(raw === IDB_MARK || raw === IDB_DOC){
     els.loading.classList.add('show');
-    idbGet(AUTOSAVE_KEY).then(v=>{ els.loading.classList.remove('show'); if(v) autoLoadRaw(v); }, ()=> els.loading.classList.remove('show'));
+    idbLoadAll().then(kv=>{
+      els.loading.classList.remove('show');
+      const meta = kv.doc;
+      if(raw === IDB_DOC && meta && Array.isArray(meta.pages) && meta.pages.length){
+        Object.keys(kv).forEach(k=>{ if(k.startsWith('as:')){ assetAdd(k.slice(3), kv[k]); SAVED.assets.add(k.slice(3)); } });
+        const list = meta.pages.map(m=>{
+          const j = typeof kv['pg:' + m.id] === 'string' ? kv['pg:' + m.id] : '';
+          SAVED.pages.set(m.id, j);
+          return { id:m.id, bg:m.bg, vpt:m.vpt, thumb:m.thumb, j };
+        });
+        SAVED.ready = true;
+        // دنباله‌ی نشستِ قبل (آخرین وضعیتِ صفحه‌ی فعال هنگام بستن) تازه‌تر از IndexedDB است
+        let tail = null, cur = meta.cur;
+        try{ tail = JSON.parse(localStorage.getItem(TAIL_KEY) || 'null'); }catch(e){}
+        if(tail && typeof tail.id === 'string' && typeof tail.j === 'string' && tail.j){
+          let k = list.findIndex(x=> x.id === tail.id);
+          if(k >= 0){ if(list[k].j !== tail.j){ list[k].j = tail.j; list[k].bg = tail.bg; list[k].thumb = ''; } }
+          else { k = clamp(tail.cur | 0, 0, list.length); list.splice(k, 0, { id:tail.id, bg:tail.bg, j:tail.j }); }
+          cur = k;
+        }
+        docApply(list, cur).then(()=> toast('آخرین پروژه بازیابی شد'));
+      } else if(typeof kv[AUTOSAVE_KEY] === 'string') autoLoadRaw(kv[AUTOSAVE_KEY]);
+    }, ()=> els.loading.classList.remove('show'));
     return;
   }
   autoLoadRaw(raw);
@@ -9489,6 +9799,10 @@ function autoLoadRaw(raw){
   if(!raw) return;
   let d;
   try{ d = JSON.parse(raw); }catch(e){ return; }
+  if(d && d.__doc && Array.isArray(d.pages) && d.pages.length){
+    docApply(d.pages, d.cur).then(()=> toast('آخرین پروژه بازیابی شد'));
+    return;
+  }
   const data = d.canvas || d;
   const bg = d.background || d.__bg || 'none';
   if(!data.objects || !data.objects.length){ setBackground(bg, false); resetHistory(); return; }
@@ -9500,45 +9814,55 @@ function autoLoadRaw(raw){
       setBackground(bg, false);
       canvas.requestRenderAll();
       resetHistory();
+      pagesUi();
       toast('آخرین پروژه بازیابی شد');
     });
   }catch(e){ S.restoring = false; console.warn(e); }
 }
+/* ---- فایلِ پروژه (نسخه‌ی ۴): همه‌ی صفحه‌ها + تصویرها (هر تصویر یک بار) ---- */
 function saveProject(){
-  flushHistory();
-  const data = { version:3, background:S.bg, canvas:canvas.toJSON(INCLUDE_PROPS) };
-  downloadBlob(new Blob([JSON.stringify(data)], { type:'application/json' }), 'whiteboard-project.json');
-  toast('💾 پروژه ذخیره شد');
+  if(docLocked()) return;
+  flushHistory(); saveHistory();
+  const used = new Set(), blank = '{"version":"' + fabric.version + '","objects":[]}';
+  const pages = DOC.pages.map((p, i)=>{
+    const j = pageJson(i);
+    assetIdsIn(j, used);
+    return '{"background":' + JSON.stringify(pageBg(i)) + ',"vpt":' + JSON.stringify(i === DOC.cur ? canvas.viewportTransform : (p.vpt || null)) + ',"canvas":' + (j || blank) + '}';
+  });
+  const assets = {};
+  used.forEach(id=>{ if(ASSETS.has(id)) assets[id] = ASSETS.get(id); });
+  const out = '{"app":"mc-whiteboard","version":4,"cur":' + DOC.cur + ',"assets":' + JSON.stringify(assets) + ',"pages":[' + pages.join(',') + ']}';
+  downloadBlob(new Blob([out], { type:'application/json' }), 'whiteboard-project.json');
+  toast('💾 پروژه ذخیره شد' + (DOC.pages.length > 1 ? ' (' + faNum(DOC.pages.length, 0) + ' صفحه)' : ''));
 }
 function loadProject(e){
   const f = e.target.files[0];
   e.target.value = '';
   if(!f) return;
+  if(docLocked()) return;
   if(!confirm('محتوای فعلی با فایل باز‌شده جایگزین شود؟')) return;
   els.loading.classList.add('show');
   const r = new FileReader();
+  r.onerror = ()=>{ els.loading.classList.remove('show'); alert('فایل خوانده نشد'); };
   r.onload = ()=>{
+    let list = null, cur = 0;
     try{
       const d = JSON.parse(r.result);
-      flushHistory();
-      cancelInstAnim();
-      S.restoring = true;
-      canvas.discardActiveObject();
-      canvas.loadFromJSON(d.canvas || d, ()=>{
-        S.restoring = false;
-        migrateLegacy();
-        setBackground(d.background || d.__bg || 'none', false);
-        canvas.requestRenderAll();
-        saveHistory();
-        updateCtxBar();
-        els.loading.classList.remove('show');
-        toast('📂 پروژه باز شد');
-      });
-    }catch(err){
-      S.restoring = false;
+      const one = (cv, bg, vpt)=>{ cv.__bg = BG[bg] ? bg : (BG[cv.__bg] ? cv.__bg : 'none'); return { bg:cv.__bg, vpt, j:JSON.stringify(cv) }; };
+      if(d && Array.isArray(d.pages) && d.pages.length){
+        if(d.assets && typeof d.assets === 'object') Object.keys(d.assets).forEach(id=> assetAdd(id, d.assets[id]));
+        list = d.pages.filter(p=> p && p.canvas && Array.isArray(p.canvas.objects)).map(p=> one(p.canvas, p.background, p.vpt));
+        cur = d.cur | 0;
+      } else if(d && ((d.canvas && Array.isArray(d.canvas.objects)) || Array.isArray(d.objects))) list = [one(d.canvas || d, d.background)];
+    }catch(err){ list = null; }
+    if(!list || !list.length){ els.loading.classList.remove('show'); alert('فایل پروژه معتبر نیست'); return; }
+    flushHistory();
+    cancelInstAnim();
+    docApply(list, cur).then(()=>{
       els.loading.classList.remove('show');
-      alert('فایل پروژه معتبر نیست');
-    }
+      autoSaveDebounced();
+      toast('📂 پروژه باز شد' + (DOC.pages.length > 1 ? ' (' + faNum(DOC.pages.length, 0) + ' صفحه)' : ''));
+    });
   };
   r.readAsText(f);
 }
