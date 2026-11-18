@@ -301,6 +301,31 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
   display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;
 }
 #zoomCtl button:hover{background:#f1f3f6;color:var(--text)}
+/* ===== ورق‌زدن ===== */
+#pager{
+  position:absolute;bottom:12px;right:140px;z-index:55;display:flex;align-items:center;direction:rtl;
+  background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:0 2px 10px rgba(15,23,42,.07)
+}
+#pager button{height:30px;min-width:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:background .15s,color .15s}
+#pager button:hover:not(:disabled){background:#f1f3f6;color:var(--text)}
+#pager button:disabled{opacity:.3;cursor:default}
+#pgNum{padding:0 10px!important;font-size:13px;font-weight:700;color:var(--text)!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+#pgNum.on{background:var(--primary-soft)!important;color:var(--primary)!important}
+#pgNext.add{color:var(--primary)}
+#pagesPanel{right:12px;bottom:54px;width:300px;max-height:calc(100% - 70px);overflow-y:auto}
+.pg-acts{display:flex;gap:5px;margin-bottom:8px}
+.pg-act{flex:1 1 auto;height:32px;padding:0 8px;border-radius:9px;border:1px solid var(--border);background:#fff;font-size:12px;white-space:nowrap}
+.pg-act:hover:not(:disabled){background:#f1f3f6}
+.pg-act:disabled{opacity:.35;cursor:default}
+.pg-act.pri{background:var(--primary);border-color:var(--primary);color:#fff}
+.pg-act.warn{color:#b91c1c}
+.pg-act.wide{width:100%;margin-top:8px;height:36px;font-weight:700}
+.pg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pg-thumb{position:relative;display:block;padding:3px;border:2px solid var(--border);border-radius:10px;background:#f8fafc;overflow:hidden}
+.pg-thumb img,.pg-thumb .pg-blank{display:block;width:100%;aspect-ratio:8/5;object-fit:cover;border-radius:6px}
+.pg-thumb span{position:absolute;bottom:6px;right:6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:rgba(15,23,42,.72);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pg-thumb.on{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-soft)}
+.pg-thumb.on span{background:var(--primary)}
 #zoomBadge{padding:0 4px;min-width:46px;text-align:center;font-size:12px;cursor:pointer;font-variant-numeric:tabular-nums}
 #zoomBadge:hover{color:var(--primary)}
 
@@ -589,6 +614,8 @@ body.rec-on #credit{visibility:hidden}
   #bgPanel,#props{top:4px;left:50px;right:4px;width:auto;max-height:calc(100% - var(--safe-b) - 4px);overflow-y:auto}
   #status{display:none}
   #zoomCtl{bottom:var(--safe-b);right:8px}
+  #pager{bottom:calc(var(--safe-b) + 40px);right:8px}
+  #pagesPanel{left:50px;right:4px;width:auto;bottom:calc(var(--safe-b) + 80px);max-height:calc(100% - var(--safe-b) - 90px)}
   #credit{left:50px;bottom:calc(var(--safe-b) - 4px);font-size:12px}
   .brand img{height:16px}
   #ctxBar{top:4px;bottom:auto;left:50px;right:4px;transform:none;max-width:none;gap:3px;padding:4px}
@@ -618,6 +645,8 @@ body.rec-on #credit{visibility:hidden}
   body.is-full{--safe-b:10px}
   #toolbar{max-height:calc(100% - var(--safe-b) - 10px)}
   #zoomCtl{bottom:var(--safe-b)}
+  #pager{bottom:var(--safe-b)}
+  #pagesPanel{bottom:calc(var(--safe-b) + 42px)}
   #ctxBar{bottom:calc(var(--safe-b) + 4px)}
 }
 </style>
@@ -647,7 +676,8 @@ body.rec-on #credit{visibility:hidden}
     <button class="ibtn rec-btn" data-act="rec" id="recBtn" title="ضبط فیلم: تخته + صدای شما (یک بار بزنید شروع، دوباره بزنید پایان)"><i class="recdot"></i></button>
     <div class="tb-spacer"></div>
     <div class="tb-group tb-actions">
-      <button class="ibtn" data-act="new" title="بوم جدید">🗑</button>
+      <button class="ibtn" data-act="new" title="پاک کردنِ همین صفحه (با ↩ برمی‌گردد)">🧹</button>
+      <button class="ibtn" data-act="pdfout" title="خروجی PDF از همه‌ی صفحه‌ها">📤</button>
       <button class="ibtn" data-act="save" title="ذخیره پروژه (Ctrl+S)">💾</button>
       <button class="ibtn" data-act="load" title="بازکردن پروژه">📂</button>
       <button class="ibtn" data-act="png" title="خروجی تصویر PNG">🖼</button>
@@ -769,6 +799,26 @@ body.rec-on #credit{visibility:hidden}
     </div>
     <div id="recCount" hidden><b></b><span>ضبط شروع می‌شود… برای لغو دوباره ⏺ را بزنید</span></div>
     <div id="status">آماده</div>
+    <div id="pager">
+      <button type="button" id="pgPrev" title="صفحه‌ی قبل (PageUp)"></button>
+      <button type="button" id="pgNum" title="همه‌ی صفحه‌ها">۱ / ۱</button>
+      <button type="button" id="pgNext" title="صفحه‌ی بعد (PageDown)"></button>
+    </div>
+    <section class="panel" id="pagesPanel">
+      <div class="tray-head">
+        <h3>📑 صفحه‌ها</h3>
+        <button class="tray-x" data-pages-close title="بستن">✕</button>
+      </div>
+      <div class="pg-acts">
+        <button type="button" class="pg-act pri" data-pg="add" title="صفحه‌ی تازه بعد از همین صفحه">➕ صفحه‌ی تازه</button>
+        <button type="button" class="pg-act" data-pg="dup" title="کپیِ همین صفحه (با همه‌ی نوشته‌ها)">⧉ کپی</button>
+        <button type="button" class="pg-act" data-pg="up" title="این صفحه یکی جلوتر برود">⬆</button>
+        <button type="button" class="pg-act" data-pg="down" title="این صفحه یکی عقب‌تر برود">⬇</button>
+        <button type="button" class="pg-act warn" data-pg="del" title="حذفِ همین صفحه">🗑</button>
+      </div>
+      <div class="pg-grid" id="pgGrid"></div>
+      <button type="button" class="pg-act wide" data-pg="pdf" title="همه‌ی صفحه‌ها در یک فایل PDF (برای چاپ یا فرستادن به دانش‌آموزان)">📤 خروجیِ PDF از همه‌ی صفحه‌ها</button>
+    </section>
     <div id="zoomCtl" title="بزرگ‌نمایی — اسکرول ماوس یا دو انگشت">
       <button id="zoomOut" title="کوچک‌نمایی">−</button>
       <span id="zoomBadge" title="بازنشانی به ۱۰۰٪">۱۰۰٪</span>
@@ -785,7 +835,10 @@ body.rec-on #credit{visibility:hidden}
 </div>
 
 <div class="menu" id="moreMenu">
-  <button class="menuitem" data-act="new">🗑 جدید</button>
+  <button class="menuitem" data-act="new">🧹 پاک کردنِ صفحه</button>
+  <button class="menuitem" data-act="newdoc">🗒 پروژه‌ی تازه</button>
+  <button class="menuitem" data-act="pages">📑 صفحه‌ها</button>
+  <button class="menuitem" data-act="pdfout">📤 خروجی PDF</button>
   <button class="menuitem" data-act="save">💾 ذخیره</button>
   <button class="menuitem" data-act="load">📂 بازکردن</button>
   <button class="menuitem" data-act="png">🖼 PNG</button>
@@ -1833,6 +1886,7 @@ function init(){
 
   setBackground('none', false);
   DOC.pages = [blankPage('none')]; DOC.cur = 0;
+  bindPages();
   resetHistory();
   setTool('pen');
   updateZoom();
@@ -2123,6 +2177,8 @@ function runAction(act){
   closeAllMenus();
   if(act === 'new') clearPage();
   else if(act === 'newdoc') newDoc();
+  else if(act === 'pdfout') exportPdf();
+  else if(act === 'pages') togglePagesPanel();
   else if(act === 'undo') undo();
   else if(act === 'redo') redo();
   else if(act === 'save') saveProject();
@@ -2324,9 +2380,10 @@ function closeAllMenus(){ $$('.menu.open').forEach(m=>m.classList.remove('open')
 function bindPanels(){
   $$('.bgchoice').forEach(b=> b.addEventListener('click', ()=> setBackground(b.dataset.bg, true)));
   document.addEventListener('click', e=>{
-    if(e.target.closest('.panel')) return;
+    // دکمه‌ای که با همین کلیک از نو ساخته شد (مثلِ تصویرِ کوچکِ صفحه‌ها) دیگر در صفحه نیست؛ بیرون حساب نشود
+    if(!e.target.isConnected || e.target.closest('.panel')) return;
     if(e.target.closest('#dialogOverlay')) return;
-    if(e.target.closest('[data-cmd="background"]') || e.target.closest('[data-cmd="props"]') || e.target.closest('[data-cmd="tray"]')) return;
+    if(e.target.closest('[data-cmd="background"]') || e.target.closest('[data-cmd="props"]') || e.target.closest('[data-cmd="tray"]') || e.target.closest('#pager')) return;
     // سینیِ مبحث‌های ریاضی با کلیک روی نوارها باز می‌ماند (فقط لمسِ خودِ صفحه آن را می‌بندد؛ پایین‌تر)
     $$('.panel.open').forEach(p=>{ if(p !== els.trayPanel) p.classList.remove('open'); });
   });
@@ -2339,6 +2396,7 @@ function togglePanel(panel){
   const isOpen = panel.classList.contains('open');
   $$('.panel').forEach(p=>p.classList.remove('open'));
   $$('[data-cmd="tray"]').forEach(b=> b.classList.remove('active'));
+  $('#pgNum').classList.remove('on');
   if(!isOpen) panel.classList.add('open');
 }
 
@@ -9422,10 +9480,19 @@ function toggleLock(){
 const hist = { dirty:false, timer:0 };
 const saveHistoryDebounced = debounce(()=>saveHistory(), 400);
 // ذخیره‌ی خودکار سبک است (فقط صفحه‌ی عوض‌شده نوشته می‌شود)، پس زود انجام می‌شود
-const autoSaveDebounced = debounce(()=>{
-  if(window.requestIdleCallback) requestIdleCallback(()=>autoSave(), { timeout:1500 });
-  else autoSave();
-}, 1500);
+// ذخیره‌ی خودکار ۱٫۵ ثانیه بعد از آخرین تغییر؛ ولی وسطِ کارِ پشتِ سرِ هم هم حداکثر هر ۶ ثانیه یک بار
+let autoSaveT = 0, autoSaveSince = 0;
+function autoSaveDebounced(){
+  const now = Date.now();
+  if(!autoSaveSince) autoSaveSince = now;
+  clearTimeout(autoSaveT);
+  const run = ()=>{
+    autoSaveSince = 0;
+    if(window.requestIdleCallback) requestIdleCallback(()=> autoSave(), { timeout:1500 });
+    else autoSave();
+  };
+  if(now - autoSaveSince > 6000) run(); else autoSaveT = setTimeout(run, 1500);
+}
 
 function markHistoryDirty(){
   hist.dirty = true;
@@ -9606,7 +9673,7 @@ function pageShow(i){
   });
 }
 const docLocked = ()=> DOC.busy || S.restoring || pieceBusy;
-function pagesUi(){ /*PAGES_UI*/ }
+
 async function gotoPage(i){
   i = clamp(Math.round(i), 0, DOC.pages.length - 1);
   if(i === DOC.cur || docLocked()) return false;
@@ -9694,9 +9761,18 @@ const SAVED = { pages:new Map(), assets:new Set(), ready:false };
 // همان لحظه در localStorage هم نوشته می‌شود و دفعه‌ی بعد روی سند گذاشته می‌شود
 const TAIL_KEY = AUTOSAVE_KEY + '-tail';
 function tailWrite(){
+  // هنگامِ بستن، نوشتن در IndexedDB ممکن است نیمه‌کاره بماند؛ ترتیبِ صفحه‌ها و هر صفحه‌ای که
+  // از آخرین ذخیره‌ی کامل عوض شده، همین‌جا (هم‌زمان) در localStorage می‌ماند. تصویرها جدا و زودتر ذخیره شده‌اند.
   try{
-    const j = S.history[S.hIndex] || '';
-    if(j.length < 1500000) localStorage.setItem(TAIL_KEY, JSON.stringify({ id:DOC.pages[DOC.cur].id, cur:DOC.cur, bg:S.bg, j }));
+    const dirty = {};
+    let size = 0;
+    DOC.pages.forEach((p, i)=>{
+      const j = pageJson(i);
+      if(!j || (SAVED.ready && SAVED.pages.get(p.id) === j)) return;
+      if(size + j.length < 1500000){ dirty[p.id] = j; size += j.length; }
+    });
+    localStorage.setItem(TAIL_KEY, JSON.stringify({ v:2, t:Date.now(), cur:DOC.cur,
+      pages:DOC.pages.map((p, i)=> ({ id:p.id, bg:pageBg(i), vpt:i === DOC.cur ? canvas.viewportTransform.slice() : (p.vpt || null) })), dirty }));
   }catch(e){}
 }
 function tailClear(){ try{ localStorage.removeItem(TAIL_KEY); }catch(e){} }
@@ -9729,7 +9805,7 @@ function idbSaveDoc(parts, cur){
     const t = db.transaction('kv', 'readwrite'), st = t.objectStore('kv');
     const fresh = !SAVED.ready;
     if(fresh) st.clear();                               // اولین ذخیره‌ی این نشست: از نو (چیزِ کهنه‌ای نماند)
-    st.put({ v:4, cur, pages:parts.map(p=> ({ id:p.id, bg:p.bg, vpt:p.vpt || null, thumb:p.thumb })) }, 'doc');
+    st.put({ v:4, t:Date.now(), cur, pages:parts.map(p=> ({ id:p.id, bg:p.bg, vpt:p.vpt || null, thumb:p.thumb })) }, 'doc');
     const ids = new Set(parts.map(p=> p.id));
     parts.forEach(p=>{ if(fresh || SAVED.pages.get(p.id) !== p.j) st.put(p.j, 'pg:' + p.id); });
     used.forEach(id=>{ if((fresh || !SAVED.assets.has(id)) && ASSETS.has(id)) st.put(ASSETS.get(id), 'as:' + id); });
@@ -9770,19 +9846,32 @@ function tryAutoLoad(){
     els.loading.classList.add('show');
     idbLoadAll().then(kv=>{
       els.loading.classList.remove('show');
-      const meta = kv.doc;
-      if(raw === IDB_DOC && meta && Array.isArray(meta.pages) && meta.pages.length){
+      const meta = kv.doc, hasMeta = !!(meta && Array.isArray(meta.pages) && meta.pages.length);
+      let tail = null;
+      try{ tail = JSON.parse(localStorage.getItem(TAIL_KEY) || 'null'); }catch(e){}
+      // فقط اگر از آخرین ذخیره‌ی کاملِ IndexedDB تازه‌تر باشد
+      const tail2 = !!(tail && tail.v === 2 && Array.isArray(tail.pages) && tail.pages.length && !(meta && meta.t && (tail.t || 0) <= meta.t));
+      if(raw === IDB_DOC && (hasMeta || tail2)){
         Object.keys(kv).forEach(k=>{ if(k.startsWith('as:')){ assetAdd(k.slice(3), kv[k]); SAVED.assets.add(k.slice(3)); } });
-        const list = meta.pages.map(m=>{
+        let list = (hasMeta ? meta.pages : []).map(m=>{
           const j = typeof kv['pg:' + m.id] === 'string' ? kv['pg:' + m.id] : '';
           SAVED.pages.set(m.id, j);
           return { id:m.id, bg:m.bg, vpt:m.vpt, thumb:m.thumb, j };
         });
-        SAVED.ready = true;
-        // دنباله‌ی نشستِ قبل (آخرین وضعیتِ صفحه‌ی فعال هنگام بستن) تازه‌تر از IndexedDB است
-        let tail = null, cur = meta.cur;
-        try{ tail = JSON.parse(localStorage.getItem(TAIL_KEY) || 'null'); }catch(e){}
-        if(tail && typeof tail.id === 'string' && typeof tail.j === 'string' && tail.j){
+        SAVED.ready = hasMeta;
+        let cur = hasMeta ? meta.cur : 0;
+        // دفترچه‌ی لحظه‌ی بستن تازه‌تر از IndexedDB است: ترتیبِ صفحه‌ها و صفحه‌های عوض‌شده از آن خوانده می‌شود
+        if(tail2){
+          const base = new Map(list.map(x=> [x.id, x])), dirty = tail.dirty || {};
+          list = tail.pages.filter(t=> t && typeof t.id === 'string').map(t=>{
+            const b = base.get(t.id) || { id:t.id, j:'' }, d = dirty[t.id];
+            const e = Object.assign({}, b, { bg:t.bg || b.bg || 'none', vpt:t.vpt || b.vpt || null });
+            if(typeof d === 'string' && d && d !== b.j){ e.j = d; e.thumb = ''; }
+            return e;
+          });
+          cur = clamp(tail.cur | 0, 0, list.length - 1);
+        }
+        else if(tail && typeof tail.id === 'string' && typeof tail.j === 'string' && tail.j){
           let k = list.findIndex(x=> x.id === tail.id);
           if(k >= 0){ if(list[k].j !== tail.j){ list[k].j = tail.j; list[k].bg = tail.bg; list[k].thumb = ''; } }
           else { k = clamp(tail.cur | 0, 0, list.length); list.splice(k, 0, { id:tail.id, bg:tail.bg, j:tail.j }); }
@@ -9819,6 +9908,160 @@ function autoLoadRaw(raw){
     });
   }catch(e){ S.restoring = false; console.warn(e); }
 }
+/* ============================================================
+   صفحه‌ها — نوارِ ورق‌زدن (پایینِ صفحه) و فهرستِ صفحه‌ها با تصویرِ کوچک
+============================================================ */
+const PG_ICON = {
+  prev:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  next:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+  add:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+};
+function pagesUi(){
+  const n = DOC.pages.length, i = DOC.cur, last = i >= n - 1;
+  const num = $('#pgNum'), prev = $('#pgPrev'), next = $('#pgNext');
+  if(!num) return;
+  num.textContent = faNum(i + 1, 0) + ' / ' + faNum(n, 0);
+  prev.disabled = i <= 0;
+  next.innerHTML = last ? PG_ICON.add : PG_ICON.next;
+  next.classList.toggle('add', last);
+  next.title = last ? 'صفحه‌ی تازه' : 'صفحه‌ی بعد (PageDown)';
+  if($('#pagesPanel').classList.contains('open')) pagesPanelFill();
+}
+function pagesPanelFill(){
+  const grid = $('#pgGrid');
+  if(!grid) return;
+  const P = DOC.pages;
+  P[DOC.cur].thumb = pageThumb();
+  grid.innerHTML = P.map((p, i)=>
+    `<button type="button" class="pg-thumb${i === DOC.cur ? ' on' : ''}" data-i="${i}" title="صفحه‌ی ${faNum(i + 1, 0)}">` +
+    (p.thumb ? `<img alt="" src="${p.thumb}">` : `<i class="pg-blank" style="background:${(BG[pageBg(i)] || BG.none).color}"></i>`) +
+    `<span>${faNum(i + 1, 0)}</span></button>`).join('');
+  const one = P.length <= 1;
+  $$('#pagesPanel [data-pg="up"]').forEach(b=> b.disabled = DOC.cur <= 0);
+  $$('#pagesPanel [data-pg="down"]').forEach(b=> b.disabled = DOC.cur >= P.length - 1);
+  $$('#pagesPanel [data-pg="del"]').forEach(b=> b.title = one ? 'پاک کردنِ همین صفحه' : 'حذفِ همین صفحه');
+  const on = grid.querySelector('.pg-thumb.on');
+  if(on) on.scrollIntoView({ block:'nearest' });
+}
+function togglePagesPanel(force){
+  const P = $('#pagesPanel'), open = force == null ? !P.classList.contains('open') : !!force;
+  if(open){ $$('.panel').forEach(p=> p !== P && p.classList.remove('open')); $$('[data-cmd="tray"]').forEach(b=> b.classList.remove('active')); }
+  P.classList.toggle('open', open);
+  $('#pgNum').classList.toggle('on', open);
+  if(open) pagesPanelFill();
+}
+async function pageStep(d){
+  if(d > 0 && DOC.cur >= DOC.pages.length - 1){ if(await addPage()) toast('📄 صفحه‌ی تازه — ' + faNum(DOC.cur + 1, 0)); return; }
+  await gotoPage(DOC.cur + d);
+}
+async function pagesAct(a){
+  if(a === 'add'){ if(await addPage()) toast('📄 صفحه‌ی تازه — ' + faNum(DOC.cur + 1, 0)); }
+  else if(a === 'dup') await dupPage();
+  else if(a === 'del') await delPage();
+  else if(a === 'up') movePage(DOC.cur, -1);
+  else if(a === 'down') movePage(DOC.cur, 1);
+  else if(a === 'pdf') exportPdf();
+  pagesUi();
+}
+function bindPages(){
+  $('#pgPrev').innerHTML = PG_ICON.prev;
+  $('#pgPrev').addEventListener('click', ()=> pageStep(-1));
+  $('#pgNext').addEventListener('click', ()=> pageStep(1));
+  $('#pgNum').addEventListener('click', ()=> togglePagesPanel());
+  const P = $('#pagesPanel');
+  P.addEventListener('click', e=>{
+    if(e.target.closest('[data-pages-close]')){ togglePagesPanel(false); return; }
+    const t = e.target.closest('.pg-thumb');
+    if(t){ gotoPage(+t.dataset.i); return; }
+    const b = e.target.closest('[data-pg]');
+    if(b && !b.disabled) pagesAct(b.dataset.pg);
+  });
+  pagesUi();
+}
+
+/* ---- رسمِ یک صفحه بیرون از تخته (برای خروجیِ PDF) ---- */
+function boundsOf(objs){
+  if(!objs.length) return null;
+  let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+  for(const o of objs){
+    const rc = o.getBoundingRect(true, true);
+    l = Math.min(l, rc.left); t = Math.min(t, rc.top);
+    r = Math.max(r, rc.left + rc.width); b = Math.max(b, rc.top + rc.height);
+  }
+  return { x:l, y:t, w:Math.max(1, r - l), h:Math.max(1, b - t) };
+}
+// opts: { maxSide, mode:'content' | 'view' } → بومِ تصویرِ صفحه
+function renderPage(i, opts){
+  const json = pageJson(i), bg = pageBg(i), p = DOC.pages[i];
+  const vpt = i === DOC.cur ? canvas.viewportTransform.slice() : (p.vpt || [1, 0, 0, 1, 0, 0]);
+  const W = canvas.getWidth(), H = canvas.getHeight();
+  let data = null;
+  try{ data = json ? JSON.parse(json) : null; }catch(e){}
+  if(!data || !Array.isArray(data.objects)) data = { objects:[] };
+  return new Promise(res=>{
+    const sc = new fabric.StaticCanvas(null, { width:2, height:2, enableRetinaScaling:false, renderOnAddRemove:false });
+    sc.loadFromJSON(data, ()=>{
+      const objs = sc.getObjects();
+      let b = opts.mode === 'content' ? boundsOf(objs) : null;
+      if(b){ const pad = Math.max(30, Math.max(b.w, b.h)*0.04); b = { x:b.x - pad, y:b.y - pad, w:b.w + pad*2, h:b.h + pad*2 }; }
+      else { const z = vpt[0]; b = { x:-vpt[4]/z, y:-vpt[5]/z, w:W/z, h:H/z }; }
+      const mult = Math.min(opts.maxSide/Math.max(b.w, b.h), 3);
+      const cw = Math.max(1, Math.round(b.w*mult)), ch = Math.max(1, Math.round(b.h*mult));
+      sc.setDimensions({ width:cw, height:ch });
+      sc.setViewportTransform([mult, 0, 0, mult, -b.x*mult, -b.y*mult]);
+      const out = document.createElement('canvas'); out.width = cw; out.height = ch;
+      const g = out.getContext('2d');
+      const keep = { dark:S.dark, chalk:S.chalk };
+      S.dark = S.chalk = !!(BG[bg] || BG.none).dark;
+      try{ paintExportBg(g, b, mult, bg); sc.renderAll(); g.drawImage(sc.lowerCanvasEl, 0, 0); }
+      finally{ S.dark = keep.dark; S.chalk = keep.chalk; }
+      sc.dispose();
+      res(out);
+    });
+  });
+}
+// خروجیِ PDF از همه‌ی صفحه‌ها (هر صفحه یک برگ، اندازه‌ی برگ به اندازه‌ی محتوای همان صفحه)
+async function exportPdf(){
+  if(docLocked()) return;
+  flushHistory(); saveHistory();
+  els.loading.classList.add('show');
+  try{
+    const imgs = [];
+    for(let i = 0; i < DOC.pages.length; i++){
+      const c = await renderPage(i, { mode:'content', maxSide:2000 });
+      const url = c.toDataURL('image/jpeg', 0.9), bin = atob(url.split(',')[1]), u = new Uint8Array(bin.length);
+      for(let k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k);
+      imgs.push({ bytes:u, w:c.width, h:c.height });
+    }
+    downloadBlob(makePdf(imgs), 'whiteboard.pdf');
+    toast('📤 فایل PDF ساخته شد (' + faNum(imgs.length, 0) + ' صفحه)', 2600);
+  }catch(e){ console.warn(e); toast('ساختِ PDF ممکن نشد', 3000); }
+  els.loading.classList.remove('show');
+}
+// نوشتنِ فایلِ PDF ساده: هر برگ یک تصویرِ JPEG
+function makePdf(imgs){
+  const enc = new TextEncoder(), parts = [], offs = [];
+  let len = 0;
+  const push = x=>{ const b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; };
+  const obj = (n, fn)=>{ offs[n] = len; push(n + ' 0 obj\n'); fn(); push('\nendobj\n'); };
+  push(new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34, 0x0a, 0x25, 0xe2, 0xe3, 0xcf, 0xd3, 0x0a]));   // %PDF-1.4
+  const N = imgs.length, total = 3 + N*3;
+  obj(1, ()=> push('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, ()=> push('<< /Type /Pages /Kids [' + imgs.map((_, i)=> (3 + i*3) + ' 0 R').join(' ') + '] /Count ' + N + ' >>'));
+  imgs.forEach((im, i)=>{
+    const pn = 3 + i*3, k = 842/Math.max(im.w, im.h), pw = (im.w*k).toFixed(2), ph = (im.h*k).toFixed(2);
+    const cs = 'q ' + pw + ' 0 0 ' + ph + ' 0 0 cm /Im' + i + ' Do Q';
+    obj(pn, ()=> push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pw + ' ' + ph + '] /Resources << /XObject << /Im' + i + ' ' + (pn + 2) + ' 0 R >> >> /Contents ' + (pn + 1) + ' 0 R >>'));
+    obj(pn + 1, ()=>{ push('<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream'); });
+    obj(pn + 2, ()=>{ push('<< /Type /XObject /Subtype /Image /Width ' + im.w + ' /Height ' + im.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + im.bytes.length + ' >>\nstream\n'); push(im.bytes); push('\nendstream'); });
+  });
+  const xref = len;
+  let x = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+  for(let n = 1; n < total; n++) x += String(offs[n]).padStart(10, '0') + ' 00000 n \n';
+  push(x + 'trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+  return new Blob(parts, { type:'application/pdf' });
+}
+
 /* ---- فایلِ پروژه (نسخه‌ی ۴): همه‌ی صفحه‌ها + تصویرها (هر تصویر یک بار) ---- */
 function saveProject(){
   if(docLocked()) return;
@@ -9869,8 +10112,8 @@ function loadProject(e){
 
 /* ---- خروجی PNG از کل محتوا، همراه پس‌زمینه ---- */
 let exportNoise = null;
-function paintExportBg(g, b, mult){
-  const def = BG[S.bg] || BG.none;
+function paintExportBg(g, b, mult, bg){
+  const def = BG[bg || S.bg] || BG.none;
   g.fillStyle = def.color;
   g.fillRect(0, 0, g.canvas.width, g.canvas.height);
   if(def.dark){
@@ -11602,7 +11845,7 @@ async function openPdfFile(file){
   try{
     const r = await pdfDialog(doc, (file.name || 'PDF').replace(/\.pdf$/i, ''));
     if(r && r.crop) await pdfCropAdd(doc, r.pages[0]);
-    else if(r) await pdfAddPages(doc, r.pages);
+    else if(r) await pdfAddPages(doc, r.pages, r.sep);
   }catch(e){ console.warn(e); toast('📄 صفحه‌ها آماده نشد', 3000); els.loading.classList.remove('show'); }
   doc.destroy();
 }
@@ -11620,15 +11863,19 @@ function pdfDialog(doc, name){
       (N > 1 && N <= PDF_MAXP ? '<button type="button" class="lg-btn sm" data-b="all">همه</button>' : '') +
       '<button type="button" class="lg-btn sm" data-b="none">هیچ‌کدام</button></div>' +
       '<div class="pdf-grid" style="--ar:' + ar.toFixed(4) + '">' + tiles + '</div>' +
-      '<div class="lg-tip">روی صفحه‌ها بزنید تا انتخاب شوند (تا ' + faNum(PDF_MAXP, 0) + ' صفحه). صفحه‌ها زیرِ هم روی تخته می‌آیند و با قلم می‌شود رویشان نوشت؛ «برش» یک تکه از یک صفحه را می‌آورد.</div>' +
+      '<div class="seg pdf-mode" hidden><button type="button" data-m="sep" class="on" title="هر صفحه‌ی PDF در یک صفحه‌ی جدای تخته؛ با ورق‌زدن جلو بروید">📑 هر کدام در یک صفحه‌ی تخته</button><button type="button" data-m="stack" title="همه زیرِ هم در همین صفحه">⬇ زیرِ هم در همین صفحه</button></div>' +
+      '<div class="lg-tip">روی صفحه‌ها بزنید تا انتخاب شوند (تا ' + faNum(PDF_MAXP, 0) + ' صفحه) و با قلم رویشان بنویسید؛ «برش» یک تکه از یک صفحه را می‌آورد.</div>' +
       '<div class="lg-btns"><button type="button" class="lg-btn pri big" data-b="add"></button><button type="button" class="lg-btn" data-b="crop">✂️ برش و افزودن</button><button type="button" class="lg-btn" data-b="cancel">انصراف</button></div></div>';
     document.body.appendChild(o);
     const grid = o.querySelector('.pdf-grid'), addB = o.querySelector('[data-b="add"]'), cropB = o.querySelector('[data-b="crop"]'), go = o.querySelector('[data-go]');
-    let closed = false;
+    const modeBox = o.querySelector('.pdf-mode');
+    let closed = false, sep = true;
+    modeBox.addEventListener('click', e=>{ const b = e.target.closest('[data-m]'); if(!b) return; sep = b.dataset.m === 'sep'; modeBox.querySelectorAll('button').forEach(x=> x.classList.toggle('on', x === b)); });
     const upd = ()=>{
       grid.querySelectorAll('.pdf-pg').forEach(b=> b.classList.toggle('on', sel.has(+b.dataset.n)));
       addB.textContent = sel.size ? '➕ افزودنِ ' + faNum(sel.size, 0) + ' صفحه' : 'یک صفحه را انتخاب کنید';
       addB.disabled = !sel.size; cropB.disabled = sel.size !== 1;
+      modeBox.hidden = sel.size < 2;
     };
     const finish = v=>{ if(closed) return; closed = true; io.disconnect(); o.remove(); document.removeEventListener('keydown', key, true); resolve(v); };
     const toggle = k=>{
@@ -11663,26 +11910,57 @@ function pdfDialog(doc, name){
       if(a === 'cancel') finish(null);
       else if(a === 'none'){ sel.clear(); upd(); }
       else if(a === 'all'){ for(let i = 1; i <= N; i++) sel.add(i); upd(); }
-      else if(a === 'add' && sel.size) finish({ pages:[...sel].sort((x, y)=> x - y) });
+      else if(a === 'add' && sel.size) finish({ pages:[...sel].sort((x, y)=> x - y), sep });
       else if(a === 'crop' && sel.size === 1) finish({ pages:[...sel], crop:true });
     });
     const key = e=>{
       if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); finish(null); }
-      else if(e.key === 'Enter' && e.target !== go && sel.size){ e.preventDefault(); e.stopPropagation(); finish({ pages:[...sel].sort((x, y)=> x - y) }); }
+      else if(e.key === 'Enter' && e.target !== go && sel.size){ e.preventDefault(); e.stopPropagation(); finish({ pages:[...sel].sort((x, y)=> x - y), sep }); }
     };
     document.addEventListener('keydown', key, true);
     upd();
   });
 }
 // صفحه‌ها زیرِ هم، به اندازه‌ای که اولی کامل در صفحه دیده شود؛ قفل تا هنگامِ نوشتن جابه‌جا نشوند
-async function pdfAddPages(doc, pages){
+// قابِ نازکِ خاکستری تا لبه‌ی صفحه روی تخته‌ی سفید هم پیدا باشد؛ قفل تا هنگامِ نوشتن تکان نخورد
+const PDF_LOOK = { stroke:'#94a3b8', strokeWidth:1.5, strokeUniform:true, wbNoChalk:true,
+  lockMovementX:true, lockMovementY:true, lockScalingX:true, lockScalingY:true, lockRotation:true, hasControls:false };
+async function pdfImage(doc, n){
+  const c = await pdfRender(doc, n, PDF_W, PDF_H), url = c.toDataURL('image/jpeg', 0.85);
+  c.width = c.height = 0;
+  return new Promise(res=> fabric.Image.fromURL(url, img=> res(img && img.width ? img : null)));
+}
+// sep: هر صفحه‌ی PDF در یک صفحه‌ی جدای تخته (ورق‌زدن مثل کتاب)؛ وگرنه زیرِ هم در همین صفحه
+async function pdfAddPages(doc, pages, sep){
+  if(sep && pages.length > 1){
+    els.loading.classList.add('show');
+    let made = 0;
+    try{
+      for(const n of pages){
+        const img = await pdfImage(doc, n);
+        if(!img) continue;
+        if(made || canvas.getObjects().length){ if(!(await addPage())) break; }
+        flushHistory();
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+        const fa = freeArea(), s = Math.min(fa.w*0.94/img.width, fa.h*0.94/img.height), c = toWorld({ x:fa.l + fa.w/2, y:fa.t + fa.h/2 });
+        img.set(Object.assign({ left:c.x, top:c.y, originX:'center', originY:'center', scaleX:s, scaleY:s }, PDF_LOOK));
+        canvas.discardActiveObject();
+        canvas.add(img);
+        canvas.requestRenderAll();
+        saveHistory();
+        made++;
+      }
+    } finally { els.loading.classList.remove('show'); }
+    if(!made){ toast('📄 صفحه‌ها آماده نشد', 3000); return; }
+    setTool('pen');
+    pagesUi();
+    toast('📑 ' + faNum(made, 0) + ' صفحه‌ی تخته ساخته شد — با ‹ › ورق بزنید و با قلم بنویسید', 3600);
+    status('📄 صفحه‌ها قفل‌اند تا هنگام نوشتن تکان نخورند؛ با PageDown / PageUp یا دکمه‌های پایین ورق بزنید');
+    return;
+  }
   els.loading.classList.add('show');
   const imgs = [];
-  for(const n of pages){
-    const c = await pdfRender(doc, n, PDF_W, PDF_H), url = c.toDataURL('image/jpeg', 0.85);
-    c.width = c.height = 0;
-    imgs.push(await new Promise(res=> fabric.Image.fromURL(url, img=> res(img && img.width ? img : null))));
-  }
+  for(const n of pages) imgs.push(await pdfImage(doc, n));
   els.loading.classList.remove('show');
   const list = imgs.filter(Boolean);
   if(!list.length){ toast('📄 صفحه‌ها آماده نشد', 3000); return; }
@@ -11695,9 +11973,7 @@ async function pdfAddPages(doc, pages){
   canvas.discardActiveObject();
   list.forEach(img=>{
     const s = dispW/img.width, h = img.height*s;
-    // قابِ نازکِ خاکستری تا لبه‌ی صفحه روی تخته‌ی سفید هم پیدا باشد
-    img.set({ left:top.x, top:y + h/2, originX:'center', originY:'center', scaleX:s, scaleY:s, stroke:'#94a3b8', strokeWidth:1.5, strokeUniform:true, wbNoChalk:true,
-      lockMovementX:true, lockMovementY:true, lockScalingX:true, lockScalingY:true, lockRotation:true, hasControls:false });
+    img.set(Object.assign({ left:top.x, top:y + h/2, originX:'center', originY:'center', scaleX:s, scaleY:s }, PDF_LOOK));
     canvas.add(img);
     y += h + gap;
   });
@@ -11847,6 +12123,7 @@ function bindShortcuts(){
     if(cmd && (code === 'Minus' || code === 'NumpadSubtract')){ e.preventDefault(); zoomBy(1/1.15); return; }
 
     if(editing || cmd || e.altKey) return;
+    if(code === 'PageDown' || code === 'PageUp'){ e.preventDefault(); pageStep(code === 'PageDown' ? 1 : -1); return; }
 
     if(code === 'Space'){
       e.preventDefault();
