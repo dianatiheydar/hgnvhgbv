@@ -223,6 +223,15 @@ input[type=text]{-webkit-user-select:text;user-select:text}
 .row .val{font-size:12px;min-width:38px;text-align:center;font-variant-numeric:tabular-nums}
 input[type=color]{width:44px;height:36px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;background:#fff}
 select{height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;padding:0 10px;font-size:13px;cursor:pointer;flex:1}
+.sw-row{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:4px 0 2px;border:1px solid var(--border);border-radius:10px;background:#fafbfc;cursor:pointer}
+.sw-row span{flex:1;display:flex;flex-direction:column;gap:2px;font-size:13px}
+.sw-row small{font-size:11px;color:var(--muted)}
+.sw-row input{position:absolute;opacity:0;pointer-events:none}
+.sw{position:relative;flex:0 0 auto;width:40px;height:23px;border-radius:12px;background:#cbd2dc;transition:background .2s}
+.sw::after{content:'';position:absolute;top:3px;right:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:right .2s}
+.sw-row input:checked + .sw{background:var(--primary)}
+.sw-row input:checked + .sw::after{right:20px}
+.sw-row input:focus-visible + .sw{outline:2px solid var(--primary);outline-offset:2px}
 .propgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .propgrid .menuitem{border:1px solid var(--border);background:#fafbfc}
 
@@ -781,6 +790,10 @@ body.rec-on #credit{visibility:hidden}
       <div class="row"><label>شفافیت</label><input id="opacity" type="range" min="10" max="100" value="100"><span class="val" id="opacityVal">۱۰۰٪</span></div>
       <div class="row"><label>فونت</label><select id="font"><option value="KidFont, Tahoma">فونت کودک</option><option>Tahoma</option><option>Arial</option><option>Vazirmatn</option><option>Times New Roman</option></select></div>
       <div class="row"><label>اندازه</label><input id="fontSize" type="range" min="12" max="80" value="28"><span class="val" id="fontSizeVal">۲۸</span></div>
+      <label class="sw-row" title="در پایانِ خط، قلم را برندارید و نیم ثانیه نگه دارید: خطِ کج صاف می‌شود و دایره، مثلث، مستطیل و چندضلعیِ دستی مرتب می‌شود">
+        <span><b>✨ قلم هوشمند</b><small>آخرِ خط کمی نگه دارید ← شکلِ مرتب</small></span>
+        <input type="checkbox" id="smartPen" checked><i class="sw"></i>
+      </label>
       <div class="propgrid">
         <button class="menuitem" data-prop="front">⬆️ جلو</button>
         <button class="menuitem" data-prop="back">⬇️ عقب</button>
@@ -1887,6 +1900,7 @@ function init(){
   setBackground('none', false);
   DOC.pages = [blankPage('none')]; DOC.cur = 0;
   bindPages();
+  bindSmartPen();
   resetHistory();
   setTool('pen');
   updateZoom();
@@ -2280,7 +2294,7 @@ function bindToolbar(){
 const TOOL_LABELS = {
   select:'انتخاب — روی شیء بزنید یا کادر بکشید',
   pan:'جابجایی — بکشید (یا Space + درگ، یا دو انگشت)',
-  pen:'قلم — بنویسید', highlighter:'هایلایتر — بکشید',
+  pen:'قلم — بنویسید (آخرِ خط کمی نگه دارید تا شکل مرتب شود)', highlighter:'هایلایتر — بکشید',
   eraser:'پاک‌کن — روی نوشته بکشید', laser:'لیزر — بکشید',
   bucket:'سطل رنگ — داخل یک ناحیه‌ی بسته، یک قسمت از شکل کسری یا یک وجهِ گسترده بزنید (دوباره بزنید = پاک)',
   shape:'شکل — بکشید برای اندازه دلخواه، کلیک ساده = اندازه پیش‌فرض'
@@ -2801,7 +2815,7 @@ function finishGesture(e){
 function cancelGesture(){
   const m = G.mode;
   G.mode = null;
-  if(m === 'ink'){ ink.pts = []; ink.raw = []; ink.pred = []; inkRender(); if(hist.dirty) markHistoryDirty(); }
+  if(m === 'ink'){ ink.pts = []; ink.raw = []; ink.pred = []; ink.snap = null; snapDisarm(); inkRender(); if(hist.dirty) markHistoryDirty(); }
   else if(m === 'erase') eraseEnd();
   else if(m === 'laser') laserEnd();
   else if(m === 'pan') endPan();
@@ -2873,7 +2887,7 @@ function endPinch(){
    · رسم زنده روی بوم جداگانه در هر فریم، بدون درگیرکردن fabric
    · در پایان خط: ساده‌سازی + منحنی نرم (Catmull‑Rom) و افزودن یک‌باره به بوم
 ============================================================ */
-const ink = { pts:[], raw:[], pred:[], style:null, raf:0, pending:[], trail:null, usePred:false };
+const ink = { pts:[], raw:[], pred:[], style:null, raf:0, pending:[], trail:null, usePred:false, snap:null, hold:null, holdT:0 };
 const SMOOTH_W = [0.5, 0.3, 0.2];   // وزن نمونه‌های خام: [تازه‌ترین, قبلی, قبل‌تر]
 function pushSmoothed(q){
   const raw = ink.raw;
@@ -2895,7 +2909,8 @@ function inkRender(){
   const ctx = inkCtx;
   ctx.clearRect(0, 0, wrapRect.width + 2, wrapRect.height + 2);
   for(const fn of ink.pending) fn(ctx);
-  if(G.mode === 'ink' && ink.pts.length){
+  if(G.mode === 'ink' && ink.snap) drawSnap(ctx, ink.snap, ink.style);
+  else if(G.mode === 'ink' && ink.pts.length){
     drawStroke(ctx, ink.pred.length ? ink.pts.concat(ink.pred) : ink.pts, ink.style);
   }
   if(ink.trail) drawTrail(ctx, ink.trail);
@@ -2945,8 +2960,9 @@ function inkStart(e, p){
     color: hi ? hexToRgba(S.color, .35) : S.color,
     width: hi ? Math.max(10, S.width*3) : S.width
   };
-  ink.pts = [p]; ink.raw = [p]; ink.pred = [];
+  ink.pts = [p]; ink.raw = [p]; ink.pred = []; ink.snap = null;
   ink.usePred = e.pointerType !== 'mouse';
+  snapArm(p);
   inkKick();
 }
 function inkMove(e){
@@ -2956,6 +2972,14 @@ function inkMove(e){
     if(dx*dx + dy*dy >= 0.36) pushSmoothed(q);
   }
   ink.pred.length = 0;
+  const here = localOf(e);
+  if(ink.snap){
+    // بعد از مرتب‌شدن: سرِ خطِ صاف دنبالِ قلم می‌آید (با زاویه‌های دقیق)؛ شکل‌های دیگر ثابت می‌مانند
+    if(ink.snap.kind === 'line') ink.snap.pts[1] = snapAngle(ink.snap.pts[0], here);
+    inkKick();
+    return;
+  }
+  if(!ink.hold || dist(here, ink.hold) > SNAP_STILL) snapArm(here);
   if(ink.usePred && e.getPredictedEvents){
     const pr = e.getPredictedEvents();
     if(pr && pr.length) ink.pred.push(localOf(pr[Math.min(pr.length - 1, 1)]));
@@ -2963,8 +2987,22 @@ function inkMove(e){
   inkKick();
 }
 function inkEnd(){
-  const pts = ink.pts, st = ink.style;
-  ink.pts = []; ink.raw = []; ink.pred = [];
+  const pts = ink.pts, st = ink.style, sn = ink.snap;
+  ink.pts = []; ink.raw = []; ink.pred = []; ink.snap = null;
+  snapDisarm();
+  if(sn && st){
+    const shape = new fabric.Path(snapPathCmds(sn), {
+      stroke:st.color, strokeWidth:st.width, fill:null,
+      strokeLineCap:'round', strokeLineJoin:'round',
+      opacity:st.opacity, wbRole: st.hi ? 'hi' : 'ink'
+    });
+    flushHistory();
+    ink.pending.push(ctx => drawSnap(ctx, sn, st));
+    canvas.add(shape);
+    markHistoryDirty();
+    inkRender();
+    return;
+  }
   if(!pts.length || !st){ inkRender(); return; }
   const v = canvas.viewportTransform, z = v[0];
   let w = pts.map(p => ({ x:(p.x - v[4])/z, y:(p.y - v[5])/z }));
@@ -3017,6 +3055,240 @@ function simplifyRDP(pts, eps){
     if(maxD > e2 && idx > 0){ keep[idx] = 1; stack.push([s, idx], [idx, t]); }
   }
   return pts.filter((_, i) => keep[i]);
+}
+
+/* ============================================================
+   قلم هوشمند — در پایانِ خط کمی نگه دارید (بدون برداشتنِ قلم)
+   تا خطِ کج صاف شود و دایره/بیضی/مثلث/مستطیل/چندضلعیِ دستی، مرتب.
+   شکلِ مرتب همان رنگ و ضخامتِ قلم را دارد و مثلِ نوشته پاک می‌شود.
+============================================================ */
+const SNAP_HOLD = 550, SNAP_STILL = 6;
+let smartPenOn = true;
+try{ smartPenOn = localStorage.getItem('mc-wb-smartpen') !== '0'; }catch(e){}
+
+function snapArm(q){
+  ink.hold = { x:q.x, y:q.y };
+  clearTimeout(ink.holdT);
+  ink.holdT = smartPenOn ? setTimeout(snapTry, SNAP_HOLD) : 0;
+}
+function snapDisarm(){ clearTimeout(ink.holdT); ink.holdT = 0; ink.hold = null; }
+function snapTry(){
+  ink.holdT = 0;
+  if(G.mode !== 'ink' || ink.snap || !smartPenOn) return;
+  const r = snapRecognize(ink.pts);
+  if(!r) return;
+  ink.snap = r;
+  ink.pred.length = 0;
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+  status('✨ ' + r.name + (r.kind === 'line' ? ' — جهت را تنظیم کنید و قلم را بردارید' : ' — قلم را بردارید'));
+  inkRender();
+}
+// زاویه‌ی نزدیک به افقی/عمودی/۴۵ درجه، دقیق شود (طول همان می‌ماند)
+function snapAngle(a, b, tol){
+  const dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy);
+  if(L < 1) return { x:b.x, y:b.y };
+  const ang = Math.atan2(dy, dx), q = Math.round(ang/(Math.PI/4))*(Math.PI/4);
+  if(Math.abs(angDelta(ang, q)) > (tol || 5)*D2R) return { x:b.x, y:b.y };
+  return { x:a.x + L*Math.cos(q), y:a.y + L*Math.sin(q) };
+}
+function snapResample(pts, n){
+  let L = 0;
+  for(let i = 1; i < pts.length; i++) L += dist(pts[i - 1], pts[i]);
+  if(L <= 0) return { P:[pts[0]], L:0 };
+  const step = L/(n - 1), P = [pts[0]];
+  let acc = 0;
+  for(let i = 1; i < pts.length; i++){
+    let a = pts[i - 1];
+    const b = pts[i];
+    let d = dist(a, b);
+    while(acc + d >= step && d > 0){
+      const t = (step - acc)/d, q = along(a, b, t);
+      P.push(q); a = q; d = dist(a, b); acc = 0;
+    }
+    acc += d;
+  }
+  while(P.length < n) P.push(pts[pts.length - 1]);
+  return { P:P.slice(0, n), L };
+}
+const SNAP_NAMES = { 3:'مثلث', 4:'چهارضلعی', 5:'پنج‌ضلعی', 6:'شش‌ضلعی', 7:'هفت‌ضلعی', 8:'هشت‌ضلعی' };
+// pts: نقطه‌های صفحه‌ی نمایش → { kind:'line'|'poly'|'ellipse', ... , name } یا null
+function snapRecognize(pts){
+  if(!pts || pts.length < 4) return null;
+  const { P, L } = snapResample(pts, 96);
+  if(L < 40) return null;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  P.forEach(p=>{ x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); });
+  const diag = Math.hypot(x1 - x0, y1 - y0);
+  if(diag < 24) return null;
+  const A = pts[0], E = pts[pts.length - 1];
+  // بسته؟ بعد از ۶۰٪ِ مسیر، نزدیک‌ترین جا به نقطه‌ی شروع (زیادی‌اش بریده می‌شود)
+  let best = Infinity, bi = -1;
+  for(let i = Math.floor(P.length*0.6); i < P.length; i++){ const d = dist(P[i], P[0]); if(d < best){ best = d; bi = i; } }
+  const closed = best < Math.max(0.2*diag, 12);
+  if(!closed){
+    const chord = dist(A, E);
+    let dev = 0;
+    P.forEach(p=>{ dev = Math.max(dev, distToSeg(p, A, E)); });
+    if(chord > 20 && dev < Math.max(0.07*chord, 5))
+      return { kind:'line', pts:[{ x:A.x, y:A.y }, snapAngle(A, E)], name:'خطِ صاف' };
+    // دو پاره‌خط با یک گوشه‌ی تیز → زاویه (موج و خط‌خطیِ معمولی دست نمی‌خورد)
+    const V = simplifyRDP(P, Math.max(0.05*diag, 6));
+    if(V.length === 3 && dist(V[0], V[1]) > 0.3*diag && dist(V[1], V[2]) > 0.3*diag){
+      let err = 0;
+      P.forEach(p=>{ err += Math.min(distToSeg(p, V[0], V[1]), distToSeg(p, V[1], V[2])); });
+      if(err/P.length < 0.02*diag) return { kind:'poly', pts:[{ x:V[0].x, y:V[0].y }, { x:V[1].x, y:V[1].y }, snapAngle(V[1], V[2])], closed:false, name:'زاویه' };
+    }
+    return null;
+  }
+  const Q = P.slice(0, bi + 1);
+  const n = Q.length;
+  let cx = 0, cy = 0;
+  Q.forEach(p=>{ cx += p.x; cy += p.y; }); cx /= n; cy /= n;
+  let sxx = 0, syy = 0, sxy = 0;
+  Q.forEach(p=>{ const dx = p.x - cx, dy = p.y - cy; sxx += dx*dx; syy += dy*dy; sxy += dx*dy; });
+  // بیضی: محورهای اصلی از پراکندگیِ نقطه‌ها، اندازه از پهنا در همان جهت
+  let th = 0.5*Math.atan2(2*sxy, sxx - syy);
+  const fit = th=>{
+    const c = Math.cos(th), s = Math.sin(th);
+    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+    const UV = Q.map(p=>{ const dx = p.x - cx, dy = p.y - cy, u = dx*c + dy*s, v = -dx*s + dy*c; u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); return [u, v]; });
+    const a = Math.max(1, (u1 - u0)/2), b = Math.max(1, (v1 - v0)/2), mu = (u0 + u1)/2, mv = (v0 + v1)/2;
+    let e = 0;
+    UV.forEach(([u, v])=>{ e += Math.abs(Math.hypot((u - mu)/a, (v - mv)/b) - 1); });
+    return { a, b, th, e:e/n, x:cx + mu*c - mv*s, y:cy + mu*s + mv*c };
+  };
+  let el = fit(th);
+  const s = (el.a + el.b)/2;
+  // چندضلعی: گوشه‌ها با ساده‌سازی؛ گوشه‌های خیلی باز حذف می‌شوند
+  let V = simplifyRDP(Q.concat([Q[0]]), Math.max(0.06*diag, 6)).slice(0, -1);
+  for(let pass = 0; pass < 3 && V.length > 3; pass++){
+    const keep = V.filter((p, i)=>{
+      const a = V[(i - 1 + V.length) % V.length], b = V[(i + 1) % V.length];
+      const t = Math.abs(angDelta(Math.atan2(p.y - a.y, p.x - a.x), Math.atan2(b.y - p.y, b.x - p.x)));
+      return t > 28*D2R && dist(p, a) > 0.06*diag;
+    });
+    if(keep.length === V.length || keep.length < 3) break;
+    V = keep;
+  }
+  let eP = Infinity;
+  if(V.length >= 3 && V.length <= 8){
+    let e = 0;
+    Q.forEach(p=>{ let m = Infinity; for(let i = 0; i < V.length; i++) m = Math.min(m, distToSeg(p, V[i], V[(i + 1) % V.length])); e += m; });
+    eP = e/n/s;
+  }
+  // ضلع‌های چندضلعی صاف‌اند؛ دایره‌ی دستی بین گوشه‌هایش قوس دارد:
+  // وسطِ هر ضلع بیشتر از دو طرفش بیرون زده است (جابه‌جاییِ یکنواختِ ضلع حساب نمی‌شود)
+  let bulge = 0, bw = 0;
+  if(eP < 0.06){
+    const ix = V.map(v=> Q.indexOf(v));
+    for(let i = 0; i < V.length; i++){
+      const A = V[i], B = V[(i + 1) % V.length], L = dist(A, B);
+      const i0 = ix[i], i1 = i + 1 < V.length ? ix[i + 1] : n - 1;
+      if(L < 1 || i0 < 0 || i1 - i0 < 6) continue;
+      const sc = Math.sign((B.x - A.x)*(cy - A.y) - (B.y - A.y)*(cx - A.x)) || 1;
+      let mid = 0, mn = 0, side = 0, sn = 0;
+      for(let j = i0 + 1; j < i1; j++){
+        const t = (j - i0)/(i1 - i0), P2 = Q[j];
+        const d = -sc*((B.x - A.x)*(P2.y - A.y) - (B.y - A.y)*(P2.x - A.x))/L;
+        if(t >= 0.35 && t <= 0.65){ mid += d; mn++; }
+        else if((t >= 0.1 && t <= 0.25) || (t >= 0.75 && t <= 0.9)){ side += d; sn++; }
+      }
+      if(mn && sn){ bulge += (mid/mn - side/sn)/L*L; bw += L; }
+    }
+    bulge = bw ? bulge/bw : 0;
+  }
+  if(eP < 0.06 && bulge < 0.012 && (V.length <= 4 || eP < el.e*1.4)) return snapPolygon(V, diag);
+  if(el.e < 0.085){
+    if(Math.max(el.a, el.b)/Math.min(el.a, el.b) < 1.2){
+      const r = (el.a + el.b)/2;
+      return { kind:'ellipse', cx:el.x, cy:el.y, a:r, b:r, rot:0, name:'دایره' };
+    }
+    let rot = el.th;
+    const q = Math.round(rot/(Math.PI/2))*(Math.PI/2);
+    if(Math.abs(angDelta(rot, q)) < 8*D2R){ el = fit(q); rot = q; }
+    return { kind:'ellipse', cx:el.x, cy:el.y, a:el.a, b:el.b, rot, name:'بیضی' };
+  }
+  return null;
+}
+function snapPolygon(V, diag){
+  const k = V.length;
+  if(k === 4){
+    // چهار گوشه‌ی تقریباً قائمه → مستطیل/مربع (جهت از میانگینِ ضلع‌ها؛ نزدیکِ افقی → دقیقاً افقی)
+    const angs = V.map((p, i)=>{ const a = V[(i + 3) % 4], b = V[(i + 1) % 4]; return Math.abs(angDelta(Math.atan2(a.y - p.y, a.x - p.x), Math.atan2(b.y - p.y, b.x - p.x))); });
+    if(angs.every(t=> Math.abs(t - Math.PI/2) < 15*D2R)){
+      let sx = 0, sy = 0;
+      V.forEach((p, i)=>{ const q = V[(i + 1) % 4], t = Math.atan2(q.y - p.y, q.x - p.x)*4; sx += Math.cos(t); sy += Math.sin(t); });
+      let th = Math.atan2(sy, sx)/4;
+      if(Math.abs(angDelta(th*4, 0))/4 < 8*D2R) th = 0;
+      const c = Math.cos(th), s = Math.sin(th);
+      const U = V.map(p=> p.x*c + p.y*s).sort((a, b)=> a - b), W = V.map(p=> -p.x*s + p.y*c).sort((a, b)=> a - b);
+      let u0 = (U[0] + U[1])/2, u1 = (U[2] + U[3])/2, v0 = (W[0] + W[1])/2, v1 = (W[2] + W[3])/2;
+      let sq = false;
+      if(Math.abs((u1 - u0) - (v1 - v0)) < 0.12*Math.max(u1 - u0, v1 - v0)){
+        const h = ((u1 - u0) + (v1 - v0))/4, mu = (u0 + u1)/2, mv = (v0 + v1)/2;
+        u0 = mu - h; u1 = mu + h; v0 = mv - h; v1 = mv + h; sq = true;
+      }
+      const P = [[u0, v0], [u1, v0], [u1, v1], [u0, v1]].map(([u, v])=> ({ x:u*c - v*s, y:u*s + v*c }));
+      return { kind:'poly', pts:P, closed:true, name:sq ? 'مربع' : 'مستطیل' };
+    }
+  }
+  // ضلع‌های نزدیک به افقی/عمودی، دقیق شوند (مثلثِ قائم‌الزاویه با ضلع‌های صاف)
+  const P = V.map(p=> ({ x:p.x, y:p.y }));
+  if(k <= 4){
+    for(let i = 0; i < k; i++){
+      const a = P[i], b = P[(i + 1) % k], t = Math.atan2(b.y - a.y, b.x - a.x);
+      const d0 = Math.abs(angDelta(t, 0)), dpi = Math.abs(angDelta(t, Math.PI));
+      if(Math.min(d0, dpi) < 6*D2R){ const m = (a.y + b.y)/2; a.y = b.y = m; }
+      else if(Math.min(Math.abs(angDelta(t, Math.PI/2)), Math.abs(angDelta(t, -Math.PI/2))) < 6*D2R){ const m = (a.x + b.x)/2; a.x = b.x = m; }
+    }
+  }
+  return { kind:'poly', pts:P, closed:true, name:SNAP_NAMES[k] || 'چندضلعی' };
+}
+function drawSnap(ctx, sn, st){
+  ctx.save();
+  inkPaint(ctx, st);
+  ctx.beginPath();
+  if(sn.kind === 'ellipse') ctx.ellipse(sn.cx, sn.cy, sn.a, sn.b, sn.rot, 0, TAU);
+  else {
+    ctx.moveTo(sn.pts[0].x, sn.pts[0].y);
+    for(let i = 1; i < sn.pts.length; i++) ctx.lineTo(sn.pts[i].x, sn.pts[i].y);
+    if(sn.closed) ctx.closePath();
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+// شکلِ صفحه‌ی نمایش → فرمان‌های مسیرِ fabric در مختصاتِ تخته
+function snapPathCmds(sn){
+  const v = canvas.viewportTransform, z = v[0], r = n=> Math.round(n*100)/100;
+  const W = p=> ({ x:(p.x - v[4])/z, y:(p.y - v[5])/z });
+  if(sn.kind === 'ellipse'){
+    const c = W({ x:sn.cx, y:sn.cy }), a = sn.a/z, b = sn.b/z, cs = Math.cos(sn.rot), sn_ = Math.sin(sn.rot), K = 0.5522847;
+    const at = (u, w)=> [r(c.x + u*cs - w*sn_), r(c.y + u*sn_ + w*cs)];
+    const out = [['M', ...at(a, 0)]];
+    for(let i = 0; i < 4; i++){
+      const t0 = i*Math.PI/2, t1 = t0 + Math.PI/2;
+      const p0 = [a*Math.cos(t0), b*Math.sin(t0)], p1 = [a*Math.cos(t1), b*Math.sin(t1)];
+      const d0 = [-a*Math.sin(t0), b*Math.cos(t0)], d1 = [-a*Math.sin(t1), b*Math.cos(t1)];
+      out.push(['C', ...at(p0[0] + K*d0[0], p0[1] + K*d0[1]), ...at(p1[0] - K*d1[0], p1[1] - K*d1[1]), ...at(p1[0], p1[1])]);
+    }
+    out.push(['Z']);
+    return out;
+  }
+  const w = sn.pts.map(W);
+  const out = [['M', r(w[0].x), r(w[0].y)]];
+  for(let i = 1; i < w.length; i++) out.push(['L', r(w[i].x), r(w[i].y)]);
+  if(sn.closed) out.push(['Z']);
+  return out;
+}
+function bindSmartPen(){
+  const cb = $('#smartPen');
+  if(!cb) return;
+  cb.checked = smartPenOn;
+  cb.addEventListener('change', ()=>{
+    smartPenOn = cb.checked;
+    try{ localStorage.setItem('mc-wb-smartpen', smartPenOn ? '1' : '0'); }catch(e){}
+    status(smartPenOn ? '✨ قلم هوشمند روشن شد — در پایانِ خط کمی نگه دارید' : 'قلم هوشمند خاموش شد');
+  });
 }
 
 /* ============================================================
