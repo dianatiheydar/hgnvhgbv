@@ -1,6 +1,6 @@
 // وایت‌برد — کار بدون اینترنت وقتی از آیکونِ صفحه‌ی اصلی باز می‌شود
 // صفحه: اول از اینترنت (تا نسخه‌ی تازه برسد)، اگر نبود از حافظه؛ آیکون‌ها و فهرست: از حافظه
-const CACHE = 'whiteboard-v1';
+const CACHE = 'whiteboard-v2';
 const FILES = ['./whiteboard.html', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-512-maskable.png', './icons/favicon-32.png'];
 
 self.addEventListener('install', e=>{

@@ -255,6 +255,7 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 .ck-empty{padding:22px 16px;color:var(--muted);font-size:13px;text-align:center}
 .ck-foot{padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
 @media (pointer:coarse){ .ck-foot{display:none} .ck-item{padding:11px 10px} }
+.share-retry{position:fixed;left:50%;bottom:calc(var(--safe-b, 12px) + 52px);transform:translateX(-50%);z-index:450;padding:12px 20px;border-radius:24px;background:var(--primary);color:#fff;font-weight:700;font-size:15px;box-shadow:0 8px 24px rgba(15,23,42,.3);white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}
 .propgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .propgrid .menuitem{border:1px solid var(--border);background:#fafbfc}
 
@@ -10837,9 +10838,19 @@ function shareFile(blob, name){
   try{
     const f = new File([blob], name, { type:blob.type || 'application/octet-stream' });
     if(!navigator.canShare({ files:[f] })) return false;
-    navigator.share({ files:[f], title:name }).catch(()=>{});
+    // بعد از کارِ طولانی (مثلاً ساختنِ PDF) آیپد ممکن است اجازه ندهد؛ آن وقت یک دکمه برای زدنِ دوباره
+    navigator.share({ files:[f], title:name }).catch(e=>{ if(e && e.name === 'NotAllowedError') shareRetry(f, name); });
     return true;
   }catch(e){ return false; }
+}
+function shareRetry(f, name){
+  $$('.share-retry').forEach(x=> x.remove());
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'share-retry';
+  b.textContent = '📤 ذخیره / فرستادنِ «' + name + '»';
+  b.addEventListener('click', ()=>{ b.remove(); navigator.share({ files:[f], title:name }).catch(()=>{}); });
+  document.body.appendChild(b);
+  setTimeout(()=> b.remove(), 20000);
 }
 function dataUrlBlob(url){
   const [h, b] = url.split(','), bin = atob(b), u = new Uint8Array(bin.length);
