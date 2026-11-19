@@ -256,6 +256,26 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 .ck-foot{padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
 @media (pointer:coarse){ .ck-foot{display:none} .ck-item{padding:11px 10px} }
 .share-retry{position:fixed;left:50%;bottom:calc(var(--safe-b, 12px) + 52px);transform:translateX(-50%);z-index:450;padding:12px 20px;border-radius:24px;background:var(--primary);color:#fff;font-weight:700;font-size:15px;box-shadow:0 8px 24px rgba(15,23,42,.3);white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}
+/* ===== راهنما و صفحه‌ی شروع ===== */
+#helpOv{position:fixed;inset:0;z-index:420;background:rgba(15,23,42,.42);direction:rtl;cursor:pointer}
+.help-tip{position:fixed;padding:3px 9px;border-radius:12px;background:#fff;color:#0f172a;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(15,23,42,.3);border:1.5px solid var(--primary);line-height:16px}
+.help-dot{position:fixed;width:8px;height:8px;border-radius:50%;background:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.35)}
+.help-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 32px));background:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 20px 50px rgba(15,23,42,.35);display:flex;flex-direction:column;gap:7px;font-size:14px;line-height:1.7}
+.help-card b{font-size:17px}
+.help-card small{color:var(--muted);font-size:12px;margin-top:4px}
+#welcome{position:fixed;inset:0;z-index:430;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl}
+.wl-box{width:min(620px,100%);max-height:calc(100vh - 32px);overflow-y:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 24px 64px rgba(15,23,42,.4);text-align:center;animation:ckIn .18s ease-out}
+.wl-box h2{margin:0 0 4px;font-size:22px}
+.wl-box p{margin:0 0 14px;color:var(--muted)}
+.wl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.wl-tile{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border:1.5px solid var(--border);border-radius:14px;background:#fafbfc;transition:transform .12s,border-color .12s}
+.wl-tile:hover{transform:translateY(-2px);border-color:var(--primary);background:var(--primary-soft)}
+.wl-tile i{font-style:normal;font-size:32px;line-height:1.2}
+.wl-tile b{font-size:15px}
+.wl-tile small{font-size:11.5px;color:var(--muted);line-height:1.5}
+.wl-skip{margin-top:14px;padding:10px 18px;border-radius:12px;background:var(--primary);color:#fff;font-weight:700;font-size:14px}
+@media (max-width:560px){ .wl-grid{grid-template-columns:repeat(2,1fr)} .wl-tile{padding:11px 6px} }
+.lp-tip{position:fixed;z-index:460;max-width:min(320px,calc(100vw - 16px));padding:8px 12px;border-radius:12px;background:rgba(15,23,42,.94);color:#fff;font-size:13px;line-height:1.6;direction:rtl;pointer-events:none;box-shadow:0 8px 24px rgba(15,23,42,.35)}
 .propgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .propgrid .menuitem{border:1px solid var(--border);background:#fafbfc}
 
@@ -718,6 +738,7 @@ body.rec-on #credit{visibility:hidden}
       <button class="ibtn" data-act="fit" title="نمایش همه محتوا">🎯</button>
       <button class="ibtn" data-act="full" title="تمام‌صفحه‌ی واقعی (بدون نوارهای مرورگر)">⛶</button>
     </div>
+    <button class="ibtn" data-help title="راهنما: نامِ همه‌ی دکمه‌ها کنارشان نوشته می‌شود (کلید ؟)">❓</button>
     <button class="ibtn" data-cmdk title="جست‌وجوی سریع: هر ابزار، مبحث، کارتِ لیگ یا کاری را با نوشتنِ اسمش پیدا کنید (Ctrl+K)">🔍</button>
     <button class="ibtn tb-more hasmenu" data-menu="moreMenu" title="گزینه‌های بیشتر">☰</button>
   </header>
@@ -892,6 +913,8 @@ body.rec-on #credit{visibility:hidden}
   <button class="menuitem" data-act="newdoc">🗒 پروژه‌ی تازه</button>
   <button class="menuitem" data-act="pages">📑 صفحه‌ها</button>
   <button class="menuitem" data-act="pdfout">📤 خروجی PDF</button>
+  <button class="menuitem" data-act="help">❓ راهنمای دکمه‌ها</button>
+  <button class="menuitem" data-act="welcome">👋 صفحه‌ی شروع</button>
   <button class="menuitem" data-act="save">💾 ذخیره</button>
   <button class="menuitem" data-act="load">📂 بازکردن</button>
   <button class="menuitem" data-act="png">🖼 PNG</button>
@@ -1943,6 +1966,7 @@ function init(){
   bindSmartPen();
   bindPres();
   bindCmdk();
+  bindHelp();
   resetHistory();
   setTool('pen');
   updateZoom();
@@ -2235,6 +2259,8 @@ function runAction(act){
   else if(act === 'newdoc') newDoc();
   else if(act === 'pdfout') exportPdf();
   else if(act === 'pages') togglePagesPanel();
+  else if(act === 'help') helpShow();
+  else if(act === 'welcome') welcomeShow(true);
   else if(act === 'undo') undo();
   else if(act === 'redo') redo();
   else if(act === 'save') saveProject();
@@ -5441,11 +5467,40 @@ const PAT = {
   sq:   { name:'مربع', color:'#f97316' },
   thin: { name:'لوزی باریک', color:'#d6b88a' }
 };
+/* ---------- ۷) تانگرام — ۷ قطعه و پازل‌های سایه‌ای ---------- */
+const TAN = {
+  L1:{ name:'مثلث بزرگ', color:'#ef4444', k:'L' }, L2:{ name:'مثلث بزرگ', color:'#3b82f6', k:'L' },
+  M:{ name:'مثلث متوسط', color:'#22c55e', k:'M' },
+  S1:{ name:'مثلث کوچک', color:'#facc15', k:'S' }, S2:{ name:'مثلث کوچک', color:'#a855f7', k:'S' },
+  Q:{ name:'مربع', color:'#f97316', k:'Q' }, P:{ name:'متوازی‌الاضلاع', color:'#06b6d4', k:'P' }
+};
+const TAN_ORDER = ['L1', 'L2', 'M', 'S1', 'S2', 'Q', 'P'];
+const TAN_SHAPE = {
+  L:[[-120, 60], [120, 60], [0, -60]], M:[[60, 60], [60, -60], [-60, 60]], S:[[-60, 30], [60, 30], [0, -30]],
+  Q:[[0, -60], [60, 0], [0, 60], [-60, 0]], P:[[-30, -30], [30, -90], [30, 30], [-30, 90]]
+};
+const tanPts = v=> TAN_SHAPE[TAN[v].k].map(([x, y])=> ({ x, y }));
+function drawTan(ctx, o){
+  const P = tanPts(o.v), col = TAN[o.v].color;
+  ctx.beginPath(); P.forEach((p, i)=> i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath();
+  ctx.fillStyle = col; ctx.fill();
+  ctx.lineJoin = 'round'; ctx.lineWidth = 1.6; ctx.strokeStyle = mixHex(col, -.42); ctx.stroke();
+}
+function tanRotate(L){
+  flushHistory();
+  L.forEach(o=>{ o.rotate(((o.angle || 0) + 45) % 360); o.setCoords(); });
+  canvas.requestRenderAll(); saveHistory();
+}
+function tanFlip(L){
+  flushHistory();
+  L.forEach(o=>{ if(o.fam === 'tan'){ o.set('flipX', !o.flipX); o.setCoords(); } });
+  canvas.requestRenderAll(); saveHistory();
+}
 const SPIN_R = 100;
 const SPIN_COLORS = ['#ef4444','#3b82f6','#22c55e','#facc15','#a855f7','#f97316','#06b6d4','#ec4899','#84cc16','#6366f1','#14b8a6','#f43f5e'];
 const FR_C = 40, FR_GAP = 10;                   // خانه‌ی قاب ده‌تایی و فاصله‌ی دو قاب
 // گامِ چرخش (درجه)؛ ۰ = چرخشِ آزاد؛ نبودن = بدون چرخش
-const PIECE_ROT = { alg:90, b10:90, nbar:90, fbar:90, frame:90, pat:30, fcirc:0 };
+const PIECE_ROT = { alg:90, b10:90, nbar:90, fbar:90, frame:90, pat:30, fcirc:0, tan:45 };
 const PIECE_PAD = 3;                           // حاشیه تا لبه‌ها در حافظه‌ی نهان بریده نشوند
 
 function mixHex(hex, amt){
@@ -5580,6 +5635,7 @@ function pieceSize(o){
     case 'nbar': return { w:o.v*NBAR_U, h:NBAR_U };
     case 'fbar': return { w:FRAC_W/o.v, h:FRAC_H };
     case 'fcirc': { const g = fcircGeom(o.v); return { w:g.w, h:g.h }; }
+    case 'tan': { const P = tanPts(o.v), xs = P.map(p=> p.x), ys = P.map(p=> p.y); return { w:Math.max(...xs) - Math.min(...xs), h:Math.max(...ys) - Math.min(...ys) }; }
     case 'pat': { const P = patPts(o.v), xs = P.map(p=> p.x), ys = P.map(p=> p.y); return { w:Math.max(...xs) - Math.min(...xs), h:Math.max(...ys) - Math.min(...ys) }; }
     case 'chip': return { w:36, h:36 };
     case 'dice': return { w:64, h:64 };
@@ -5599,6 +5655,7 @@ function pieceLocalPts(o){
   if(o.fam === 'b10'){ const b = b10Dims(o.v); return r(b.fw, b.fh, -b.w/2, -b.h/2 + b.D); }
   if(o.fam === 'nbar' || o.fam === 'fbar' || o.fam === 'frame' || o.fam === 'cube' || o.fam === 'alg') return r(d.w, d.h);
   if(o.fam === 'pat') return patPts(o.v);
+  if(o.fam === 'tan') return tanPts(o.v);
   return [];
 }
 function pieceNormalize(o){
@@ -5608,6 +5665,7 @@ function pieceNormalize(o){
   else if(f === 'nbar') o.v = clamp(iv(o.v) || 1, 1, 10);
   else if(f === 'fbar' || f === 'fcirc') o.v = clamp(iv(o.v) || 1, 1, 12);
   else if(f === 'pat') o.v = PAT[o.v] ? o.v : 'hex';
+  else if(f === 'tan') o.v = TAN[o.v] ? o.v : 'L1';
   else if(f === 'chip') o.v = CHIP[o.v] ? o.v : 'r';
   else if(f === 'dice') o.v = clamp(iv(o.v) || 1, 1, 6);
   else if(f === 'coin') o.v = +o.v === 2 ? 2 : 1;
@@ -5627,6 +5685,7 @@ function pieceLabel(fam, v){
   if(fam === 'nbar') return faNum(v, 0);
   if(fam === 'fbar' || fam === 'fcirc') return FRAC_WORD[v];
   if(fam === 'pat') return PAT[v].name;
+  if(fam === 'tan') return TAN[v].name;
   if(fam === 'frame') return 'قاب ' + faNum(v, 0) + 'تایی';
   if(fam === 'chip') return CHIP_NAME[v];
   if(fam === 'money') return faGroup(+v);
@@ -6030,7 +6089,7 @@ function algFlip(L){
   canvas.requestRenderAll();
   saveHistory();
 }
-const PIECE_DRAW = { alg:drawAlg, chip:drawChip, b10:drawB10, nbar:drawNbar, fbar:drawFbar, fcirc:drawFcirc, pat:drawPat, dice:drawDice, coin:drawCoin, spin:drawSpin, frame:drawFrame,
+const PIECE_DRAW = { alg:drawAlg, chip:drawChip, b10:drawB10, nbar:drawNbar, fbar:drawFbar, fcirc:drawFcirc, pat:drawPat, tan:drawTan, dice:drawDice, coin:drawCoin, spin:drawSpin, frame:drawFrame,
   money:drawMoney, pvd:drawPvd, cube:drawCube };
 
 function defineManipClass(){
@@ -6071,7 +6130,9 @@ const TOOL_LABEL = {
   fline:'کسر روی محور', fmul:'ضرب کسرها', fscale:'ترازوی کسرها', vol:'حجم (مکعب واحد)',
   csym:'تقارن مرکزی و دوران', coord:'مختصات و تقارن', vang:'زاویه‌های متقابل به رأس',
   'ustair:len':'پله‌کان طول', 'ustair:area':'پله‌کان سطح', 'ustair:vol':'پله‌کان حجم',
-  'chart:bar':'ستونی', 'chart:line':'خطی', 'chart:pie':'دایره‌ای'
+  'chart:bar':'ستونی', 'chart:line':'خطی', 'chart:pie':'دایره‌ای',
+  thermo:'دماسنج (عدد منفی)', bal:'ترازو (تساوی)', ftree:'درخت عوامل اول', p10:'ضرب و تقسیم در ۱۰، ۱۰۰، ۱۰۰۰', pct:'نوار درصد', lsym:'تقارن محوری',
+  'tang:sq':'پازل مربع', 'tang:tri':'پازل مثلث', 'tang:house':'پازل خانه'
 };
 const toolLabel = key => {
   const [k, sub] = key.split(':');
@@ -6087,7 +6148,8 @@ const TRAY = [
   { id:'b10', t:'ارزش مکانی', groups:[
       { items:[1, 10, 100, 1000].map(v=> ['b10', v]) },
       { h:'جدول ارزش مکانی (خالی؛ خودتان پر می‌کنید)', items:[['tool', 'place']] },
-      { h:'ژتون‌های ارزش مکانی (عددهای بزرگ و اعشاری)', items:PVD_ORDER.map(v=> ['pvd', v]) }],
+      { h:'ژتون‌های ارزش مکانی (عددهای بزرگ و اعشاری)', items:PVD_ORDER.map(v=> ['pvd', v]) },
+      { h:'ضرب و تقسیم در ۱۰، ۱۰۰ و ۱۰۰۰ (رقم‌ها جابه‌جا می‌شوند)', items:[['tool', 'p10']] }],
     acts:[['b10num', '🔢 ساختنِ عدد با بلوک‌ها'], ['pvdnum', '🔵 ساختنِ عدد با ژتون‌ها']] },
   { id:'num', t:'عدد و ضرب', groups:[
       { h:'نوارهای عددی', items:[1,2,3,4,5,6,7,8,9,10].map(v=> ['nbar', v]) },
@@ -6095,6 +6157,7 @@ const TRAY = [
       { h:'مکعب‌های رنگی (شمارش، مقایسه، مساحت و محیط)', items:Object.keys(CUBE).map(k=> ['cube', k]) },
       { h:'محور با پرش (جمع و تفریق) · مدل نواری (حل مسئله)', items:[['tool', 'nl'], ['tool', 'bar']] },
       { h:'ضرب و الگو', items:[['tool', 'arr'], ['tool', 'am'], ['tool', 'fm']] },
+      { h:'دما و عددهای منفی · تساوی با ترازو · عددِ اول', items:[['tool', 'thermo'], ['tool', 'bal'], ['tool', 'ftree']] },
       { h:'شمارنده‌ها (عدد صحیح، نسبت، تقسیم)', items:CHIPS }],
     acts:[['nstairs', '📶 پله‌ای ۱ تا ۱۰'], ['nbonds', '🔟 ترکیب‌های ۱۰']] },
   { id:'money', t:'پول', groups:[
@@ -6105,7 +6168,7 @@ const TRAY = [
       { h:'نوار کسری', items:[1,2,3,4,5,6,7,8,9,10,11,12].map(v=> ['fbar', v]) },
       { h:'دایره‌ی کسری', items:[1,2,3,4,5,6,7,8,9,10,11,12].map(v=> ['fcirc', v]) },
       { h:'محور، ضرب و مقایسه', items:[['tool', 'fline'], ['tool', 'fmul'], ['tool', 'fscale']] },
-      { h:'مدل نواری (کسر در حل مسئله)', items:[['tool', 'bar']] }],
+      { h:'مدل نواری (کسر در حل مسئله) · نوار درصد', items:[['tool', 'bar'], ['tool', 'pct']] }],
     acts:[['fwall', '🧱 دیوار کسرها'], ['fcircles', '⭕ دایره‌های کامل']] },
   { id:'geo', t:'هندسه', groups:[
       { h:'ژئوبرد: روی میخ‌ها بزنید تا شکل بسازید', items:[['tool', 'gb']] },
@@ -6113,7 +6176,11 @@ const TRAY = [
       { h:'حجم، مساحت جانبی و مساحت کل', items:[['tool', 'vol']].concat(SOLID_ORDER.map(k=> ['tool', 'solid:' + k])) },
       { h:'زاویه', items:[['tool', 'vang']] }], acts:[] },
   { id:'sym', t:'تقارن', groups:[
+      { h:'تقارن محوری: نیمه‌ی دیگرِ شکل را رنگ کنید', items:[['tool', 'lsym']] },
       { h:'تقارن مرکزی و دوران · مختصات با خط تقارن', items:[['tool', 'csym'], ['tool', 'coord']] }], acts:[] },
+  { id:'tan', t:'تانگرام', groups:[
+      { h:'پازل: سایه را با ۷ قطعه بپوشانید (قطعه‌ها خودشان کنارش می‌آیند)', items:[['tool', 'tang:sq'], ['tool', 'tang:tri'], ['tool', 'tang:house']] },
+      { h:'قطعه‌ها — دوبار زدن = ۴۵ درجه چرخش', items:TAN_ORDER.map(v=> ['tan', v]) }], acts:[] },
   { id:'meas', t:'اندازه‌گیری', groups:[
       { h:'پله‌کان تبدیل واحد', items:[['tool', 'ustair:len'], ['tool', 'ustair:area'], ['tool', 'ustair:vol']] },
       { h:'زمان', items:[['tool', 'clock']] }], acts:[] },
@@ -6272,6 +6339,7 @@ function trayAdd(fam, v, at){
   else trayPlace(o);
   o.setCoords();
   canvas.add(o);
+  if(o.type === 'wbTool' && TOOLS[o.kind].onAdd) TOOLS[o.kind].onAdd(o);
   if(at && isPiece(o)){ pieceSnapLive(o); if(o.fam === 'fcirc') fcircDrop(o); }
   canvas.setActiveObject(o);
   canvas.requestRenderAll();
@@ -6449,6 +6517,7 @@ function pieceAction(o, w){
   else if(o.fam === 'pvd') pvdBreak(o);
   else if(o.fam === 'chip') chipFlip([o]);
   else if(o.fam === 'alg') algFlip([o]);
+  else if(o.fam === 'tan') tanRotate([o]);
 }
 function animatePieces(moves, ms, done){
   const t0 = performance.now();
@@ -6902,7 +6971,7 @@ function pieceSummary(L){
   }
   return '';
 }
-const PIECE_TITLE = { alg:'🟦 کاشی جبری', money:'💵 پول', pvd:'🔵 ژتون ارزش مکانی', cube:'🟥 مکعب رنگی', chip:'🔴 شمارنده', b10:'🧊 بلوک ده‌دهی', nbar:'📏 نوار عددی', fbar:'🍫 نوار کسری', fcirc:'🥧 دایره‌ی کسری', pat:'🔷 قطعه‌ی الگو', dice:'🎲 تاس', coin:'🪙 سکه', spin:'🎡 چرخونه', frame:'🔟 قاب ده‌تایی' };
+const PIECE_TITLE = { alg:'🟦 کاشی جبری', money:'💵 پول', pvd:'🔵 ژتون ارزش مکانی', cube:'🟥 مکعب رنگی', chip:'🔴 شمارنده', b10:'🧊 بلوک ده‌دهی', nbar:'📏 نوار عددی', fbar:'🍫 نوار کسری', fcirc:'🥧 دایره‌ی کسری', pat:'🔷 قطعه‌ی الگو', tan:'🧩 قطعه‌ی تانگرام', dice:'🎲 تاس', coin:'🪙 سکه', spin:'🎡 چرخونه', frame:'🔟 قاب ده‌تایی' };
 function pieceSig(L){
   const o = L[0];
   return 'piece|' + L.length + '|' + [...new Set(L.map(x=> x.fam))].sort().join() + '|' + (L.length === 1 ? o.fam + o.v : '') + '|' + b10GroupReady(L) + '|' + chipPN(L) + '|' + pvdGroupReady(L) + '|' + moneyCanMerge(L) + '|' + (L.every(x=> x.fam === 'alg') && algCount(L).pairs > 0);
@@ -6920,6 +6989,8 @@ function pieceCtxHtml(){
   if(b10GroupReady(L)) h += '<button class="cb-btn" data-a="pgroup">🔗 هر ۱۰ تا را یکی کن</button>';
   if(one && o.fam === 'money' && MONEY_BREAK[o.v]) h += '<button class="cb-btn" data-a="mbreak" title="یا دوبار روی آن بزنید">💱 خرد کن</button>';
   if(moneyCanMerge(L)) h += '<button class="cb-btn" data-a="mmerge" title="همین مبلغ با کمترین تعداد سکه و اسکناس">🔄 درشت کن</button>';
+  if(fams.size === 1 && o.fam === 'tan') h += '<button class="cb-btn" data-a="trot" title="یا دوبار روی قطعه بزنید">⟳ ۴۵°</button>' +
+    (L.some(x=> x.v === 'P') ? '<button class="cb-btn" data-a="tflip" title="پشت و رو کردنِ متوازی‌الاضلاع">↔ برگردان</button>' : '');
   if(one && o.fam === 'pvd' && o.v > 0.01) h += '<button class="cb-btn" data-a="pvbreak" title="یا دوبار روی ژتون بزنید">✂️ باز کن به ۱۰ تا ' + pvdLabel(pvdKey(o.v/10)) + '</button>';
   if(pvdGroupReady(L)) h += '<button class="cb-btn" data-a="pvgroup">🔗 هر ۱۰ تا را یکی کن</button>';
   if(fams.size === 1 && o.fam === 'alg'){
@@ -6965,6 +7036,8 @@ function pieceCtxClick(a){
   else if(a === 'pflip') chipFlip(L);
   else if(a === 'acancel') algCancel(L);
   else if(a === 'aflip') algFlip(L);
+  else if(a === 'trot') tanRotate(L);
+  else if(a === 'tflip') tanFlip(L);
   fillCtx();
 }
 
@@ -9661,6 +9734,670 @@ TOOLS.solid = {
 
 
 /* ============================================================
+   ابزارهای تازه‌ی دبستان: دماسنج (عدد منفی) · ترازو (تساوی) · درخت عوامل اول
+   ضرب و تقسیم در ۱۰، ۱۰۰، ۱۰۰۰ · نوار درصد · تقارن محوری · پازل تانگرام
+============================================================ */
+const faSigned = v => v < 0 ? '−' + faNum(-v, 0) : faNum(v, 0);
+const tempWords = v => v === 0 ? 'صفر درجه' : (v < 0 ? 'منفی ' + faNum(-v, 0) : faNum(v, 0)) + ' درجه';
+function pillText(ctx, txt, x, y, fs, bg, fg){
+  ctx.font = 'bold ' + fs + 'px ' + KID_FONT;
+  const w = ctx.measureText(txt).width + 18, h = fs + 12;
+  roundRect(ctx, x - w/2, y - h/2, w, h, h/2); ctx.fillStyle = bg; ctx.fill();
+  kidText(ctx, txt, x, y, fs, fg);
+  return w;
+}
+function arrowHead(ctx, x, y, ang, s, col){
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x - s*Math.cos(ang - 0.45), y - s*Math.sin(ang - 0.45));
+  ctx.lineTo(x - s*Math.cos(ang + 0.45), y - s*Math.sin(ang + 0.45));
+  ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+}
+
+/* ---------- ۱) دماسنج — عددهای منفی، مقایسه و اختلاف دما ---------- */
+const TH = { h:360, col:150, top:62, br:26 };
+const thY = (o, v)=> { const z = TOOLS.thermo.size(o), y0 = -z.h/2 + TH.top; return y0 + TH.h - (v - o.p.lo)/(o.p.hi - o.p.lo)*TH.h; };
+const thX = (o, i)=> { const z = TOOLS.thermo.size(o); return -z.w/2 + 30 + TH.col/2 + i*TH.col; };
+TOOLS.thermo = {
+  title:()=> '🌡 دماسنج',
+  def:()=> ({ p:{ n:2, lo:-20, hi:30 }, st:{ t:[-5, 8, 15], sel:0, diff:1 } }),
+  norm(o){
+    o.p.n = clamp(Math.round(o.p.n) || 1, 1, 3);
+    o.p.lo = clamp(Math.round(o.p.lo/5)*5 || 0, -50, 0);
+    o.p.hi = clamp(Math.round(o.p.hi/5)*5 || 30, Math.max(5, o.p.lo + 10), 60);
+    const t = Array.isArray(o.st.t) ? o.st.t : [];
+    o.st.t = [0, 1, 2].map(i=> clamp(Math.round(+t[i] || 0), o.p.lo, o.p.hi));
+    o.st.sel = clamp(o.st.sel | 0, 0, o.p.n - 1);
+    o.st.diff = o.st.diff ? 1 : 0;
+  },
+  size(o){ return { w:o.p.n*TH.col + 60, h:TH.top + TH.h + 2*TH.br + 30 }; },
+  params:()=> [
+    { k:'n', label:'تعداد', min:1, max:3, int:true },
+    { k:'lo', label:'از', min:-50, max:0, int:true, step:5 },
+    { k:'hi', label:'تا', min:5, max:60, int:true, step:5 }
+  ],
+  draw(ctx, o){
+    const col = toolCol(o), { lo, hi, n } = o.p, span = hi - lo;
+    const minor = span > 60 ? 2 : 1, major = span > 60 ? 10 : 5;
+    for(let i = 0; i < n; i++){
+      const x = thX(o, i), yT = thY(o, hi), yB = thY(o, lo), by = yB + TH.br + 4, v = o.st.t[i];
+      // لوله و مخزن
+      roundRect(ctx, x - 13, yT - 14, 26, yB - yT + 20, 13);
+      ctx.fillStyle = S.dark ? 'rgba(255,255,255,.9)' : '#ffffff'; ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = col; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, by, TH.br, 0, TAU); ctx.fillStyle = '#ef4444'; ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = col; ctx.stroke();
+      // مایعِ قرمز
+      const yv = thY(o, v);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(x - 6, yv, 12, by - yv - 10);
+      // درجه‌ها
+      ctx.lineWidth = 1.4; ctx.strokeStyle = '#475569';
+      for(let t = Math.ceil(lo/minor)*minor; t <= hi; t += minor){
+        const y = thY(o, t), big = t % major === 0;
+        ctx.beginPath(); ctx.moveTo(x - 14, y); ctx.lineTo(x - 14 - (big ? 14 : 7), y); ctx.stroke();
+        if(big) kidText(ctx, faSigned(t), x - 46, y, 15, t === 0 ? '#2563eb' : '#334155');
+      }
+      const y0 = thY(o, 0);
+      if(lo < 0){ ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x - 28, y0); ctx.lineTo(x + 26, y0); ctx.stroke(); ctx.restore(); }
+      // عددِ دما بالای لوله
+      const sel = n > 1 && i === o.st.sel;
+      pillText(ctx, faSigned(v) + '°', x, -TOOLS.thermo.size(o).h/2 + 22, 22, sel ? '#fee2e2' : (S.dark ? 'rgba(255,255,255,.9)' : '#f1f5f9'), v < 0 ? '#1d4ed8' : '#b91c1c');
+    }
+    if(n >= 2 && o.st.diff){
+      const a = o.st.t[0], b = o.st.t[1], ya = thY(o, a), yb = thY(o, b), xm = (thX(o, 0) + thX(o, 1))/2;
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.lineWidth = 2; ctx.strokeStyle = '#7c3aed';
+      ctx.beginPath(); ctx.moveTo(thX(o, 0) + 8, ya); ctx.lineTo(xm, ya); ctx.moveTo(thX(o, 1) - 8, yb); ctx.lineTo(xm, yb); ctx.stroke();
+      ctx.restore();
+      if(a !== b){
+        ctx.lineWidth = 3; ctx.strokeStyle = '#7c3aed';
+        ctx.beginPath(); ctx.moveTo(xm, ya); ctx.lineTo(xm, yb); ctx.stroke();
+        arrowHead(ctx, xm, yb, yb > ya ? Math.PI/2 : -Math.PI/2, 11, '#7c3aed');
+        pillText(ctx, faNum(Math.abs(b - a), 0) + '°', xm, (ya + yb)/2, 17, '#ede9fe', '#5b21b6');
+      }
+    }
+  },
+  handle(o, i){ return i < o.p.n ? { x:thX(o, i), y:thY(o, o.st.t[i]) } : null; },
+  hcol:()=> '#ef4444',
+  drag(o, i, lx, ly){
+    const z = TH.h/(o.p.hi - o.p.lo), y0 = thY(o, o.p.lo);
+    const v = clamp(Math.round(o.p.lo + (y0 - ly)/z), o.p.lo, o.p.hi);
+    if(v === o.st.t[i] && o.st.sel === i) return false;
+    o.st.t[i] = v; o.st.sel = i; o.dirty = true;
+    return true;
+  },
+  tap(o, lx, ly){
+    for(let i = 0; i < o.p.n; i++){
+      if(Math.abs(lx - thX(o, i)) > 40) continue;
+      if(ly < thY(o, o.p.hi) - 10 || ly > thY(o, o.p.lo) + 10){ o.st.sel = i; return true; }
+      o.st.sel = i; return TOOLS.thermo.drag(o, i, lx, ly) || true;
+    }
+    return false;
+  },
+  ctxx:o=> '<button class="cb-btn" data-a="thc" title="یک درجه سردتر">❄️ −۱°</button><button class="cb-btn" data-a="thw" title="یک درجه گرم‌تر">☀️ +۱°</button>' +
+    (o.p.n > 1 ? '<button class="cb-btn" data-a="thd" title="اختلافِ دمای اول و دوم">↕ اختلاف</button>' : '') +
+    '<button class="cb-btn" data-a="thr" title="دماهای تصادفی برای پرسش">🎲</button>',
+  sig:o=> o.p.n > 1 ? 'm' : 's',
+  act(o, a){
+    const i = o.st.sel;
+    if(a === 'thc') o.st.t[i] = Math.max(o.p.lo, o.st.t[i] - 1);
+    else if(a === 'thw') o.st.t[i] = Math.min(o.p.hi, o.st.t[i] + 1);
+    else if(a === 'thd') o.st.diff = o.st.diff ? 0 : 1;
+    else if(a === 'thr') o.st.t = o.st.t.map(()=> o.p.lo + Math.floor(Math.random()*(o.p.hi - o.p.lo + 1)));
+  },
+  fill(o, api){ api.on('thd', o.st.diff); },
+  sum(o){
+    const t = o.st.t.slice(0, o.p.n);
+    if(o.p.n === 1) return 'دما: <b>' + tempWords(t[0]) + '</b> <span class="muted">— نقطه‌ی قرمز را بالا و پایین ببرید</span>';
+    let h = t.map((v, i)=> ['اولی', 'دومی', 'سومی'][i] + ': ' + tempWords(v)).join(' · ');
+    if(t[0] !== t[1]) h += ' — <b>' + (t[0] > t[1] ? 'اولی' : 'دومی') + ' گرم‌تر است</b> · اختلاف: ' + kn(Math.abs(t[0] - t[1])) + ' درجه';
+    else h += ' — هر دو هم‌دما';
+    return h;
+  }
+};
+
+/* ---------- ۲) ترازو — تساوی و جای خالی (۳ + ۵ = ۲ + ؟) ---------- */
+const BAL = { w:620, h:360, beam:200, pan:180 };
+function balParse(str){
+  const out = [];
+  normDigits(str).replace(/[٬,]/g, '').split(/[+＋\s]+/).forEach(t=>{
+    if(!t) return;
+    if(/^[?؟xX]$/.test(t) || /^[a-zA-Z]$/.test(t)) out.push('?');
+    else if(/^\d+$/.test(t)) out.push(clamp(+t, 0, 9999));
+  });
+  return out.slice(0, 10);
+}
+const balSide = (o, L)=> L.reduce((s, v)=> s + (v === '?' ? o.st.x : v), 0);
+const balText = (o, L, reveal)=> L.length ? L.map(v=> v === '?' ? (reveal ? faNum(o.st.x, 0) : '؟') : faNum(v, 0)).join(' + ') : '۰';
+function balBlocks(o, side){
+  // جای قطعه‌ها روی کفه (مختصات نسبت به مرکزِ کفه)
+  const L = o.st[side], out = [];
+  let x = 0, row = 0, rowW = [];
+  const ws = L.map(v=> Math.max(42, 22 + String(v === '?' ? '؟' : v).length*14));
+  let cur = [];
+  ws.forEach((w, i)=>{
+    if(x + w > BAL.pan - 10 && cur.length){ rowW.push([cur, x - 6]); cur = []; x = 0; row++; }
+    cur.push([i, x, w, row]); x += w + 6;
+  });
+  if(cur.length) rowW.push([cur, x - 6]);
+  rowW.forEach(([items, tw])=> items.forEach(([i, xx, w, r])=> out.push({ i, x:-tw/2 + xx, w, y:-(r + 1)*44, h:40, v:L[i] })));
+  return out;
+}
+function balGeom(o){
+  const z = { w:BAL.w, h:BAL.h }, py = -z.h/2 + 110;
+  const d = balSide(o, o.st.R) - balSide(o, o.st.L);
+  const ang = clamp(d*0.03, -0.2, 0.2);
+  const ex = BAL.beam*Math.cos(ang), ey = BAL.beam*Math.sin(ang);
+  return { py, ang, L:{ x:-ex, y:py - ey + 92 }, R:{ x:ex, y:py + ey + 92 }, d };
+}
+TOOLS.bal = {
+  title:()=> '⚖️ ترازو',
+  def:()=> ({ p:{}, st:{ L:[3, 5], R:[2, '?'], x:6, show:0 } }),
+  norm(o){
+    const fix = a=> (Array.isArray(a) ? a : []).filter(v=> v === '?' || Number.isFinite(+v)).map(v=> v === '?' ? '?' : clamp(Math.round(+v), 0, 9999)).slice(0, 10);
+    o.st.L = fix(o.st.L); o.st.R = fix(o.st.R);
+    o.st.x = clamp(Math.round(+o.st.x) || 0, 0, 9999); o.st.show = o.st.show ? 1 : 0;
+  },
+  size:()=> ({ w:BAL.w, h:BAL.h }),
+  params:()=> [],
+  draw(ctx, o){
+    const col = toolCol(o), g = balGeom(o), base = BAL.h/2 - 20;
+    // پایه
+    ctx.beginPath(); ctx.moveTo(-70, base); ctx.lineTo(70, base); ctx.lineTo(0, g.py); ctx.closePath();
+    ctx.fillStyle = softFill('#64748b', .25); ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#475569'; ctx.stroke();
+    // شاهین
+    ctx.save(); ctx.translate(0, g.py); ctx.rotate(g.ang);
+    roundRect(ctx, -BAL.beam - 10, -7, 2*BAL.beam + 20, 14, 7); ctx.fillStyle = '#94a3b8'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#475569'; ctx.stroke();
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(0, g.py, 9, 0, TAU); ctx.fillStyle = g.d === 0 ? '#22c55e' : '#f59e0b'; ctx.fill();
+    // نشانگر
+    ctx.save(); ctx.translate(0, g.py); ctx.rotate(g.ang);
+    ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(0, -46); ctx.lineWidth = 4; ctx.strokeStyle = g.d === 0 ? '#16a34a' : '#dc2626'; ctx.stroke();
+    ctx.restore();
+    for(const side of ['L', 'R']){
+      const p = g[side], end = { x:p.x, y:p.y - 92 };
+      ctx.lineWidth = 2; ctx.strokeStyle = '#64748b';
+      ctx.beginPath(); ctx.moveTo(end.x, end.y); ctx.lineTo(p.x - BAL.pan/2 + 8, p.y); ctx.moveTo(end.x, end.y); ctx.lineTo(p.x + BAL.pan/2 - 8, p.y); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, BAL.pan/2, 12, 0, 0, Math.PI); ctx.closePath();
+      ctx.fillStyle = '#cbd5e1'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#475569'; ctx.stroke();
+      for(const b of balBlocks(o, side)){
+        const unk = b.v === '?';
+        roundRect(ctx, p.x + b.x, p.y + b.y, b.w, b.h, 8);
+        ctx.fillStyle = unk ? '#c4b5fd' : '#fde68a'; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = unk ? '#6d28d9' : '#b45309'; ctx.stroke();
+        kidText(ctx, unk ? (o.st.show ? faNum(o.st.x, 0) : '؟') : faNum(b.v, 0), p.x + b.x + b.w/2, p.y + b.y + b.h/2, 22, unk ? '#4c1d95' : '#78350f');
+      }
+    }
+    // جمله‌ی بالای ترازو
+    const lt = balText(o, o.st.L, o.st.show), rt = balText(o, o.st.R, o.st.show);
+    const sign = g.d === 0 ? '=' : g.d < 0 ? '>' : '<';
+    kidText(ctx, lt + '   ' + sign + '   ' + rt, 0, -BAL.h/2 + 24, 26, g.d === 0 ? '#15803d' : col);
+  },
+  tap(o, lx, ly){
+    const g = balGeom(o);
+    for(const side of ['L', 'R']){
+      const p = g[side];
+      for(const b of balBlocks(o, side)){
+        if(lx >= p.x + b.x && lx <= p.x + b.x + b.w && ly >= p.y + b.y && ly <= p.y + b.y + b.h){ o.st[side].splice(b.i, 1); return true; }
+      }
+      if(Math.abs(lx - p.x) < BAL.pan/2 && ly > p.y - 130 && ly < p.y + 20 && o.st[side].length < 10){ o.st[side].push(1); return true; }
+    }
+    return false;
+  },
+  ctxx:()=> '<label class="cb-field">چپ <input data-k="bl" class="wide" type="text" autocomplete="off" placeholder="۳+۵"></label>' +
+    '<label class="cb-field">راست <input data-k="br" class="wide" type="text" autocomplete="off" placeholder="۲+؟"></label>' +
+    '<label class="cb-field">؟ = <input data-k="bx" type="text" inputmode="numeric" autocomplete="off"></label>' +
+    '<button class="cb-btn" data-a="bshow" title="نشان دادنِ عددِ پنهان">👁 ؟</button>' +
+    '<button class="cb-btn" data-a="bnew" title="پرسشِ تازه">🎲 پرسش</button>' +
+    '<button class="cb-btn" data-a="bclr" title="خالی کردنِ دو کفه">🧹</button>',
+  raw(o, k, v){
+    if(k === 'bl' || k === 'br'){ toolMutate(o, ()=>{ o.st[k === 'bl' ? 'L' : 'R'] = balParse(v); }); return true; }
+    if(k === 'bx'){ const n = parseNum(v); if(isFinite(n)) toolMutate(o, ()=>{ o.st.x = clamp(Math.round(n), 0, 9999); }); return true; }
+    return false;
+  },
+  act(o, a){
+    if(a === 'bshow') o.st.show = o.st.show ? 0 : 1;
+    else if(a === 'bclr'){ o.st.L = []; o.st.R = []; }
+    else if(a === 'bnew'){
+      const r = n=> 1 + Math.floor(Math.random()*n);
+      const a1 = r(12), a2 = r(12), c = r(a1 + a2 - 1);
+      o.st.L = [a1, a2]; o.st.R = [c, '?']; o.st.x = a1 + a2 - c; o.st.show = 0;
+    }
+  },
+  fill(o, api){
+    const raw = L=> L.map(v=> v === '?' ? '؟' : faNum(v, 0)).join('+');
+    api.setV('bx', o.st.x);
+    const i = api.q('[data-k="bl"]'); if(i && document.activeElement !== i) i.value = raw(o.st.L);
+    const j = api.q('[data-k="br"]'); if(j && document.activeElement !== j) j.value = raw(o.st.R);
+    api.on('bshow', o.st.show);
+  },
+  sum(o){
+    const l = balSide(o, o.st.L), r = balSide(o, o.st.R), unk = o.st.L.includes('?') || o.st.R.includes('?');
+    if(l === r) return '⚖️ <b>ترازو صاف است؛ دو طرف برابرند</b>' + (unk && !o.st.show ? ' — ؟ چند است؟' : '');
+    const w = l > r ? 'چپ' : 'راست';
+    return 'سمتِ <b>' + w + '</b> سنگین‌تر است' + (unk && !o.st.show ? '' : ' (' + kn(Math.max(l, r)) + ' در برابرِ ' + kn(Math.min(l, r)) + ')') +
+      ' <span class="muted">— روی کفه بزنید = +۱؛ روی وزنه بزنید = برداشتن</span>';
+  }
+};
+
+/* ---------- ۳) درخت عوامل اول — روی عددهای غیرِ اول بزنید تا شکسته شوند ---------- */
+const FT = { dx:74, dy:86 };
+function ftPairs(n){ const p = []; for(let a = 2; a*a <= n; a++) if(n % a === 0) p.push([a, n/a]); return p; }
+function ftSplit(n, k){ const p = ftPairs(n); if(!p.length) return null; return p[((k | 0) % p.length + p.length) % p.length]; }
+function ftBest(n){ const p = ftPairs(n); return p.length ? p.length - 1 : -1; }   // جفتِ نزدیک به هم (مثلِ ۱۲۰ = ۱۰ × ۱۲)
+function ftNode(v){ return [v]; }
+function ftLeaves(t){ return t.length > 1 ? ftLeaves(t[1]) + ftLeaves(t[2]) : 1; }
+function ftDepth(t){ return t.length > 1 ? 1 + Math.max(ftDepth(t[1]), ftDepth(t[2])) : 0; }
+function ftPrimes(t, out){ out = out || []; if(t.length > 1){ ftPrimes(t[1], out); ftPrimes(t[2], out); } else out.push(t[0]); return out; }
+function ftLayout(o){
+  const t = o.st.t, nl = ftLeaves(t), z = TOOLS.ftree.size(o), nodes = [];
+  let leafI = 0;
+  const walk = (n, d, path)=>{
+    let x;
+    if(n.length > 1){
+      const a = walk(n[1], d + 1, path + 'a'), b = walk(n[2], d + 1, path + 'b');
+      x = (a + b)/2;
+    } else x = -nl*FT.dx/2 + FT.dx/2 + (leafI++)*FT.dx;
+    nodes.push({ n, x, y:-z.h/2 + 40 + d*FT.dy, path, d });
+    return x;
+  };
+  walk(t, 0, '');
+  return nodes;
+}
+function ftAt(t, path){ let n = t; for(const c of path) n = n[c === 'a' ? 1 : 2]; return n; }
+function ftSplitAll(n){ if(n.length > 1){ ftSplitAll(n[1]); ftSplitAll(n[2]); return; } const s = ftSplit(n[0], ftBest(n[0])); if(s){ n.push([s[0]], [s[1]]); ftSplitAll(n); } }
+TOOLS.ftree = {
+  title:()=> '🌳 درخت عوامل اول',
+  def:()=> ({ p:{ n:120 }, st:{ t:[120], alt:-1, res:1 } }),
+  norm(o){
+    o.p.n = clamp(Math.round(o.p.n) || 2, 2, 99999);
+    const ok = (n, v)=> Array.isArray(n) && n[0] === v && (n.length === 1 || (n.length === 3 && n[1][0]*n[2][0] === v && ok(n[1], n[1][0]) && ok(n[2], n[2][0])));
+    if(!ok(o.st.t, o.p.n)) o.st.t = [o.p.n];
+    o.st.res = o.st.res ? 1 : 0;
+  },
+  size(o){ const t = o.st.t; return { w:Math.max(300, ftLeaves(t)*FT.dx + 40), h:60 + ftDepth(t)*FT.dy + 40 + (o.st.res ? 60 : 0) }; },
+  params:()=> [{ k:'n', label:'عدد', min:2, max:99999, int:true, set:(o, v)=>{ o.p.n = v; o.st.t = [v]; o.st.alt = -1; } }],
+  draw(ctx, o){
+    const col = toolCol(o), L = ftLayout(o), byPath = {};
+    L.forEach(q=> byPath[q.path] = q);
+    ctx.lineWidth = 2.5; ctx.strokeStyle = '#64748b';
+    L.forEach(q=>{ if(q.n.length > 1) for(const c of ['a', 'b']){ const ch = byPath[q.path + c]; ctx.beginPath(); ctx.moveTo(q.x, q.y + 24); ctx.lineTo(ch.x, ch.y - 24); ctx.stroke(); } });
+    L.forEach(q=>{
+      const v = q.n[0], leaf = q.n.length === 1, pr = isPrime(v), s = faNum(v, 0), fs = s.length > 3 ? 18 : 22;
+      const r = Math.max(24, textW(s, fs)/2 + 10);
+      ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, TAU);
+      ctx.fillStyle = pr ? '#fde68a' : (S.dark ? 'rgba(255,255,255,.92)' : '#ffffff'); ctx.fill();
+      ctx.lineWidth = pr ? 3.5 : 2.5; ctx.strokeStyle = pr ? '#d97706' : (leaf ? '#2563eb' : col); ctx.stroke();
+      if(leaf && !pr){ ctx.save(); ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.arc(q.x, q.y, r + 6, 0, TAU); ctx.strokeStyle = '#93c5fd'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
+      kidText(ctx, s, q.x, q.y, fs, '#1e293b');
+    });
+    if(o.st.res){
+      const P = ftPrimes(o.st.t).sort((a, b)=> a - b), done = P.every(isPrime), z = TOOLS.ftree.size(o);
+      kidText(ctx, faNum(o.p.n, 0) + ' = ' + (done ? P.map(v=> faNum(v, 0)).join(' × ') : '…'), 0, z.h/2 - 30, 24, done ? '#15803d' : '#64748b');
+    }
+  },
+  tap(o, lx, ly){
+    for(const q of ftLayout(o)){
+      if(Math.hypot(lx - q.x, ly - q.y) > 30) continue;
+      const n = ftAt(o.st.t, q.path);
+      if(n.length > 1){ n.length = 1; return true; }          // دوباره زدن روی شاخه = جمع شدن
+      const s = ftSplit(n[0], q.path === '' && o.st.alt >= 0 ? o.st.alt : ftBest(n[0]));
+      if(!s){ return false; }
+      n.push([s[0]], [s[1]]);
+      return true;
+    }
+    return false;
+  },
+  ctxx:()=> '<button class="cb-btn" data-a="ftall" title="شکستنِ همه تا عددهای اول">⚡ همه</button>' +
+    '<button class="cb-btn" data-a="ftalt" title="شروع با دو عددِ دیگر (مثلاً ۱۲۰ = ۲ × ۶۰)">🔀 جورِ دیگر</button>' +
+    '<button class="cb-btn" data-a="ftres" title="نوشتنِ حاصل‌ضربِ عددهای اول زیرِ درخت">= حاصل</button>' +
+    '<button class="cb-btn" data-a="ftclr" title="از نو">🧹</button>',
+  act(o, a){
+    if(a === 'ftall') ftSplitAll(o.st.t);
+    else if(a === 'ftclr'){ o.st.t = [o.p.n]; }
+    else if(a === 'ftres') o.st.res = o.st.res ? 0 : 1;
+    else if(a === 'ftalt'){
+      const p = ftPairs(o.p.n);
+      if(p.length){ o.st.alt = ((o.st.alt < 0 ? ftBest(o.p.n) : o.st.alt) + 1) % p.length; const s = p[o.st.alt]; o.st.t = [o.p.n, [s[0]], [s[1]]]; }
+    }
+  },
+  fill(o, api){ api.on('ftres', o.st.res); },
+  sum(o){
+    if(isPrime(o.p.n)) return kn(o.p.n) + ' <b>عددِ اول است</b> (فقط بر ۱ و خودش بخش‌پذیر است)';
+    const P = ftPrimes(o.st.t).sort((a, b)=> a - b);
+    if(!P.every(isPrime)) return '<span class="muted">روی عددهایی که دورشان خطِ آبی است بزنید تا به دو عدد شکسته شوند</span>';
+    const uniq = [...new Set(P)];
+    return ltrIso(faNum(o.p.n, 0) + ' = ' + P.map(v=> faNum(v, 0)).join(' × ')) + ' · عاملِ اول: ' + uniq.map(v=> kn(v)).join('، ');
+  }
+};
+
+/* ---------- ۴) ضرب و تقسیم در ۱۰، ۱۰۰ و ۱۰۰۰ — رقم‌ها ستون‌به‌ستون جابه‌جا می‌شوند ---------- */
+const P10 = { cw:64, ch:62, hh:30, ni:6, nd:3, lab:84 };
+const P10_NAMES = ['صدهزار', 'ده‌هزار', 'هزار', 'صدگان', 'دهگان', 'یکان', 'دهم', 'صدم', 'هزارم'];
+function p10Digits(s){
+  // رقم‌ها با توان: { p: رقم } برای p از ۵ تا ۳−
+  const [i, d = ''] = String(s).split('.'), out = {};
+  const I = i.replace(/^0+(?=\d)/, '');
+  for(let k = 0; k < I.length; k++) out[I.length - 1 - k] = +I[k];
+  for(let k = 0; k < d.length; k++) out[-(k + 1)] = +d[k];
+  return out;
+}
+function p10Str(D){
+  const ks = Object.keys(D).map(Number);
+  if(!ks.length) return '0';
+  const hi = Math.max(0, ...ks), lo = Math.min(0, ...ks);
+  let a = '', b = '';
+  for(let p = hi; p >= 0; p--) a += D[p] != null ? D[p] : 0;
+  for(let p = -1; p >= lo; p--) b += D[p] != null ? D[p] : 0;
+  a = a.replace(/^0+(?=\d)/, ''); b = b.replace(/0+$/, '');
+  return b ? a + '.' + b : a;
+}
+function p10Shift(D, e){ const o = {}; Object.keys(D).forEach(k=> o[+k + e] = D[k]); return o; }
+const p10Fa = s=> { const [a, b] = s.split('.'); return persDigits(groupInt(a)) + (b ? '/' + persDigits(b) : ''); };
+function p10Range(o){ const ks = Object.keys(p10Digits(o.st.s)).map(Number); return { hi:Math.max(...ks), lo:Math.min(...ks) }; }
+TOOLS.p10 = {
+  title:()=> '✖️ ضرب و تقسیم در ۱۰، ۱۰۰، ۱۰۰۰',
+  def:()=> ({ p:{}, st:{ s:'23', e:2 } }),
+  norm(o){
+    let s = normDigits(o.st.s).replace(/[^\d.]/g, '');
+    if(!/^\d*\.?\d*$/.test(s) || !/\d/.test(s)) s = '23';
+    const [a, b = ''] = s.split('.');
+    o.st.s = (a.replace(/^0+(?=\d)/, '').slice(-6) || '0') + (b.replace(/0+$/, '') ? '.' + b.replace(/0+$/, '').slice(0, 3) : '');
+    const r = p10Range(o);
+    o.st.e = clamp(Math.round(o.st.e) || 0, Math.max(-3, -3 - r.lo), Math.min(3, 5 - r.hi));
+  },
+  size:()=> ({ w:P10.lab + (P10.ni + P10.nd)*P10.cw + 24, h:P10.hh + 2*P10.ch + 74 + 56 }),
+  params:()=> [],
+  draw(ctx, o){
+    const col = toolCol(o), z = TOOLS.p10.size(o), x0 = -z.w/2 + P10.lab, y0 = -z.h/2, e = o.st.e;
+    const cx = p=> x0 + (P10.ni - 1 - p)*P10.cw + P10.cw/2;         // توانِ ۱۰ ← وسطِ ستون
+    const rowY = [y0 + P10.hh, y0 + P10.hh + P10.ch + 74];
+    P10_NAMES.forEach((nm, i)=>{
+      roundRect(ctx, x0 + i*P10.cw + 2, y0, P10.cw - 4, P10.hh - 4, 6);
+      ctx.fillStyle = softFill(i < P10.ni ? col : '#0ea5e9', .12); ctx.fill();
+      kidText(ctx, nm, x0 + i*P10.cw + P10.cw/2, y0 + (P10.hh - 4)/2, 13, i < P10.ni ? col : '#0369a1');
+    });
+    const D0 = p10Digits(o.st.s), D1 = p10Shift(D0, e);
+    // صفرهای جانگهدار
+    const k1 = Object.keys(D1).map(Number), lo1 = Math.min(...k1), hi1 = Math.max(...k1);
+    const fill1 = {};
+    for(let p = Math.min(0, lo1); p <= Math.max(0, hi1); p++) if(D1[p] == null && (p > lo1 || p >= 0) && (p < hi1 || p <= 0)) fill1[p] = 0;
+    rowY.forEach((ry, r)=>{
+      for(let i = 0; i < P10.ni + P10.nd; i++){
+        roundRect(ctx, x0 + i*P10.cw + 2, ry, P10.cw - 4, P10.ch, 6);
+        ctx.fillStyle = S.dark ? 'rgba(255,255,255,.07)' : 'rgba(255,255,255,.6)'; ctx.fill();
+        ctx.lineWidth = 1.6; ctx.strokeStyle = softFill(col, .5); ctx.stroke();
+      }
+      // ممیز
+      const mx = x0 + P10.ni*P10.cw;
+      ctx.lineWidth = 3; ctx.strokeStyle = '#0ea5e9';
+      ctx.beginPath(); ctx.moveTo(mx, ry - 4); ctx.lineTo(mx, ry + P10.ch + 4); ctx.stroke();
+      ctx.beginPath(); ctx.arc(mx, ry + P10.ch - 10, 5, 0, TAU); ctx.fillStyle = '#0ea5e9'; ctx.fill();
+      const D = r ? D1 : D0;
+      Object.keys(D).forEach(k=> kidText(ctx, faNum(D[k], 0), cx(+k), ry + P10.ch/2, 36, col));
+      if(r) Object.keys(fill1).forEach(k=> kidText(ctx, '۰', cx(+k), ry + P10.ch/2, 36, '#f97316'));
+    });
+    // پیکان‌ها
+    if(e){
+      const c = e > 0 ? '#16a34a' : '#dc2626';
+      ctx.lineWidth = 2.4; ctx.strokeStyle = c;
+      Object.keys(D0).forEach(k=>{
+        const xa = cx(+k), xb = cx(+k + e), ya = rowY[0] + P10.ch + 4, yb = rowY[1] - 6;
+        ctx.beginPath(); ctx.moveTo(xa, ya); ctx.bezierCurveTo(xa, ya + 34, xb, yb - 34, xb, yb); ctx.stroke();
+        arrowHead(ctx, xb, yb, Math.PI/2, 10, c);
+      });
+      const op = (e > 0 ? '× ' : '÷ ') + faNum(Math.pow(10, Math.abs(e)), 0);
+      pillText(ctx, op, -z.w/2 + P10.lab/2, (rowY[0] + P10.ch + rowY[1])/2, 20, e > 0 ? '#dcfce7' : '#fee2e2', c);
+    }
+    kidText(ctx, 'عدد', -z.w/2 + P10.lab/2, rowY[0] + P10.ch/2, 17, '#64748b');
+    kidText(ctx, 'حاصل', -z.w/2 + P10.lab/2, rowY[1] + P10.ch/2, 17, '#64748b');
+    const res = p10Str(D1);
+    kidText(ctx, p10Fa(o.st.s) + (e ? (e > 0 ? ' × ' : ' ÷ ') + faNum(Math.pow(10, Math.abs(e)), 0) : '') + ' = ' + p10Fa(res), 0, z.h/2 - 26, 26, col);
+  },
+  ctxx:()=> '<label class="cb-field">عدد <input data-k="pn" class="wide" type="text" inputmode="decimal" autocomplete="off"></label>' +
+    '<button class="cb-btn" data-a="e:1">× ۱۰</button><button class="cb-btn" data-a="e:2">× ۱۰۰</button><button class="cb-btn" data-a="e:3">× ۱۰۰۰</button>' +
+    '<button class="cb-btn" data-a="e:-1">÷ ۱۰</button><button class="cb-btn" data-a="e:-2">÷ ۱۰۰</button><button class="cb-btn" data-a="e:-3">÷ ۱۰۰۰</button>',
+  raw(o, k, v){
+    if(k !== 'pn') return false;
+    const s = normDigits(v).replace(/[٬,\s]/g, '').replace(/[٫/]/g, '.');
+    if(/\d/.test(s)) toolMutate(o, ()=>{ o.st.s = s; });
+    return true;
+  },
+  act(o, a){ if(a.startsWith('e:')){ const e = +a.slice(2); o.st.e = o.st.e === e ? 0 : e; } },
+  fill(o, api){
+    const i = api.q('[data-k="pn"]'); if(i && document.activeElement !== i) i.value = p10Fa(o.st.s).replace(/٬/g, '');
+    [1, 2, 3, -1, -2, -3].forEach(e=> api.on('e:' + e, o.st.e === e));
+  },
+  sum(o){
+    const e = o.st.e;
+    if(!e) return '<span class="muted">یکی از دکمه‌های × یا ÷ را بزنید</span>';
+    const r = p10Range(o), lost = e < 0 && r.lo + e < -3;
+    return 'هر رقم <b>' + kn(Math.abs(e)) + ' ستون به ' + (e > 0 ? 'چپ' : 'راست') + '</b> رفت' + (e > 0 ? ' (عدد ' + faNum(Math.pow(10, e), 0) + ' برابر شد)' : ' (عدد ' + faNum(Math.pow(10, -e), 0) + ' بار کوچک‌تر شد)') + (lost ? '' : '');
+  }
+};
+
+/* ---------- ۵) نوار درصد — ٪ از یک مقدار ---------- */
+const PCT = { w:640, h:58 };
+TOOLS.pct = {
+  title:()=> '٪ نوار درصد',
+  def:()=> ({ p:{ tot:320, div:10 }, st:{ k:3, hide:0 } }),
+  norm(o){
+    o.p.tot = clamp(+o.p.tot || 100, 1, 1000000); o.p.div = clamp(Math.round(o.p.div) || 10, 2, 20);
+    o.st.k = clamp(o.st.k | 0, 0, o.p.div); o.st.hide = o.st.hide ? 1 : 0;
+  },
+  size:()=> ({ w:PCT.w + 60, h:PCT.h + 120 }),
+  params:()=> [
+    { k:'tot', label:'۱۰۰٪ =', min:1, max:1000000, step:10 },
+    { k:'div', label:'قسمت', min:2, max:20, int:true }
+  ],
+  draw(ctx, o){
+    const col = toolCol(o), { tot, div } = o.p, x0 = -PCT.w/2, y0 = -PCT.h/2 + 4, sw = PCT.w/div;
+    for(let i = 0; i < div; i++){
+      ctx.fillStyle = i < o.st.k ? '#f87171' : (S.dark ? 'rgba(255,255,255,.12)' : '#f1f5f9');
+      ctx.fillRect(x0 + i*sw, y0, sw, PCT.h);
+    }
+    ctx.lineWidth = 2; ctx.strokeStyle = col;
+    ctx.strokeRect(x0, y0, PCT.w, PCT.h);
+    for(let i = 1; i < div; i++){ ctx.beginPath(); ctx.moveTo(x0 + i*sw, y0); ctx.lineTo(x0 + i*sw, y0 + PCT.h); ctx.stroke(); }
+    const every = div > 10 ? 2 : 1;
+    for(let i = 0; i <= div; i++){
+      if(i % every && i !== div) continue;
+      const x = x0 + i*sw, pc = Math.round(i*10000/div)/100, val = Math.round(tot*i/div*100)/100;
+      kidText(ctx, faNum(pc, 2) + '٪', x, y0 - 18, 15, '#7c3aed');
+      const hidden = o.st.hide && i !== 0 && i !== div && i !== o.st.k;
+      kidText(ctx, hidden ? '؟' : faNum(val, 2), x, y0 + PCT.h + 20, 16, '#0f172a');
+    }
+    if(o.st.k > 0 && o.st.k < div){
+      const x = x0 + o.st.k*sw;
+      ctx.lineWidth = 3; ctx.strokeStyle = '#dc2626'; ctx.beginPath(); ctx.moveTo(x, y0 - 6); ctx.lineTo(x, y0 + PCT.h + 6); ctx.stroke();
+    }
+    const pc = Math.round(o.st.k*10000/div)/100, val = Math.round(tot*o.st.k/div*100)/100;
+    kidText(ctx, faNum(pc, 2) + '٪ از ' + faNum(tot, 2) + ' = ' + (o.st.hide ? '؟' : faNum(val, 2)), 0, y0 + PCT.h + 54, 24, col);
+  },
+  tap(o, lx, ly){
+    const x0 = -PCT.w/2, y0 = -PCT.h/2 + 4;
+    if(lx < x0 || lx > x0 + PCT.w || ly < y0 - 30 || ly > y0 + PCT.h + 30) return false;
+    const i = clamp(Math.floor((lx - x0)/(PCT.w/o.p.div)), 0, o.p.div - 1);
+    o.st.k = o.st.k === i + 1 ? i : i + 1;
+    return true;
+  },
+  ctxx:()=> '<button class="cb-btn" data-a="phide" title="پنهان کردنِ مقدارها تا بچه‌ها حساب کنند">🙈 مقدارها</button>',
+  act(o, a){ if(a === 'phide') o.st.hide = o.st.hide ? 0 : 1; },
+  fill(o, api){ api.on('phide', o.st.hide); },
+  sum(o){
+    const pc = Math.round(o.st.k*10000/o.p.div)/100, val = Math.round(o.p.tot*o.st.k/o.p.div*100)/100;
+    return kv(pc) + '٪ از ' + kv(o.p.tot) + ' = ' + (o.st.hide ? '؟' : kv(val)) + ' <span class="muted">— روی نوار بزنید</span>';
+  }
+};
+
+/* ---------- ۶) تقارن محوری — نیمه‌ی دیگرِ شکل را بکشید ---------- */
+const LS = { c:36 };
+const LS_COL = ['#ef4444', '#3b82f6', '#22c55e', '#facc15', '#a855f7'];
+function lsMirrors(o, r, c){
+  const R = o.p.r, C = o.p.c, ax = o.st.ax, out = [];
+  if(ax === 'v' || ax === 'vh') out.push([r, C - 1 - c]);
+  if(ax === 'h' || ax === 'vh') out.push([R - 1 - r, c]);
+  if(ax === 'vh') out.push([R - 1 - r, C - 1 - c]);
+  if(ax === 'd') out.push([c, r]);
+  return out;
+}
+function lsCheck(o){
+  // خانه‌هایی که قرینه‌شان رنگِ دیگری دارد یا خالی است
+  const { r:R, c:C } = o.p, g = o.st.g;
+  let bad = 0, any = 0;
+  for(let r = 0; r < R; r++) for(let c = 0; c < C; c++){
+    const v = g[r*C + c];
+    if(!v) continue;
+    any++;
+    for(const [rr, cc] of lsMirrors(o, r, c)) if(g[rr*C + cc] !== v){ bad++; break; }
+  }
+  return { bad, any };
+}
+TOOLS.lsym = {
+  title:()=> '🪞 تقارن محوری',
+  def:()=> ({ p:{ c:10, r:8 }, st:{ g:Array(80).fill(0), ax:'v', mir:0, col:1 } }),
+  norm(o){
+    const ax = ['v', 'h', 'vh', 'd'].includes(o.st.ax) ? o.st.ax : 'v';
+    o.st.ax = ax;
+    let c = clamp(Math.round(o.p.c) || 10, 4, 16), r = clamp(Math.round(o.p.r) || 8, 4, 14);
+    if(ax === 'd'){ r = c = Math.min(Math.max(r, c), 14); }
+    if(ax === 'v' || ax === 'vh') c += c % 2;
+    if(ax === 'h' || ax === 'vh') r += r % 2;
+    const old = Array.isArray(o.st.g) ? o.st.g : [], oc = o.p.c | 0;
+    const g = Array(r*c).fill(0);
+    if(old.length) for(let i = 0; i < Math.min(r, (old.length/oc) | 0); i++) for(let j = 0; j < Math.min(c, oc); j++) g[i*c + j] = clamp(old[i*oc + j] | 0, 0, LS_COL.length);
+    o.p.c = c; o.p.r = r; o.st.g = g;
+    o.st.mir = o.st.mir ? 1 : 0; o.st.col = clamp(o.st.col | 0, 1, LS_COL.length);
+  },
+  size:o=> ({ w:o.p.c*LS.c + 20, h:o.p.r*LS.c + 20 }),
+  params:()=> [
+    { k:'c', label:'ستون', min:4, max:16, int:true, step:2 },
+    { k:'r', label:'ردیف', min:4, max:14, int:true, step:2 }
+  ],
+  draw(ctx, o){
+    const { r:R, c:C } = o.p, s = LS.c, x0 = -C*s/2, y0 = -R*s/2, g = o.st.g;
+    ctx.fillStyle = S.dark ? 'rgba(255,255,255,.9)' : '#ffffff'; ctx.fillRect(x0, y0, C*s, R*s);
+    if(o.st.mir) for(let r = 0; r < R; r++) for(let c = 0; c < C; c++){
+      const v = g[r*C + c]; if(!v) continue;
+      for(const [rr, cc] of lsMirrors(o, r, c)) if(!g[rr*C + cc]){
+        ctx.fillStyle = hexToRgba(LS_COL[v - 1], .38); ctx.fillRect(x0 + cc*s + 1, y0 + rr*s + 1, s - 2, s - 2);
+      }
+    }
+    for(let r = 0; r < R; r++) for(let c = 0; c < C; c++){
+      const v = g[r*C + c]; if(!v) continue;
+      ctx.fillStyle = LS_COL[v - 1]; ctx.fillRect(x0 + c*s + 1, y0 + r*s + 1, s - 2, s - 2);
+    }
+    ctx.lineWidth = 1; ctx.strokeStyle = '#cbd5e1';
+    ctx.beginPath();
+    for(let i = 0; i <= C; i++){ ctx.moveTo(x0 + i*s, y0); ctx.lineTo(x0 + i*s, y0 + R*s); }
+    for(let i = 0; i <= R; i++){ ctx.moveTo(x0, y0 + i*s); ctx.lineTo(x0 + C*s, y0 + i*s); }
+    ctx.stroke();
+    ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = '#dc2626'; ctx.setLineDash([12, 7]); ctx.beginPath();
+    const ax = o.st.ax;
+    if(ax === 'v' || ax === 'vh'){ ctx.moveTo(0, y0 - 8); ctx.lineTo(0, y0 + R*s + 8); }
+    if(ax === 'h' || ax === 'vh'){ ctx.moveTo(x0 - 8, 0); ctx.lineTo(x0 + C*s + 8, 0); }
+    if(ax === 'd'){ ctx.moveTo(x0 - 6, y0 - 6); ctx.lineTo(x0 + C*s + 6, y0 + R*s + 6); }
+    ctx.stroke(); ctx.restore();
+  },
+  tap(o, lx, ly){
+    const { r:R, c:C } = o.p, s = LS.c, x0 = -C*s/2, y0 = -R*s/2;
+    const c = Math.floor((lx - x0)/s), r = Math.floor((ly - y0)/s);
+    if(c < 0 || r < 0 || c >= C || r >= R) return false;
+    const i = r*C + c;
+    o.st.g[i] = o.st.g[i] === o.st.col ? 0 : o.st.col;
+    return true;
+  },
+  ctxx:()=> selectHtml('ax', [['v', '│ محورِ عمودی'], ['h', '─ محورِ افقی'], ['vh', '┼ دو محور'], ['d', '╲ محورِ مورب']]) +
+    LS_COL.map((c, i)=> '<button class="cb-btn sm" data-a="lc:' + (i + 1) + '" title="رنگ" style="color:' + c + '">⬤</button>').join('') +
+    '<button class="cb-btn" data-a="lmir" title="نشان دادنِ قرینه‌ی خانه‌های رنگی (کم‌رنگ)">🪞 قرینه</button>' +
+    '<button class="cb-btn" data-a="lfill" title="رنگ کردنِ قرینه‌ها">✔ کامل کن</button>' +
+    '<button class="cb-btn" data-a="lclr" title="پاک کردن">🧹</button>',
+  select(o, k, v){ if(k === 'ax') o.st.ax = v; },
+  act(o, a){
+    if(a.startsWith('lc:')) o.st.col = +a.slice(3);
+    else if(a === 'lmir') o.st.mir = o.st.mir ? 0 : 1;
+    else if(a === 'lclr') o.st.g = o.st.g.map(()=> 0);
+    else if(a === 'lfill'){
+      const { r:R, c:C } = o.p, g = o.st.g.slice();
+      for(let r = 0; r < R; r++) for(let c = 0; c < C; c++){ const v = o.st.g[r*C + c]; if(v) for(const [rr, cc] of lsMirrors(o, r, c)) if(!g[rr*C + cc]) g[rr*C + cc] = v; }
+      o.st.g = g;
+    }
+  },
+  fill(o, api){
+    const s = api.q('[data-k="ax"]'); if(s) s.value = o.st.ax;
+    api.on('lmir', o.st.mir);
+    for(let i = 1; i <= LS_COL.length; i++) api.on('lc:' + i, o.st.col === i);
+  },
+  sum(o){
+    const k = lsCheck(o);
+    if(!k.any) return '<span class="muted">روی خانه‌ها بزنید تا رنگ شوند؛ بعد نیمه‌ی دیگر را قرینه بکشید</span>';
+    return k.bad ? '⚠️ هنوز قرینه نیست — ' + kn(k.bad) + ' خانه قرینه ندارد' : '✅ <b>شکل نسبت به خطِ تقارن قرینه است</b>';
+  }
+};
+
+// پازل‌ها: قطعه‌ها در کنارِ هم (حل‌شدنی، چون از چیدنِ واقعیِ ۷ قطعه ساخته شده‌اند)
+const TAN_SQ = [[[0,0],[240,0],[120,120]], [[0,0],[120,120],[0,240]], [[240,240],[240,120],[120,240]], [[0,240],[120,240],[60,180]],
+  [[120,240],[60,180],[120,120],[180,180]], [[120,120],[180,60],[180,180]], [[180,60],[240,0],[240,120],[180,180]]];
+const TAN_PUZ = {
+  sq:{ name:'مربع', polys:TAN_SQ },
+  tri:{ name:'مثلث', polys:TAN_SQ.map((P, i)=> i < 2 ? P.map(([x, y])=> [-x, -y]) : P.map(([x, y])=> [240 - x, y - 240])) },
+  house:{ name:'خانه', polys:[[[0,0],[240,0],[120,-120]], [[0,0],[240,0],[120,120]], [[0,0],[120,120],[0,120]], [[240,0],[240,120],[180,60]],
+    [[240,120],[120,120],[180,60]], [[150,-90],[210,-30],[270,-90],[210,-150]], [[0,120],[120,120],[180,180],[60,180]]] }
+};
+function tanPolys(k){ return (TAN_PUZ[k] || TAN_PUZ.sq).polys; }
+function tanBox(k){
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  tanPolys(k).forEach(P=> P.forEach(([x, y])=>{ x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }));
+  return { x0, y0, x1, y1, cx:(x0 + x1)/2, cy:(y0 + y1)/2, w:x1 - x0, h:y1 - y0 };
+}
+TOOLS.tang = {
+  title:o=> '🧩 تانگرام: ' + (TAN_PUZ[o.p.k] || TAN_PUZ.sq).name,
+  def:(sub)=> ({ p:{ k:TAN_PUZ[sub] ? sub : 'sq' }, st:{ sol:0 } }),
+  norm(o){ if(!TAN_PUZ[o.p.k]) o.p.k = 'sq'; o.st.sol = o.st.sol ? 1 : 0; },
+  size(o){ const b = tanBox(o.p.k); return { w:b.w + 30, h:b.h + 60 }; },
+  params:()=> [],
+  pixelPick:true,
+  draw(ctx, o){
+    const b = tanBox(o.p.k), z = TOOLS.tang.size(o), dx = -b.cx, dy = -b.cy - 15;
+    ctx.fillStyle = S.dark ? 'rgba(226,232,240,.45)' : '#94a3b8';
+    tanPolys(o.p.k).forEach(P=>{ ctx.beginPath(); P.forEach(([x, y], i)=> i ? ctx.lineTo(x + dx, y + dy) : ctx.moveTo(x + dx, y + dy)); ctx.closePath(); ctx.fill(); });
+    ctx.lineWidth = 1; ctx.strokeStyle = S.dark ? 'rgba(226,232,240,.45)' : '#94a3b8';
+    tanPolys(o.p.k).forEach(P=>{ ctx.beginPath(); P.forEach(([x, y], i)=> i ? ctx.lineTo(x + dx, y + dy) : ctx.moveTo(x + dx, y + dy)); ctx.closePath(); ctx.stroke(); });
+    if(o.st.sol){
+      ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff';
+      tanPolys(o.p.k).forEach(P=>{ ctx.beginPath(); P.forEach(([x, y], i)=> i ? ctx.lineTo(x + dx, y + dy) : ctx.moveTo(x + dx, y + dy)); ctx.closePath(); ctx.stroke(); });
+    }
+    kidText(ctx, 'با ۷ قطعه این شکل را بپوشانید', 0, z.h/2 - 16, 16, '#64748b');
+  },
+  ctxx:()=> selectHtml('tk', Object.keys(TAN_PUZ).map(k=> [k, '🧩 ' + TAN_PUZ[k].name])) +
+    '<button class="cb-btn" data-a="tsol" title="نشان دادنِ جای قطعه‌ها (راهنمایی)">💡 راهنما</button>' +
+    '<button class="cb-btn" data-a="tset" title="هفت قطعه‌ی تازه کنارِ پازل">➕ ۷ قطعه</button>',
+  select(o, k, v){ if(k === 'tk' && TAN_PUZ[v]) o.p.k = v; },
+  act(o, a){
+    if(a === 'tsol') o.st.sol = o.st.sol ? 0 : 1;
+    else if(a === 'tset') tanAddSet(o);
+  },
+  fill(o, api){ const s = api.q('[data-k="tk"]'); if(s) s.value = o.p.k; api.on('tsol', o.st.sol); },
+  onAdd(o){ tanAddSet(o); },
+  sum:()=> '<span class="muted">قطعه‌ها را بکشید؛ دوبار زدن = ۴۵° چرخش؛ متوازی‌الاضلاع را با «↔» برگردانید</span>'
+};
+// هفت قطعه کنارِ پازل (همان مقیاسِ پازل)
+function tanAddSet(o){
+  o.setCoords();
+  const s = o.scaleX || 1, r = o.getBoundingRect(true, true);
+  const slots = [[0, 0], [0, 150], [190, 30], [110, 260], [250, 260], [340, 150], [340, -10]];
+  TAN_ORDER.forEach((v, i)=>{
+    const p = new fabric.WbPiece({ fam:'tan', v, scaleX:s, scaleY:s });
+    p.set({ left:r.left + r.width + 40*s + (slots[i][0] + 90)*s, top:r.top + (slots[i][1] + 70)*s });
+    p.setCoords(); canvas.add(p);
+  });
+  const b = { x0:r.left, y0:r.top, x1:r.left + r.width + 520*s, y1:r.top + Math.max(r.height, 360*s) };
+  try{ ensureVisible(b); }catch(e){}
+  status('🧩 قطعه‌ها را روی سایه بکشید؛ دوبار زدن روی قطعه = چرخش ۴۵ درجه');
+}
+
+/* ============================================================
    سطل رنگ
    ۱) روی قسمت‌های شکل کسری: رنگ برداری و دقیق
    ۲) هر ناحیه‌ی بسته‌ی دیگر (قلم، اشکال، پرگار، تصویر): پرکردن ناحیه
@@ -10634,6 +11371,137 @@ function bindCmdk(){
   L.addEventListener('click', e=>{ const b = e.target.closest('.ck-item'); if(b) ckRun(+b.dataset.i); });
   O.addEventListener('pointerdown', e=>{ if(e.target === O) ckClose(); });
   $$('[data-cmdk]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); ckOpen(); }));
+}
+
+/* ============================================================
+   راهنما: ❓ نامِ همه‌ی دکمه‌ها کنارشان نوشته می‌شود · صفحه‌ی شروع برای بارِ اول ·
+   روی آیپد: انگشت را روی دکمه نگه دارید تا نامش بیاید
+============================================================ */
+const WELCOME_KEY = 'mc-wb-welcome';
+const helpName = t=> String(t || '').split(/ — | \(|: |، /)[0].replace(/\s+/g, ' ').trim();
+function helpShow(){
+  helpHide(); closeAllMenus(); ckClose();
+  const ov = document.createElement('div');
+  ov.id = 'helpOv';
+  const vw = window.innerWidth, vh = window.innerHeight, used = [];
+  const fits = (x, y, w, h)=> !used.some(r=> x < r.x + r.w + 4 && x + w + 4 > r.x && y < r.y + r.h + 3 && y + h + 3 > r.y);
+  const btns = $$('#topbar .ibtn, #topbar .brand, #toolbar .toolbtn, #pager button, #zoomCtl button, #lgDock [data-lg]');
+  btns.forEach(b=>{
+    const r = b.getBoundingClientRect();
+    if(!r.width || !r.height || r.right < 0 || r.bottom < 0 || r.left > vw || r.top > vh) return;
+    if(getComputedStyle(b).visibility === 'hidden' || b.offsetParent === null) return;
+    const name = helpName(b.title || b.getAttribute('aria-label') || (b.querySelector('span') || {}).textContent);
+    if(!name) return;
+    const t = document.createElement('span');
+    t.className = 'help-tip';
+    t.textContent = name;
+    ov.appendChild(t);
+    const w = t.offsetWidth || name.length*7 + 16, h = 24;
+    const inTop = !!b.closest('#topbar'), inLeft = !!b.closest('#toolbar'), inDock = !!b.closest('#lgDock');
+    let cands;
+    if(inLeft) cands = [0, 1, 2, 3].map(k=> [r.right + 8 + k*150, r.top + r.height/2 - h/2]);
+    else if(inDock) cands = [[r.left - w - 8, r.top + r.height/2 - h/2]];
+    else if(inTop) cands = [0, 1, 2, 3, 4, 5].map(k=> [r.left + r.width/2 - w/2, r.bottom + 6 + k*(h + 3)]);
+    else cands = [0, 1, 2].map(k=> [r.left + r.width/2 - w/2, r.top - h - 6 - k*(h + 3)]);
+    let pos = cands.find(([x, y])=> fits(clamp(x, 4, vw - w - 4), y, w, h)) || cands[inLeft ? 0 : cands.length - 1];
+    const x = clamp(pos[0], 4, vw - w - 4), y = clamp(pos[1], 4, vh - h - 4);
+    used.push({ x, y, w, h });
+    t.style.left = x + 'px'; t.style.top = y + 'px';
+    const line = document.createElement('i');
+    line.className = 'help-dot';
+    line.style.left = (r.left + r.width/2 - 4) + 'px'; line.style.top = (r.top + r.height/2 - 4) + 'px';
+    ov.appendChild(line);
+  });
+  const card = document.createElement('div');
+  card.className = 'help-card';
+  card.innerHTML = '<b>❓ راهنمای دکمه‌ها</b>' +
+    '<div>✏️ با قلم بنویسید · آخرِ خط کمی نگه دارید = شکلِ مرتب</div>' +
+    '<div>🧮 ابزارهای ریاضی: روی قطعه بزنید یا آن را روی تخته بکشید</div>' +
+    '<div>👆 دوبار زدن روی هر قطعه = کارِ ویژه‌اش (چرخاندن، خرد کردن، …)</div>' +
+    '<div>🔍 اسمِ هر ابزاری را بنویسید تا پیدا شود</div>' +
+    '<div>↩️ هر اشتباهی با «برگشت» درست می‌شود</div>' +
+    '<small>هر جا بزنید بسته می‌شود · روی آیپد: انگشت را روی هر دکمه نگه دارید تا نامش بیاید</small>';
+  ov.appendChild(card);
+  ov.addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); helpHide(); });
+  document.body.appendChild(ov);
+}
+function helpHide(){ const o = $('#helpOv'); if(o) o.remove(); }
+
+// صفحه‌ی شروع (فقط بارِ اول؛ دوباره از ❓)
+function welcomeShow(force){
+  if(!force){
+    if(navigator.webdriver) return;
+    try{ if(localStorage.getItem(WELCOME_KEY)) return; }catch(e){ return; }
+  }
+  welcomeHide();
+  const ov = document.createElement('div');
+  ov.id = 'welcome';
+  const tiles = [
+    ['pen', '✏️', 'نوشتن و کشیدن', 'قلم، گچ، هایلایتر و پاک‌کن'],
+    ['tray', '🧮', 'ابزارهای ریاضی', 'کسر، ارزش مکانی، هندسه، پول، تانگرام و …'],
+    ['pdf', '📄', 'کتاب یا جزوه', 'یک صفحه از PDF را بیاورید و رویش بنویسید'],
+    ['league', '🏆', 'لیگ کلاس', 'امتیاز، قرعه، تایمر، شیشه‌ی سکوت'],
+    ['search', '🔍', 'پیدا کردنِ هر ابزار', 'اسمش را بنویسید (Ctrl+K)'],
+    ['help', '❓', 'راهنمای دکمه‌ها', 'نامِ همه‌ی دکمه‌ها را نشان می‌دهد']
+  ];
+  ov.innerHTML = '<div class="wl-box" role="dialog" aria-label="شروع"><h2>👋 به وایت‌برد خوش آمدید</h2><p>از کجا شروع کنیم؟</p>' +
+    '<div class="wl-grid">' + tiles.map(([k, i, t, d])=> '<button type="button" class="wl-tile" data-wl="' + k + '"><i>' + i + '</i><b>' + t + '</b><small>' + d + '</small></button>').join('') + '</div>' +
+    '<button type="button" class="wl-skip" data-wl="close">شروع روی تخته‌ی سفید ←</button></div>';
+  ov.addEventListener('click', e=>{
+    const b = e.target.closest('[data-wl]');
+    if(!b && e.target !== ov) return;
+    const k = b ? b.dataset.wl : 'close';
+    welcomeHide();
+    if(k === 'pen') setTool('pen');
+    else if(k === 'tray') toggleTray(true);
+    else if(k === 'pdf') els.pdfInput.click();
+    else if(k === 'league') toggleLeague(true);
+    else if(k === 'search') ckOpen();
+    else if(k === 'help') setTimeout(helpShow, 60);
+  });
+  document.body.appendChild(ov);
+}
+function welcomeHide(){
+  const o = $('#welcome');
+  if(o) o.remove();
+  try{ localStorage.setItem(WELCOME_KEY, '1'); }catch(e){}
+}
+
+// نگه‌داشتنِ انگشت روی دکمه (بدون ماوس) → نامِ کاملش؛ رها کردن کار نمی‌کند
+function bindLongPressTips(){
+  let tm = 0, shown = null, swallow = false;
+  const hide = ()=>{ if(shown){ shown.remove(); shown = null; } };
+  document.addEventListener('pointerdown', e=>{
+    swallow = false;
+    if(e.pointerType === 'mouse') return;
+    const b = e.target.closest('#toolbar [title], #topbar [title], #pager [title], .menu [title], #ctxBar [title], #lgDock [title]');
+    if(!b) return;
+    clearTimeout(tm);
+    tm = setTimeout(()=>{
+      hide();
+      const r = b.getBoundingClientRect(), t = document.createElement('div');
+      t.className = 'lp-tip'; t.textContent = b.title;
+      document.body.appendChild(t);
+      const w = t.offsetWidth, h = t.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+      let x = b.closest('#toolbar') ? r.right + 10 : r.left + r.width/2 - w/2, y = b.closest('#toolbar') ? r.top + r.height/2 - h/2 : r.bottom + 8;
+      if(y + h > vh - 8) y = r.top - h - 8;
+      t.style.left = clamp(x, 8, vw - w - 8) + 'px'; t.style.top = clamp(y, 8, vh - h - 8) + 'px';
+      shown = t; swallow = true;
+      try{ if(navigator.vibrate) navigator.vibrate(8); }catch(err){}
+      setTimeout(()=>{ if(shown === t) hide(); }, 3500);
+    }, 520);
+  }, true);
+  const cancel = ()=> clearTimeout(tm);
+  document.addEventListener('pointerup', cancel, true);
+  document.addEventListener('pointercancel', cancel, true);
+  document.addEventListener('pointermove', e=>{ if(e.pointerType !== 'mouse' && Math.abs(e.movementX) + Math.abs(e.movementY) > 6) cancel(); }, true);
+  document.addEventListener('click', e=>{ if(swallow){ swallow = false; e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener('contextmenu', e=>{ if(e.target.closest && e.target.closest('#toolbar, #topbar, #pager, .menu, #ctxBar')) e.preventDefault(); }, true);
+}
+function bindHelp(){
+  $$('[data-help]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); helpShow(); }));
+  bindLongPressTips();
+  setTimeout(()=> welcomeShow(false), 900);
 }
 
 /* ---- رسمِ یک صفحه بیرون از تخته (برای خروجیِ PDF) ---- */
@@ -12791,6 +13659,7 @@ function bindShortcuts(){
     if(cmd && (code === 'Minus' || code === 'NumpadSubtract')){ e.preventDefault(); zoomBy(1/1.15); return; }
 
     if(editing || cmd || e.altKey || !$('#cmdk').hidden) return;
+    if(e.key === '?' || e.key === '؟' || e.key === 'F1'){ e.preventDefault(); if($('#helpOv')) helpHide(); else helpShow(); return; }
     if(code === 'PageDown' || code === 'PageUp'){ e.preventDefault(); pageStep(code === 'PageDown' ? 1 : -1); return; }
 
     if(code === 'Space'){
@@ -12800,6 +13669,7 @@ function bindShortcuts(){
     }
     if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); deleteSelected(); return; }
     if(e.key === 'Escape'){
+      helpHide();
       closeAllMenus();
       $$('.panel').forEach(p=>p.classList.remove('open'));
       $$('[data-cmd="tray"]').forEach(b=> b.classList.remove('active'));
