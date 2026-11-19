@@ -232,6 +232,8 @@ select{height:36px;border:1px solid var(--border);border-radius:8px;background:#
 .sw-row input:checked + .sw{background:var(--primary)}
 .sw-row input:checked + .sw::after{right:20px}
 .sw-row input:focus-visible + .sw{outline:2px solid var(--primary);outline-offset:2px}
+#showMenu .menuitem.on{background:var(--primary-soft);color:var(--primary);font-weight:700}
+#showMenu .menuitem.on::after{content:'✓';margin-inline-start:auto;padding-inline-start:10px}
 .propgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .propgrid .menuitem{border:1px solid var(--border);background:#fafbfc}
 
@@ -747,6 +749,13 @@ body.rec-on #credit{visibility:hidden}
       <button class="toolbtn glyph" data-cmd="angle" title="زاویه با اندازه دلخواه (A)">∠</button>
       <div class="tsep"></div>
       <button class="toolbtn" data-tool="laser" title="لیزر (L)">🔴</button>
+      <div class="toolWrap">
+        <button class="toolbtn hasmenu" data-menu="showMenu" title="نمایش برای کلاس: پرده و نورافکن">🎭</button>
+        <div class="menu" id="showMenu">
+          <button class="menuitem wide" data-show="curtain" title="تخته را بپوشانید و با کشیدنِ لبه‌ها کم‌کم نشان دهید (برای پرسش و پاسخ)">🎭 پرده — کم‌کم نشان دادن</button>
+          <button class="menuitem wide" data-show="spot" title="فقط یک دایره روشن می‌ماند تا همه به همان‌جا نگاه کنند؛ داخلش می‌شود نوشت">🔦 نورافکن — تمرکز روی یک جا</button>
+        </div>
+      </div>
       <button class="toolbtn" data-cmd="image" title="تصویر (یا Ctrl+V / درگ‌اند‌دراپ)">🖼</button>
       <button class="toolbtn" data-cmd="pdf" title="PDF — یک یا چند صفحه از کتاب یا جزوه روی تخته، برای نوشتن روی آن (یا فایل را روی تخته بکشید)">📄</button>
       <button class="toolbtn" data-cmd="background" title="پس‌زمینه">🎨</button>
@@ -1901,6 +1910,7 @@ function init(){
   DOC.pages = [blankPage('none')]; DOC.cur = 0;
   bindPages();
   bindSmartPen();
+  bindPres();
   resetHistory();
   setTool('pen');
   updateZoom();
@@ -2337,6 +2347,7 @@ function bindMenus(){
       else if(item.dataset.math) createMath(item.dataset.math);
       else if(item.dataset.logo) logoAction(item.dataset.logo);
       else if(item.dataset.act) runAction(item.dataset.act);
+      else if(item.dataset.show) presToggle(item.dataset.show);
       return;
     }
     const slot = e.target.closest('.cslot');
@@ -2723,6 +2734,10 @@ function onPDown(e){
   if(e.button === 1 || S.spaceDown){ beginGesture(e, 'pan'); startPan(p); block(e); return; }
   if(e.button === 2){ if(S.tool !== 'select') block(e); return; }
 
+  // پرده و نورافکن روی همه چیزند
+  const ph = (PRES.cur.on || PRES.spot.on) ? presHit(p, e.pointerType !== 'mouse') : null;
+  if(ph){ beginGesture(e, 'pres'); presStart(ph, p); block(e); return; }
+
   // ابزارهای سه‌بعدی (پرگار/نقاله) در هر حالتی اولویت دارند
   const hit = instrumentHit(p);
   if(hit){ beginGesture(e, 'instrument'); instStart(hit, p); block(e); return; }
@@ -2753,6 +2768,11 @@ function onPMove(e){
     const over = els.canvasWrap.contains(e.target);
     if(!over){ if(S.instHover){ S.instHover = null; ovKick(); } return; }
     const p = localOf(e);
+    if(PRES.cur.on || PRES.spot.on){
+      const ph = presHit(p, e.pointerType !== 'mouse');
+      if(ph){ canvas.upperCanvasEl.style.cursor = presCursor(ph); S.presHover = true; e.stopPropagation(); return; }
+      if(S.presHover){ S.presHover = false; if(S.tool === 'select') canvas.upperCanvasEl.style.cursor = 'default'; else applyCursor(); }
+    }
     const hit = (INST.compass.on || INST.prot.on) ? instrumentHit(p) : null;
     const prev = S.instHover;
     if(!hit !== !prev || (hit && prev && (hit.inst !== prev.inst || hit.part !== prev.part))){
@@ -2776,6 +2796,7 @@ function onPMove(e){
     case 'pan': panMove(localOf(e)); break;
     case 'shape': shapeMove(localOf(e)); break;
     case 'instrument': instMove(localOf(e), e); break;
+    case 'pres': presMove(localOf(e)); break;
   }
 }
 
@@ -2811,6 +2832,7 @@ function finishGesture(e){
   else if(m === 'pan') endPan();
   else if(m === 'shape') shapeEnd(e ? localOf(e) : null);
   else if(m === 'instrument') instEnd();
+  else if(m === 'pres') presEnd();
 }
 function cancelGesture(){
   const m = G.mode;
@@ -2823,6 +2845,7 @@ function cancelGesture(){
     if(S.drawingShape){ canvas.remove(S.drawingShape); S.drawingShape = null; }
     S.shapeStart = null;
   }
+  else if(m === 'pres'){ PRES.drag = null; ovKick(); }
   else if(m === 'instrument'){
     if(G.inst && G.inst.part === 'knob'){ ink.trail = null; inkRender(); if(hist.dirty) markHistoryDirty(); }
     G.inst = null; S.snapMark = null; ovKick();
@@ -3870,10 +3893,177 @@ function ovRender(){
   drawSmartInfo(ctx);
   if(INST.prot.on) drawProtractor(ctx);
   if(INST.compass.on) drawCompass(ctx);
+  drawPres(ctx);
   drawSnapMark(ctx);
   drawEraserMark(ctx);
   if(drawLaser(ctx)) ovKick();
 }
+
+/* ============================================================
+   نمایش — پرده و نورافکن (روی صفحه‌ی نمایش، نه روی تخته؛ در فیلم هم دیده می‌شوند)
+   · پرده: تخته را می‌پوشاند؛ هر لبه را بکشید تا کم‌کم دیده شود
+     (کشیدنِ خودِ پرده = هل دادنش به همان سمت)
+   · نورافکن: فقط یک دایره روشن است؛ داخلِ دایره می‌شود نوشت،
+     تاریکی را بکشید تا جابه‌جا شود، لبه‌ی دایره را بکشید تا اندازه‌اش عوض شود
+============================================================ */
+const PRES = {
+  cur:{ on:false, l:0, t:0, r:0, b:0 },      // فاصله‌ی لبه‌های پرده از لبه‌های صفحه (کسری از پهنا/ارتفاع)
+  spot:{ on:false, x:0.5, y:0.5, r:0 },       // مرکز (کسری) و شعاع (پیکسل)
+  drag:null, fold:null
+};
+const presWH = ()=> ({ W:wrapRect.width || els.canvasWrap.clientWidth, H:wrapRect.height || els.canvasWrap.clientHeight });
+function curRect(){
+  const { W, H } = presWH(), c = PRES.cur;
+  return { x0:c.l*W, y0:c.t*H, x1:W - c.r*W, y1:H - c.b*H, W, H };
+}
+function spotGeom(){
+  const { W, H } = presWH(), s = PRES.spot;
+  const r = clamp(s.r || Math.min(W, H)*0.22, 40, Math.max(W, H));
+  const cx = s.x*W, cy = s.y*H, a = -Math.PI/4;
+  const xr = r + 24, x = clamp(cx + xr*Math.cos(a), 18, W - 18), y = clamp(cy + xr*Math.sin(a), 18, H - 18);
+  return { cx, cy, r, W, H, close:{ x, y }, grip:{ x:cx + r*Math.cos(Math.PI/4), y:cy + r*Math.sin(Math.PI/4) } };
+}
+function curClose(){ const R = curRect(); return { x:R.x1 - 24, y:R.y0 + 24 }; }
+function presToggle(what, force){
+  const o = what === 'curtain' ? PRES.cur : PRES.spot, on = force == null ? !o.on : !!force;
+  if(what === 'curtain'){ Object.assign(PRES.cur, { on, l:0, t:0, r:0, b:0 }); }
+  else { Object.assign(PRES.spot, { on, x:0.5, y:0.45, r:0 }); }
+  presMenuUi();
+  if(on) status(what === 'curtain' ? '🎭 پرده — لبه‌ها را بکشید تا کم‌کم دیده شود؛ ✕ = برداشتنِ پرده'
+    : '🔦 نورافکن — داخلِ دایره بنویسید؛ تاریکی را بکشید = جابه‌جایی، لبه‌ی دایره = اندازه');
+  ovKick();
+}
+function presMenuUi(){
+  $$('[data-show="curtain"]').forEach(b=> b.classList.toggle('on', PRES.cur.on));
+  $$('[data-show="spot"]').forEach(b=> b.classList.toggle('on', PRES.spot.on));
+  $$('.hasmenu[data-menu="showMenu"]').forEach(b=> b.classList.toggle('active', PRES.cur.on || PRES.spot.on));
+}
+// چه چیزی زیرِ انگشت است؟ (پرده روی نورافکن است)
+function presHit(p, coarse){
+  const tol = coarse ? 30 : 22;
+  if(PRES.cur.on){
+    const R = curRect(), cc = curClose();
+    if(dist(p, cc) < (coarse ? 22 : 16)) return { what:'curtain', part:'close' };
+    const inX = p.x >= R.x0 - tol && p.x <= R.x1 + tol, inY = p.y >= R.y0 - tol && p.y <= R.y1 + tol;
+    if(inX && inY){
+      const d = { t:Math.abs(p.y - R.y0), b:Math.abs(p.y - R.y1), l:Math.abs(p.x - R.x0), r:Math.abs(p.x - R.x1) };
+      let best = null;
+      for(const k of ['t', 'b', 'l', 'r']) if(d[k] < tol && (!best || d[k] < d[best])) best = k;
+      if(best) return { what:'curtain', part:best };
+      if(p.x > R.x0 && p.x < R.x1 && p.y > R.y0 && p.y < R.y1) return { what:'curtain', part:'body' };
+    }
+  }
+  if(PRES.spot.on){
+    const g = spotGeom(), d = dist(p, { x:g.cx, y:g.cy });
+    if(dist(p, g.close) < (coarse ? 22 : 16)) return { what:'spot', part:'close' };
+    if(Math.abs(d - g.r) < tol*0.75 || dist(p, g.grip) < tol) return { what:'spot', part:'rim' };
+    if(d > g.r) return { what:'spot', part:'dark' };
+  }
+  return null;
+}
+function presStart(h, p){
+  if(h.part === 'close'){ presToggle(h.what === 'curtain' ? 'curtain' : 'spot', false); PRES.drag = null; return; }
+  PRES.drag = { h, p0:{ x:p.x, y:p.y }, cur:Object.assign({}, PRES.cur), spot:Object.assign({}, PRES.spot, { r:spotGeom().r }), edge:h.part === 'body' ? null : h.part };
+}
+function presMove(p){
+  const D = PRES.drag;
+  if(!D) return;
+  const { W, H } = presWH(), dx = p.x - D.p0.x, dy = p.y - D.p0.y;
+  if(D.h.what === 'curtain'){
+    if(!D.edge){
+      if(Math.hypot(dx, dy) < 8) return;
+      D.edge = Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 't' : 'b') : (dx > 0 ? 'l' : 'r');
+    }
+    const c = PRES.cur, c0 = D.cur;
+    if(D.edge === 't') c.t = clamp(c0.t + dy/H, 0, 1 - c.b);
+    else if(D.edge === 'b') c.b = clamp(c0.b - dy/H, 0, 1 - c.t);
+    else if(D.edge === 'l') c.l = clamp(c0.l + dx/W, 0, 1 - c.r);
+    else c.r = clamp(c0.r - dx/W, 0, 1 - c.l);
+  } else {
+    const s = PRES.spot, s0 = D.spot;
+    if(D.h.part === 'rim') s.r = clamp(dist(p, { x:s0.x*W, y:s0.y*H }), 40, Math.max(W, H));
+    else { s.x = clamp(s0.x + dx/W, 0, 1); s.y = clamp(s0.y + dy/H, 0, 1); s.r = s0.r; }
+  }
+  ovKick();
+}
+function presEnd(){
+  const D = PRES.drag;
+  PRES.drag = null;
+  if(D && D.h.what === 'curtain' && PRES.cur.on){
+    const R = curRect();
+    if(R.x1 - R.x0 < 14 || R.y1 - R.y0 < 14){ presToggle('curtain', false); status('🎭 پرده کامل کنار رفت'); }
+  }
+  ovKick();
+}
+function presCursor(h){
+  if(!h) return '';
+  if(h.part === 'close') return 'pointer';
+  if(h.what === 'curtain') return h.part === 't' || h.part === 'b' ? 'ns-resize' : h.part === 'body' ? 'grab' : 'ew-resize';
+  return h.part === 'rim' ? 'nwse-resize' : 'move';
+}
+// چین‌های پارچه‌ی پرده (یک بار ساخته می‌شود)
+function curtainFold(ctx){
+  if(PRES.fold) return PRES.fold;
+  const c = document.createElement('canvas'); c.width = 46; c.height = 8;
+  const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 46, 0);
+  gr.addColorStop(0, '#3a4660'); gr.addColorStop(0.3, '#4a5876'); gr.addColorStop(0.55, '#323d55'); gr.addColorStop(0.8, '#29324a'); gr.addColorStop(1, '#3a4660');
+  g.fillStyle = gr; g.fillRect(0, 0, 46, 8);
+  PRES.fold = ctx.createPattern(c, 'repeat');
+  return PRES.fold;
+}
+function drawCloseBtn(ctx, x, y){
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 6;
+  ctx.fillStyle = 'rgba(255,255,255,.95)';
+  ctx.beginPath(); ctx.arc(x, y, 14, 0, TAU); ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x - 5, y - 5); ctx.lineTo(x + 5, y + 5); ctx.moveTo(x + 5, y - 5); ctx.lineTo(x - 5, y + 5); ctx.stroke();
+  ctx.restore();
+}
+function drawPres(ctx){
+  if(PRES.spot.on){
+    const g = spotGeom();
+    ctx.save();
+    ctx.fillStyle = 'rgba(2,6,23,.82)';
+    ctx.beginPath(); ctx.rect(0, 0, g.W + 2, g.H + 2); ctx.arc(g.cx, g.cy, g.r, 0, TAU, true); ctx.fill('evenodd');
+    ctx.shadowColor = 'rgba(253,224,71,.55)'; ctx.shadowBlur = 18;
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(g.cx, g.cy, g.r, 0, TAU); ctx.stroke();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(g.grip.x, g.grip.y, 8, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    drawCloseBtn(ctx, g.close.x, g.close.y);
+  }
+  if(PRES.cur.on){
+    const R = curRect(), w = R.x1 - R.x0, h = R.y1 - R.y0;
+    if(w > 1 && h > 1){
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 16;
+      ctx.fillStyle = curtainFold(ctx);
+      ctx.fillRect(R.x0, R.y0, w, h);
+      ctx.shadowColor = 'transparent';
+      // دستگیره‌ی هر لبه
+      const grip = (x, y, vert)=>{
+        ctx.fillStyle = 'rgba(255,255,255,.92)';
+        roundRect(ctx, vert ? x - 5 : x - 30, vert ? y - 30 : y - 5, vert ? 10 : 60, vert ? 60 : 10, 5); ctx.fill();
+      };
+      const mx = (R.x0 + R.x1)/2, my = (R.y0 + R.y1)/2;
+      if(w > 80){ grip(mx, R.y0 + 12, false); grip(mx, R.y1 - 12, false); }
+      if(h > 80){ grip(R.x0 + 12, my, true); grip(R.x1 - 12, my, true); }
+      if(w > 260 && h > 120){
+        ctx.font = 'bold 16px Tahoma, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        try{ ctx.direction = 'rtl'; }catch(e){}
+        ctx.fillStyle = 'rgba(255,255,255,.55)';
+        ctx.fillText('🎭 لبه‌ها را بکشید تا کم‌کم دیده شود', mx, my);
+      }
+      ctx.restore();
+      if(w > 60 && h > 60) drawCloseBtn(ctx, curClose().x, curClose().y);
+    }
+  }
+}
+function bindPres(){ presMenuUi(); }
 
 function roundRect(ctx, x, y, w, h, r){
   ctx.beginPath();
